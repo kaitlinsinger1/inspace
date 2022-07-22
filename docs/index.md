@@ -20,7 +20,7 @@ For this study, partners will be pulling data from the following datasets:
 
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
-Instructions for installing the Docker and the ACMT can be found [here](link to Docker install setup)
+Instructions for installing the Docker and the ACMT can be found [here](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)
 
 ### Geocoding your dataset
 
