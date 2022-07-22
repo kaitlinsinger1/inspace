@@ -24,15 +24,15 @@ Instructions for installing the Docker and the ACMT can be found [here](link to 
 
 ### Geocoding your dataset
 
-Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](link to geocoding vignette)
+Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](https://aybloom.github.io/inspace/ACMT-geocoder.html)
 
 ### Run each step of code 
 
 Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below. You can also download the R files in a zipped folder [here](link to zipped foler with Rmd files) and upload them into R on your browser. 
 
-To see the full list of dataset and variables that will be pulled from each dataset click [here](link to InSpace Measures list)
+To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
-1. [American Community Survey Data Pull code](link to vignette)
+1. [American Community Survey Data Pull code](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
 2. [Walkability Index Data Pull code](link to vignette)
 3. [CDC PLACES Data Pull code](link to vignette)
 4. [National Land Cover Database Data Pull code]
