@@ -34,13 +34,13 @@ To see the full list of dataset and variables that will be pulled from each data
 
 1. [American Community Survey Data Pull code](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
 2. [Walkability Index Data Pull code](link to vignette)
-3. [CDC PLACES Data Pull code](link to vignette)
-4. [National Land Cover Database Data Pull code]
+3. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
+4. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
 5. [Smart Location datatabase Data Pull code]
-6. [Modified Retail Food Environment Index Data Pull code]
+6. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
 7. [Trust for Public Lands' ParkServe Data Pull code]
-8. [AGS Crime Risk Data Pull code]
-9. [Sidewalk Score Data Pull code]
+8. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
+9. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
 After each data pull, save the file as Inspace_datasetname_year.csv.
 
