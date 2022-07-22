@@ -1,0 +1,110 @@
+---
+title: "Geocoding - Inspace"
+author: "Amy Youngbloom"
+date: "7/22/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
+```
+
+```{r load packages & the ACMT}
+library(tidycensus)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(reshape2)
+setwd("/home/rstudio/workspace/")
+source("GeocoderACMT.R")
+```
+
+## Using the ACMT Geocoder
+
+If your data has not yet been geocoded, you can use the ACMT Geocoder to do this step. The first step is to import your dataset as raw_data and ensure that the entire address is in one field:
+
+
+| id  |  address                              | 
+|-----|---------------------------------------|
+| 01  | 3400 Rainier Ave S, Seattle, WA 98144 | 
+
+
+If your data has the address field separated into multiple columns (street, city, state, zip), you can combine them with the following code: 
+
+```{r combine address fields}
+setwd("/home/rstudio/workspace/Inspace")
+raw_data<-read.csv('raw_data_example.csv')
+head(raw_data)
+
+dataset<-raw_data %>%
+  mutate(address=paste(street, city, state, zip, sep=', ')) %>% ##Ensure your dataset has these column names
+  dplyr::select(id, address)
+head(dataset)
+
+```
+
+### Once our dataset is formatted appropropriately and named 'dataset', you are ready to start the geocoding process
+
+
+* Once we have one address field, we can write a loop that geocodes each address and finds the latitude and longitude for each address point. Those latitude and longitude values are added to the dataset with the following loop code: 
+
+```{r geocode addresses, results='hide'}
+#create lat and long columns
+dataset_geocode<-dataset %>%
+  mutate(lat=NA, 
+         long=NA, 
+         rating=NA)
+```
+
+```{r geocode loop, results='hide'}
+
+#Geocoding loop
+for (i in 1:nrow(dataset_geocode)) {
+  if(!is.na(dataset_geocode$lat[i])) next #skip already geocoded
+  if(is.na(dataset_geocode$address[i])) next #skip NA address values
+  print(i) #print the number to track progress
+  
+  address<-dataset_geocode$address
+  lat_long<-geocode(address[i])
+  dataset_geocode$lat[i]<-lat_long$latitude # add latitude to dataset_geocode
+  dataset_geocode$long[i] <-lat_long$longitude # add longitude to dataset_geocode
+  dataset_geocode$rating[i]<-lat_long$rating # add rating to the dataset_geocode
+}
+
+head(dataset_geocode)
+```
+
+Your geocoded dataset should now look as follows: 
+
+| id  |  address                              | lat     |  long     | rating  |
+|-----|---------------------------------------|---------|-----------|---------|
+| 01  | 3400 Rainier Ave S, Seattle, WA 98144 | 47.57296| -122.2939 | 10      |
+
+
+*Note that the 'rating' column rates the level of confidence in the geocoding lat-long values that were generated, with higher ratings indicating lower levels of confidence. Confidence levels that are above 20 are not considered valid. Cleaning up the address fields may help improve the geocoding - for instance, writing out the word 'South', rather than using an 'S', writing out street names rather than using abbreviations (i.e., write out Martin Luther King Jr. Way, rather than use MLK Way). If necessary, you can do some additional cleaning of addresses in your editor of choice (i.e., export and clean up in excel, or use R)
+
+To examine the distribution of your ratings, you can build a table: 
+
+```{r ratings table}
+
+dataset_geocode%>%group_by(rating)%>%
+  summarise(n=n(), 
+            total=sum(n))%>%
+  mutate(percent=n/total) %>%
+  dplyr::select(rating, n, percent)
+
+
+```
+
+Export your geocoded data. It is ready to be used for pulling measures. We will first remove the address column, which we don't need anymore, then export the dataset
+
+```{r data export}
+
+dataset_geocode<-dataset_geocode%>%dplyr::select(id, lat, long)
+
+setwd("/home/rstudio/workspace/Inspace")
+write.csv(dataset_geocode, 'dataset_geocoded.csv')
+
+```
