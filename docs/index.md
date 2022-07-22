@@ -28,7 +28,7 @@ Geocode your dataset: If your addresses are not already gecoded to latitude and 
 
 ### Run each step of code 
 
-Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below. You can also download the R files in a zipped folder [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace-rcode) and upload them into R on your browser. 
+Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below. You can also download all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace-rcode) and upload them into R on your browser. Once you have downloaded the files, save them in your workspace in a folder titled, 'Inspace'. 
 
 To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
