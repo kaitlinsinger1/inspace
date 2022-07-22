@@ -1,0 +1,122 @@
+---
+title: "mRFEI for Inspace"
+author: "Amy Youngbloom"
+date: "4/15/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
+```
+
+## The Modified Food Retail Environment Index
+
+  - The CDC’s modified retail food environment index provides census tract level estimates the ratio of healthy food outlets to total food outlets.  We will use area-weighted interpolation of tract-level estimates to construct buffer-specific estimates of the following measures. 
+  
+  - The mRFEI settings are built into the ACMT external data file_loader, external_data_presents, and external_data_file_downloader R code files. 
+  
+```{r}
+##Ensure workspace is set to 'workspace' folder, and run the following R files: 
+setwd('~/workspace')
+source('external_data-file_downloader_and_processor.R')
+source('external_data-file_loader.R')
+source('external_data-presets.R')
+source('setup-acmt.R')
+
+```
+
+The mRFEI dataset is built into the ACMT, making accessing this data easy. This guide provides steps on pulling mRFEI data for your geocoded dataset
+
+## 1. First we will import your geocoded dataset and add columns for each measure to be pulled
+
+```{r import geocoded data}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocode<-read.csv('dataset_geocoded.csv')
+
+mrfei_vars<-c('total_pop_count', # total population measure from acs
+'mRFEI')
+
+#create dataset with a column for each variable at each radius level
+var.cols<-data.frame(matrix(nrow=nrow(dataset_geocode), ncol=(length(mrfei_vars)))) #create dataset of columns
+colnames(var.cols)<-mrfei_vars #name the columns
+
+dataset_mrfei<-cbind(var.cols, dataset_geocode)
+
+```
+ 
+## 2. Designate settings
+
+Next we set the year and radius for the ACMT. We need to include at least 1 ACS variable, otherwise the function will try to pull all of the ACS variables in the ACS Columns file (which will take a while)
+  
+```{r designate acmt settings, results='hide'}
+
+#Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
+codes_of_acs_variables_to_get<-'B01001_001'
+names_of_variables_to_get<-mrfei_vars
+radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
+year <- c(2019) #set the year for the data of interest
+
+# set up mrfei settings:
+external_data_name_to_info_list <- list(
+  mrfei=external_data_presets_mrfei
+)
+
+```
+
+## 3. Run loop to pull mRFEI data
+
+```{r data pull loop, results='hide'}
+
+## Create loop for pulling mRFEI values for each address in the dataset
+setwd('/home/rstudio/workspace/')
+
+#run loop to pull variables
+for(radius in 1:length(radius_vector)){
+  #radius<-1 #for testing
+radius<-radius_vector[radius]
+print(radius)
+dataset_radius<-dataset_mrfei
+
+for(address in 1:nrow(dataset_radius)) {
+   tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  print(address) #print the number to keep track of progress
+  latitude<-dataset_radius$lat[address] #set lat
+  longitude<-dataset_radius$long[address] #set long
+  
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE) #pull measures for given lat & long
+ 
+ 
+for (name_of_variable in names_of_variables_to_get) {
+        dataset_radius[[name_of_variable]][address] <- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
+ }},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}
+
+if(radius==500) {
+dataset_mrfei2<-dataset_radius
+dataset_mrfei2$radius<-500}
+
+if(radius>500){
+dataset_radius$radius<-radius
+dataset_mrfei2<-rbind(dataset_mrfei2, dataset_radius)
+}
+
+}
+
+dataset_mrfei2<-dataset_mrfei2%>%
+  mutate(year=year)%>% # set year of data pull
+  dplyr::select(-lat, -long, id, radius, year, everything()) # reorder variables
+
+```
+
+## 4. Export dataset
+
+```{r export data}
+setwd("/home/rstudio/workspace/Inspace")
+write.csv(dataset_mrfei2, 'dataset_mrfei.csv')
+
+
+```
+
