@@ -26,22 +26,9 @@ Instructions for installing the Docker and the ACMT can be found [here](link to 
 
 Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](link to geocoding vignette)
 
-### Structure your dataset for pulling variables
-
-To ensure the code for pulling the variables will run accurately with your data, your data should be formatted as follows: 
-
-| id  |  lat      | long        | 
-|-----|-----------|-------------|
-| 01  | 47.568922 | -122.306422 |
-| 02  | 47.632264 | -122.314978 |
-| 03  | 47.634820 | -122.292769 |
-| ..  | ......... | ........... |
-
-Ensure your dataset is named 'inspace_dataset', save it in your workspace, and you are ready to start pulling measures!
-
 ### Run each step of code 
 
-Each of the 8 datastets from which measures are pulled has it's own code file. For each file, you will open the file in [RStudio in your browser](http::localhost:8787)
+Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below. You can also download the R files in a zipped folder [here](link to zipped foler with Rmd files) and upload them into R on your browser. 
 
 To see the full list of dataset and variables that will be pulled from each dataset click [here](link to InSpace Measures list)
 
