@@ -1,4 +1,4 @@
-## Welcome to the Inspace Repository Page
+## InSpace Information Page
 
 This page houses all of the instructions you will need for using the ACMT to pull measures for your dataset. 
 
