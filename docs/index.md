@@ -2,7 +2,7 @@
 
 This page houses all of the instructions you will need for using the ACMT to pull measures for your dataset. 
 
-As an InSpace partner, you will be..... 
+As an InSpace partner, you will be following our detailed instructions to gather data on the social and built environment surrounding each of your participant's residential address. Once data has been gathered, you will share with us the de-identified data, allowing us to examine how built environment factors modify the effect of physical activity interventions. 
 
 For this study, partners will be pulling data from the following datasets: 
    -  [The American Community Survey](https://www.census.gov/programs-surveys/acs/about.html)
