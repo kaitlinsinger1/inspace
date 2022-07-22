@@ -373,12 +373,13 @@ summary {
 <h2>CDC PLACES Data</h2>
 <p><a href="https://www.cdc.gov/places/about/index.html" class="uri">https://www.cdc.gov/places/about/index.html</a></p>
 <p>The Places dataset provides census tract level estimates of population behaviors taken from BRFSS responses. As with the ACS data, we will use area-weighted interpolation of tract-level estimates to construct buffer-specific estimates of several measures. PLACES was an expasion of the 500 Cities project (<a href="https://www.cdc.gov/places/about/500-cities-2016-2019/index.html" class="uri">https://www.cdc.gov/places/about/500-cities-2016-2019/index.html</a>) and began in 2020, utilizing BRFSS data from 2017 and 2018. Since then the 2021 BRFSS has also been released and utilized 2019 BRFSS data. Below are instructions for pulling the 2020 or the 2021 PLACES data or the 2016 - 2019 500 Cities datasets.</p>
+<p>For this dataset, you will pull the dataset using 2015 BRFSS data (cities2017) as well as the dataset that includes the year you began enrollment. Because the data estimates across 2 years, choose the dataset that makes the most sense with the timing of your enrollment. For example, if enrollment began in late 2017 and continued into 2018, you would use the places 2020 dataset. If enrollment took place in the first part of 2017, you would use the cities 2019 dataset.</p>
 <div id="download-dataset" class="section level3">
 <h3>1. Download dataset</h3>
 <p>First, we will download the PLACES dataset by census tract that we are interested in from the CDC website.</p>
 <pre class="r"><code>#set the url for the dataset for the year of interest
 places2020url='https://chronicdata.cdc.gov/api/views/ib3w-k9rq/rows.csv?accessType=DOWNLOAD' #2018, 2017 data
-#places2021url='https://chronicdata.cdc.gov/api/views/yjkw-uj5s/rows.csv?accessType=DOWNLOAD' #2018, 2019</code></pre>
+places2021url='https://chronicdata.cdc.gov/api/views/yjkw-uj5s/rows.csv?accessType=DOWNLOAD' #2018, 2019</code></pre>
 <p>If you are seeking data prior to 2019, are are looking only for data from the 500 largest cities, you can access the 500 Cities data. For a list of cities included visit this link: <a href="https://www.cdc.gov/places/about/500-cities-2016-2019/pdfs/500-cities-by-state.pdf" class="uri">https://www.cdc.gov/places/about/500-cities-2016-2019/pdfs/500-cities-by-state.pdf</a></p>
 <pre class="r"><code>cities2019url='https://chronicdata.cdc.gov/api/views/k86t-wghb/rows.csv?accessType=DOWNLOAD' #2016, 2017 BRFSS data
 cities2018url='https://chronicdata.cdc.gov/api/views/k25u-mg9b/rows.csv?accessType=DOWNLOAD' #2015, 2016 data
@@ -386,35 +387,62 @@ cities2017url='https://chronicdata.cdc.gov/api/views/kucs-wizg/rows.csv?accessTy
 cities2016url='https://chronicdata.cdc.gov/api/views/5mtz-k78d/rows.csv?accessType=DOWNLOAD' #2013, 2014 data</code></pre>
 <pre class="r"><code>## Function to download the PLACES dataset (2020 or 2021)
 download_file_places &lt;- function () {
-    download.file(url = places2021url, destfile = &quot;external_data/downloaded_places.csv&quot;) ##update url based on the dataset of interest (from above)
+  if(year==2016){
+    download.file(url = cities2016url, destfile = &quot;external_data/downloaded_places.csv&quot;)
+  }
+  if(year==2017){
+    download.file(url = cities2017url, destfile = &quot;external_data/downloaded_places.csv&quot;) 
+  }
+  if(year==2018){
+    download.file(url = cities2018url, destfile = &quot;external_data/downloaded_places.csv&quot;) 
+  }
+  if(year==2019){
+    download.file(url = cities2019url, destfile = &quot;external_data/downloaded_places.csv&quot;) 
+  }
+  if(year==2020){
+    download.file(url = places2020url, destfile = &quot;external_data/downloaded_places.csv&quot;)
+  }
+  if(year==2021){
+    download.file(url = places2021url, destfile = &quot;external_data/downloaded_places.csv&quot;) 
+  }
+  
 }</code></pre>
 </div>
 <div id="process-places-dataset" class="section level3">
-<h3>3. Process PLACES dataset</h3>
+<h3>2. Process PLACES dataset</h3>
 <p>Next we will write a function to process the PLACES dataset into a ‘ACMT-friendly’ (long) format.</p>
 <pre class="r"><code>#set state(s) of interest to filter data by
-state='WA'
-
+#state='WA'
 process_places&lt;-function() {
   raw_places&lt;-read.csv('external_data/downloaded_places.csv')
-
+if(year&gt;2019){
   processed_dataframe&lt;-raw_places %&gt;%
-   filter(state==state) %&gt;%
+   #filter(StateAbbr==state) %&gt;%
     rename(total_pop_2010=TotalPopulation) %&gt;% #updated label to reflect that this is the total population based on 2010 census
     dplyr::select(everything(),-StateAbbr, -StateDesc, -CountyName, -CountyFIPS, -Geolocation)%&gt;%
     melt(id='TractFIPS')%&gt;%
     rename(GEOID=TractFIPS, estimate=value) %&gt;%
     mutate(GEOID=ifelse(GEOID&lt;10000000000, as.character(paste0('0', as.character(GEOID), &quot;&quot;)), as.character(GEOID)))%&gt;% #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
     filter(!grepl('95CI', variable)) #remove the 95% CI for the estimates
-  
+}
+ if(year&lt;2020){
+   processed_dataframe&lt;-raw_places %&gt;%
+     filter(StateAbbr==state) %&gt;%
+     rename(total_pop_2010==Population2010) %&gt;%
+     dplyr::select(everything(),-StateAbbr, -StateDesc, -CountyName, -CountyFIPS, -Geolocation)%&gt;%
+    melt(id='TractFIPS')%&gt;%
+    rename(GEOID=TractFIPS, estimate=value) %&gt;%
+    mutate(GEOID=ifelse(GEOID&lt;10000000000, as.character(paste0('0', as.character(GEOID), &quot;&quot;)), as.character(GEOID)))%&gt;% #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
+    filter(!grepl('95CI', variable))
+ }   
 processed_dataframe$estimate[is.na(processed_dataframe$estimate)]&lt;-0 #impute NA with 0 values
   
 write_csv(processed_dataframe, 'external_data/processed_places.csv')
 }</code></pre>
 </div>
 <div id="designate-settings-for-acmt" class="section level3">
-<h3>4. Designate settings for ACMT</h3>
-<p>Next we need to designate settings for the ACMT, including the vector_of_expected_dowloaded_file_name, the process_fil, the geoid_type, and the variable_name_to_interpolate_by_sum_boolean_mapping</p>
+<h3>3. Designate settings for ACMT</h3>
+<p>Next we need to designate settings for the ACMT, including the vector_of_expected_dowloaded_file_name, the process_file, the geoid_type, and the variable_name_to_interpolate_by_sum_boolean_mapping</p>
 <pre class="r"><code>source(&quot;setup-acmt.R&quot;)
 
 #set boolean mapping for interpolation
@@ -440,7 +468,7 @@ external_data_name_to_info_list &lt;- list(
 )</code></pre>
 </div>
 <div id="test-external-measures" class="section level3">
-<h3>5 Test external measures</h3>
+<h3>4. Test external measures</h3>
 <p>Before running for the full dataset, we can test for a single location to ensure the PLACES dataset was correctly configured. Below we use the University of Washington as the test address, but feel free to put any other address that is in the state that you are interested in.</p>
 <pre class="r"><code>#get lat / long for University of Washington (change the address if you didn't load the state of Washington when downloading the ACMT)
 lat = geocode('1400 NE Campus Parkway, Seattle, WA, 98195')$latitude
@@ -451,46 +479,46 @@ context_measurements &lt;- get_acmt_standard_array(long=long, lat=lat, # set lat
                                               year=2019,
                                                 external_data_name_to_info_list=external_data_name_to_info_list)</code></pre>
 <pre class="r"><code>head(context_measurements)</code></pre>
-<pre><code>##                        names     values
-## 1            total_pop_count 735.081336
-## places.1      total_pop_2010 625.362061
-## places.2   ACCESS2_CrudePrev  14.823170
-## places.3 ARTHRITIS_CrudePrev   5.958889
-## places.4     BINGE_CrudePrev  19.598954
-## places.5    BPHIGH_CrudePrev  11.386242</code></pre>
 </div>
 <div id="pull-places-data-for-full-dataset" class="section level3">
 <h3>6 Pull Places data for full dataset</h3>
-<p>Now we we will add a columns for each PLACES measure to be pulled to our dataset of geocoded addresses and pull the measure for each location. As an example, we will use address for 5 hospitals in Washington State and calculate interpolated values for a 5000m radius around each hospital.</p>
 <ul>
-<li>First we set up a dataset with the hospital names and addresses.</li>
+<li>First import your geocoded dataset</li>
 </ul>
-<pre class="r"><code>hospital.name&lt;-c('Swedish Medical Center First Hill', 'Providence Regional Medical Center Everett', 'Providence Sacred Heart Medical Center &amp; Children’s Hospital', 'St. Joseph Medical Center', 'Overlake Hospital Medical Center')
-
-hospital.address&lt;-c('747 Broadway, Seattle, WA, 98122', '1321 Colby Ave.,Everett, WA, 98201', '101 W. 8th Ave.,Spokane, WA, 99204', '1717 S. J St., Tacoma, WA, 98405', '1035 116th Ave. NE, Bellevue, WA, 98004')
-
-
-dataset1&lt;-data.frame(hospital.name)
-dataset1$address&lt;-hospital.address</code></pre>
-<ul>
-<li>Next we geocode our list of addresses</li>
-</ul>
-<pre class="r"><code>#create lat and long columns
-dataset1&lt;-dataset1 %&gt;%
-  mutate(lat=NA, 
-         long=NA)
-
-#Geocoding loop
-for (i in 1:nrow(dataset1)) {
-  if(!is.na(dataset1$lat[i])) next #skip already geocoded
-  if(is.na(dataset1$address[i])) next #skip NA address values
-  print(i) #print the number to track progress
-  
-  address&lt;-dataset1$address
-  lat_long&lt;-geocode(address[i])
-  dataset1$lat[i]&lt;-lat_long$latitude # add latitude to dataset
-  dataset1$long[i] &lt;-lat_long$longitude # add longitude to dataset
-}</code></pre>
+<pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
+dataset_geocode&lt;-read.csv('dataset_geocoded.csv')</code></pre>
+<p>Your dataset should be formatted as follows, with the following column names:</p>
+<table>
+<thead>
+<tr class="header">
+<th>id</th>
+<th>lat</th>
+<th>long</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>01</td>
+<td>47.568922</td>
+<td>-122.306422</td>
+</tr>
+<tr class="even">
+<td>02</td>
+<td>47.632264</td>
+<td>-122.314978</td>
+</tr>
+<tr class="odd">
+<td>03</td>
+<td>47.634820</td>
+<td>-122.292769</td>
+</tr>
+<tr class="even">
+<td>..</td>
+<td>………</td>
+<td>………..</td>
+</tr>
+</tbody>
+</table>
 <ul>
 <li>Next, we create empty dataset columns for each variable to be pulled.</li>
 </ul>
@@ -501,7 +529,7 @@ for (i in 1:nrow(dataset1)) {
 var.cols&lt;-data.frame(matrix(nrow=nrow(dataset1), ncol=(length(places_vars)))) #create dataset of columns
 colnames(var.cols)&lt;-places_vars #name the columns
 
-dataset2&lt;-cbind(var.cols, dataset1)</code></pre>
+dataset_places&lt;-cbind(var.cols, dataset_geocode)</code></pre>
 <ul>
 <li>Next we set the year and radius for the ACMT</li>
 </ul>
@@ -509,18 +537,19 @@ dataset2&lt;-cbind(var.cols, dataset1)</code></pre>
 codes_of_acs_variables_to_get&lt;-'B01001_001'
 names_of_variables_to_get&lt;-places_vars
 radius_vector &lt;- c(500, 1000, 5000)#set the radius for the area of interest
-year &lt;- c(2019) #set the year for the data of interest</code></pre>
+years &lt;- c(2018) #set the year for the data of interest</code></pre>
 <ul>
 <li>Now we can create a loop to pull the Places variables for each location</li>
 </ul>
 <pre class="r"><code>setwd('/home/rstudio/workspace/')
 
 #run loop to pull variables
+for(year in years){
 for(radius in 1:length(radius_vector)){
   #radius&lt;-1 #for testing
 radius&lt;-radius_vector[radius]
 print(radius)
-dataset_radius&lt;-dataset2
+dataset_radius&lt;-dataset_places
 
 for(address in 1:nrow(dataset_radius)) {
    tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
@@ -529,7 +558,7 @@ for(address in 1:nrow(dataset_radius)) {
   latitude&lt;-dataset_radius$lat[address] #set lat
   longitude&lt;-dataset_radius$long[address] #set long
   
-  environmental_measures&lt;-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list) #pull measures for given lat &amp; long
+  environmental_measures&lt;-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE) #pull measures for given lat &amp; long
  
       for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
      value_of_variable &lt;- environmental_measures[environmental_measures$names == name_of_variable,]$values  
@@ -546,92 +575,23 @@ dataset_radius[[&quot;total_pop_count&quot;]][1]
 }
 
 if(radius==500) {
-dataset_vars&lt;-dataset_radius
-dataset_vars$radius&lt;-500}
+dataset_places2&lt;-dataset_radius
+dataset_places2$radius&lt;-500}
 
 if(radius&gt;500){
 dataset_radius$radius&lt;-radius
-dataset_vars&lt;-rbind(dataset_vars, dataset_radius)
+dataset_places2&lt;-rbind(dataset_places2, dataset_radius)
 }
 
 }
 
-dataset_vars&lt;-dataset_vars%&gt;%
+dataset_places2&lt;-dataset_places2%&gt;%
   mutate(year=year)%&gt;% # set year of data pull
-  dplyr::select(hospital.name, address, lat, long, radius, year, everything()) # reorder variables</code></pre>
-<pre class="r"><code>head(dataset_vars)</code></pre>
-<pre><code>##                                                  hospital.name
-## 1                            Swedish Medical Center First Hill
-## 2                   Providence Regional Medical Center Everett
-## 3 Providence Sacred Heart Medical Center &amp; Children’s Hospital
-## 4                                    St. Joseph Medical Center
-## 5                             Overlake Hospital Medical Center
-## 6                            Swedish Medical Center First Hill
-##                                   address      lat      long radius year
-## 1        747 Broadway, Seattle, WA, 98122 47.60863 -122.3209    500 2019
-## 2      1321 Colby Ave.,Everett, WA, 98201 48.00009 -122.2080    500 2019
-## 3      101 W. 8th Ave.,Spokane, WA, 99204 47.64847 -117.4134    500 2019
-## 4        1717 S. J St., Tacoma, WA, 98405 47.24582 -122.4487    500 2019
-## 5 1035 116th Ave. NE, Bellevue, WA, 98004 47.62034 -122.1858    500 2019
-## 6        747 Broadway, Seattle, WA, 98122 47.60863 -122.3209   1000 2019
-##   total_pop_count total_pop_2010 ACCESS2_CrudePrev ARTHRITIS_CrudePrev
-## 1        8141.073       6651.897         10.891100            13.85301
-## 2        1147.908       1148.920         10.376082            19.57606
-## 3        1635.546       1590.243         10.206963            28.02821
-## 4        2343.031       2867.868         17.218238            21.87895
-## 5        1568.342       1088.084          6.644555            19.30480
-## 6       31270.425      25312.141         10.574378            15.75840
-##   BINGE_CrudePrev BPHIGH_CrudePrev BPMED_CrudePrev CANCER_CrudePrev
-## 1        21.08219         21.01672        56.45240         4.048666
-## 2        18.99567         23.81736        63.80215         5.893470
-## 3        14.47609         30.09749        73.02839         8.499571
-## 4        17.42430         35.23785        60.80445         4.510051
-## 5        18.22251         24.42995        67.22019         7.000344
-## 6        20.23385         23.16273        59.81968         4.737705
-##   CASTHMA_CrudePrev CERVICAL_CrudePrev CHD_CrudePrev CHECKUP_CrudePrev
-## 1          9.737766           76.06199      3.137033          66.48374
-## 2          9.995646           84.32174      3.973905          65.99129
-## 3         10.590838           80.16473      6.798115          70.06133
-## 4         11.806475           77.95959      5.132862          66.53589
-## 5          8.236646           84.62647      3.759198          71.82468
-## 6          9.441442           78.33958      3.619352          67.51335
-##   CHOLSCREEN_CrudePrev COLON_SCREEN_CrudePrev COPD_CrudePrev COREM_CrudePrev
-## 1             77.81998               63.26690       3.174753        33.04647
-## 2             80.58912               68.24133       4.313034        35.59350
-## 3             81.70898               66.23419       6.280291        40.49304
-## 4             76.19188               56.34445       6.501345        26.89885
-## 5             87.63488               72.03002       3.148927        42.04405
-## 6             80.09865               64.36763       3.446809        34.17749
-##   COREW_CrudePrev CSMOKING_CrudePrev DENTAL_CrudePrev DEPRESSION_CrudePrev
-## 1        29.83932          10.707194         67.04013             24.57684
-## 2        34.06743          13.106504         72.76525             25.18912
-## 3        32.14635          13.475995         67.41217             26.12150
-## 4        24.31543          23.574381         51.56068             26.03299
-## 5        37.51087           7.339261         79.88101             21.82056
-## 6        30.03881          10.623473         68.55017             23.89191
-##   DIABETES_CrudePrev GHLTH_CrudePrev HIGHCHOL_CrudePrev KIDNEY_CrudePrev
-## 1           5.722836       11.542817           21.96212         1.836933
-## 2           6.691293       12.263021           26.06520         2.117388
-## 3           9.051084       16.537720           31.12956         3.159042
-## 4          11.642601       23.283248           30.15300         2.895613
-## 5           6.228168        8.753967           29.41507         2.016603
-## 6           6.581061       12.094460           24.07010         2.069905
-##   LPA_CrudePrev MAMMOUSE_CrudePrev MHLTH_CrudePrev OBESITY_CrudePrev
-## 1      15.60950           73.61830       14.561254          21.41201
-## 2      16.52389           74.23913       13.334776          28.00215
-## 3      19.68663           76.32583       14.230028          28.29704
-## 4      25.47235           74.72468       19.192743          37.88819
-## 5      12.10539           74.48411        9.616363          19.18022
-## 6      15.93391           74.33335       13.567598          21.91303
-##   PHLTH_CrudePrev SLEEP_CrudePrev STROKE_CrudePrev TEETHLOST_CrudePrev
-## 1        8.375690        31.98996         1.901571            8.853891
-## 2        9.986939        32.99129         2.256517            9.902150
-## 3       13.377883        30.17406         3.551564           14.344937
-## 4       14.595114        41.84755         3.428579           17.245902
-## 5        7.503287        27.22887         2.032768            3.957333
-## 6        8.803012        31.41616         2.166156            8.231792</code></pre>
+  dplyr::select(id, radius, year, everything()) # reorder variables
+
+}</code></pre>
 <p>For additional years, save this dataset under a different name and re-run from step 1 with the other year of PLACES data.</p>
-<pre class="r"><code>places2020&lt;-dataset_vars</code></pre>
+<pre class="r"><code>places2020&lt;-dataset_places2</code></pre>
 </div>
 </div>
 
