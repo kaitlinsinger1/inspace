@@ -29,7 +29,7 @@ Geocode your dataset: If your addresses are not already gecoded to latitude and 
 ### Pull Measures from each dataset
 
 Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below for you to review. To use the code with the ACMT, follow these instructions: 
-1. Download all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
+1. Download a zippled folder with all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
 2. Next, navigate to R in your browswer, click the upload button in your files window, and navigate to the zipped folder called 'Inspace' that should be in your downloads folder.
 3. Once the files are all uploaded, you should have a folder called 'Inspace' in your workspace in R, and in the Inspace folder is R code for each of the dataset.  
 
