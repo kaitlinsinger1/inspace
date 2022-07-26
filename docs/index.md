@@ -9,7 +9,6 @@ For this study, partners will be pulling data from the following datasets:
    -  [Walkability Index](https://www.epa.gov/smartgrowth/smart-location-mapping#walkability)
    -  [CDC PLACES data](https://www.cdc.gov/places/index.html)
    -  [National Land Cover Database](https://www.usgs.gov/centers/eros/science/national-land-cover-database)
-   -  [Smart Location Database](https://www.epa.gov/smartgrowth/smart-location-mapping#SLD)
    -  [Modified Retail Food Environment Index (mRFEI)](https://www.cdc.gov/obesity/downloads/census-tract-level-state-maps-mrfei_TAG508.pdf)
    -  [Trust for Public Lands' ParkServe](https://www.tpl.org/parkserve)
    -  [Applied Geographic Solutions CrimeRisk Data](https://appliedgeographic.com/crimerisk/)
