@@ -20,15 +20,18 @@ For this study, partners will be pulling data from the following datasets:
 
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
-Instructions for installing the Docker and the ACMT can be found [here](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)
+Instructions for installing the Docker, downloading the ACMT source code can be found [here](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)
 
 ### Geocoding your dataset
 
 Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](https://aybloom.github.io/inspace/ACMT-geocoder.html)
 
-### Run each step of code 
+### Pull Measures from each dataset
 
-Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below. You can also download all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace-rcode) and upload them into R on your browser. Once you have downloaded the files, save them in your workspace in a folder titled, 'Inspace'. 
+Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below for you to review. To use the code with the ACMT, follow these instructions: 
+1. Download all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
+2. Next, navigate to R in your browswer, click the upload button in your files window, and navigate to the zipped folder called 'Inspace' that should be in your downloads folder.
+3. Once the files are all uploaded, you should have a folder called 'Inspace' in your workspace in R, and in the Inspace folder is R code for each of the dataset.  
 
 To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
@@ -42,9 +45,7 @@ To see the full list of dataset and variables that will be pulled from each data
 8. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
 9. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
-After each data pull, save the file as Inspace_datasetname_year.csv.
-
-*For example, after pulling the ACS data, you'll save the file as Inspace_acs_2018.csv.*
+Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
 ### Support or Contact. 
 
