@@ -1,0 +1,150 @@
+---
+title: "External Data - Walkability"
+author: "Amy Youngbloom"
+date: "4/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
+```
+
+## EPA Walkability Data
+
+https://www.epa.gov/smartgrowth/smart-location-mapping#walkability
+
+The National Walkability Index is a nationwide geographic data resource that ranks block groups according to their relative walkability. The national dataset includes walkability scores for all block groups as well as the underlying attributes that are used to rank the block groups. The National Walkability Index User Guide and Methodology describes how to use the index and the methodology used to derive the index and ranked scores for its inputs.
+
+Before we get started, we will pull in your geocodeded dataset: 
+
+```{r import geocoded data}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocode<-read.csv('dataset_geocoded.csv')
+
+```
+
+Your dataset should be formatted as follows, with the following column names: 
+
+| id  |  lat      | long        | 
+|-----|-----------|-------------|
+| 01  | 47.568922 | -122.306422 |
+| 02  | 47.632264 | -122.314978 |
+| 03  | 47.634820 | -122.292769 |
+| ..  | ......... | ........... |
+
+
+### 1. Run code to load walkability and set presets
+
+  The National Walkability dataset is set up for ease of use with the ACMT. To access this dataset, run the following code. The first time the walkability dataset is downloaded, it may take a while, but data will then be in the workspace and available for future use. 
+
+```{r R code with walkability downloader and processer}
+source('external_data-presets.R')
+source('external_data-file_loader.R')
+source('external_data-file_downloader_and_processor.R')
+source('setup-acmt.R')
+
+```
+
+### 2. Designate settings for ACMT
+
+Next we need to designate settings for the ACMT using the walkability presets
+
+```{r, results='hide'}
+
+external_data_name_to_info_list <- list(
+  walkability=external_data_presets_walkability
+)
+
+```
+
+### 3. Create additional columns in the dataset for each variable to be pulled
+
+  In order to directly add the measures to your dataset, we first need to create a column for each variable.
+
+
+```{r set variable columns, results='hide'}
+walk_vars <-c('total_pop_count', ##ACS population variable
+              ##Walkability variables: 
+              "COUNTHU10", "TOTPOP10", "HH", "WORKERS", "AC_TOT", "AC_WATER", "AC_LAND", "AC_UNPR", "NatWalkInd")
+
+#create dataset with a column for each variable at each radius level
+var.cols<-data.frame(matrix(nrow=nrow(dataset_geocode), ncol=(length(walk_vars)))) #create dataset of columns
+colnames(var.cols)<-walk_vars #name the columns
+
+dataset_walk<-cbind(var.cols, dataset_geocode)
+
+```
+
+### 4. Designate ACMT settings
+- Next we set the year and radius for the ACMT data pull
+  
+```{r designate acmt settings, results='hide'}
+#Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
+codes_of_acs_variables_to_get<-'B01001_001'
+names_of_variables_to_get<-walk_vars
+radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
+year <- c(2019) #set the year for the data of interest
+
+```
+
+### 5. Run the ACMT loop to interpolate data for each lat/long
+
+  - Now we can create a loop to pull the Walkability variables for each location, interpolating for each radius
+
+```{r acmt loop, results='hide'}
+setwd('/home/rstudio/workspace/')
+
+#run loop to pull variables
+for(radius in 1:length(radius_vector)){
+  #radius<-1 #for testing
+radius<-radius_vector[radius]
+print(radius)
+dataset_radius<-dataset_walk
+
+for(address in 1:nrow(dataset_radius)) {
+   tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  print(address) #print the number to keep track of progress
+  latitude<-dataset_radius$lat[address] #set lat
+  longitude<-dataset_radius$long[address] #set long
+  
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list) #pull measures for given lat & long
+ 
+      for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
+     value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
+     dataset_radius[[name_of_variable]][address]<-value_of_variable
+  }
+
+ for (name_of_variable in names_of_variables_to_get) {
+        dataset_radius[[name_of_variable]][address] <- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
+ }},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}
+
+if(radius==500) {
+dataset_walk2<-dataset_radius
+dataset_walk2$radius<-500}
+
+if(radius>500){
+dataset_radius$radius<-radius
+dataset_walk2<-rbind(dataset_walk2, dataset_radius)
+}
+
+}
+
+dataset_walk2<-dataset_walk2%>%
+  mutate(year=year)%>% # set year of data pull
+  dplyr::select(id, radius, year, everything(), -lat, -long) # reorder variables
+
+```
+
+### 6. Export dataset
+
+Finally, once the measures for each lat/long and each radius has been pulled, we can export and save the dataset
+
+```{r export dataset}
+sedwd('~/workspace/Inspace')
+write.csv(dataset_walk2, 'dataset_walkability.csv')
+
+```
