@@ -131,7 +131,7 @@ for(id in 1:nrow(dataset_radius)) {
   latitude<-dataset_radius$lat[id] #set lat
   longitude<-dataset_radius$long[id] #set long
   
-  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get[57:58]) #pull measures for given lat & long
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get) #pull measures for given lat & long
  
       for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
      value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
