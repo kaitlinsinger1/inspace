@@ -529,7 +529,7 @@ latlong_final &lt;- latlong_sf %&gt;%
   mutate(intersection = as.integer(intersected),
          county_GEOID = if_else(is.na(intersection), &quot;&quot;,
                         as.character(counties$GEOID[intersection]))) %&gt;%
-  dply::select(id, county_GEOID)
+  dplyr::select(id, county_GEOID)
 
 dataset_acs_full&lt;-merge(dataset_acs_full, latlong_final)</code></pre>
 </div>
