@@ -40,6 +40,7 @@ Your dataset should be formatted as follows, with the following column names:
   The National Walkability dataset is set up for ease of use with the ACMT. To access this dataset, run the following code. The first time the walkability dataset is downloaded, it may take a while, but data will then be in the workspace and available for future use. 
 
 ```{r R code with walkability downloader and processer}
+setwd('~/workspace')
 source('external_data-presets.R')
 source('external_data-file_loader.R')
 source('external_data-file_downloader_and_processor.R')
