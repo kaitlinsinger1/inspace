@@ -39,7 +39,7 @@ To see the full list of dataset and variables that will be pulled from each data
 3. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
 4. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
 5. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
-6. [Trust for Public Lands' ParkServe Data Pull code] (http://aybloom.github.io/inspace/ParkScore-data-pull.html)
+6. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
 7. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
 8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
