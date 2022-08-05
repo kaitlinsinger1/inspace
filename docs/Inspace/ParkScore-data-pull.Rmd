@@ -1,0 +1,165 @@
+---
+title: "ParkScore"
+author: "Amy Youngbloom"
+date: "8/3/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
+```
+
+## ParkServe Data
+
+The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration.
+
+For more information visit the website here: https://www.tpl.org/parkscore
+
+## Set up ACMT
+
+```{r acmt set up}
+setwd('~/workspace')
+source('setup-acmt.R')
+
+```
+
+## 1. Download ParkServe Dataset
+
+First step is to download the ParkServe dataset. This step will take 20-30 minutes to complete. You can download the zipped file direction to your external files folder
+
+```{r download data}
+
+shp_url = 'https://parkserve.tpl.org/downloads/ParkServe_shp_DataShare_08062021.zip'
+
+# download the external dataset and give it a name (will use it in creating external_data_name_to_info_list)
+  download.file(url = "https://parkserve.tpl.org/downloads/ParkServe_shp_DataShare_08062021.zip", 
+                destfile = "external_data/ParkServe_shp_DataShare_08062021.zip")
+
+```
+
+## 2. Process ParkServe Dataset
+
+Next we will unzip the downloaded file to the target destination and identify the shapefile we will be using (ParkServe_shp)
+
+```{r process dataset}
+
+# The process function to unzip the downloaded file.
+unzip("external_data/ParkServe_shp_DataShare_08062021.zip", exdir="external_data/ParkServe_shp")
+#set directory to file location
+shp_file<-"external_data/ParkServe_shp/Shapefiles_08062021/ParkServe_shp_DataShare_08062021/ParkServe_Parks.shp"
+
+# The function to preprocess the shapefile data 
+shp_preprocess <- function (shp_file){
+  park_shp <- st_read(shp_directory)
+  park_shp <- st_transform(park_shp, crs = 4326)
+  park_shp <- st_make_valid(park_shp)
+  return(park_shp)
+}
+
+#run the function (will take a bit of time) - to create the processed ParkServe_shp file and save to external files folder
+ParkServe_shp<-shp_preprocess(shp_directory)
+write.csv('~workspace/external_data/ParServe_shp')
+
+```
+
+## 3. Function to calculate Proportion of Park
+
+Next we create a function to calculate the proportion of park area within the target buffer area
+
+```{r calculate park proportion}
+shp_processed<-ParkServe_shp
+
+# The function to calculate the proportion of park area within the circle centered at (lat, long) point with radius = radius_meter
+get_proportion_in_shapefile <- function(lat, long, radius_meters, shp_processed){
+  park_shp <- shp_processed
+  loc <- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
+  area_intersect <- st_intersection(park_shp, loc)
+  proportion <- sum(st_area(area_intersect))/st_area(loc)
+  return(proportion)
+}
+
+```
+
+## 4. Function to cacluate the shortest distance of a point to the nearest park
+We can calculate the shortest distance of a point to the nearest park by calling the following function. A radius meter is set to define a circle area centered at the point. The circle area will first intersect with the park shapefile to narrow down the search space of the nearest park.
+
+```{r park distance}
+get_distance_to_shapefile <- function(lat, long, radius_meters, shp_processed){
+  park_shp <- shp_processed
+  loc <- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
+  area_intersect <- st_intersection(park_shp, loc)
+  if (nrow(area_intersect) == 0){
+    return(NA)
+  }
+  long <- c(long)
+  lat <- c(lat)
+  lonlat <- data.frame(cbind(long, lat))
+  point = st_as_sf(lonlat, coords=c("long", "lat"), crs=4326)
+  dist <- st_distance(point, area_intersect, by_element = TRUE)
+  return(min(dist))
+}
+
+```
+
+## 5. Import geocoded dataset and add columns
+
+Next you can import geocoded dataset and set up columns for variables to be pulled
+
+```{r import geocoded data}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocode<-read.csv('dataset_geocoded.csv')
+
+parkserve_vars<-c('park_proportion', 'park_distance')
+radius_vector<-c(500, 1000, 5000)
+
+#create dataset with a column for each variable at each radius level
+var.cols<-data.frame(matrix(nrow=nrow(dataset_geocode), ncol=(length(parkserve_vars)))) #create dataset of columns
+colnames(var.cols)<-parkserve_vars #name the columns
+
+dataset_parkserve<-cbind(var.cols, dataset_geocode)
+
+```
+
+## 6. Run Loop to pull proportion of park and distnace to nearest park
+
+```{r park loop}
+
+for(radius in 1:length(radius_vector)){
+#radius<-1 #for testing
+radius<-radius_vector[radius]
+print(radius)
+dataset_radius<-dataset_parkserve
+  
+for(address in 1:nrow(dataset_geocode)){
+  tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  lat<-dataset_radius$lat
+  long<-dataset_radius$long
+  proportion<-get_proportion_in_shapefile(lat, long, radius, shp_processed)
+  distance<-get_distance_to_shapefile(lat, long, radius, shp_processed)
+  dataset_radius$park_proportion[address] <- proportion 
+  dataset_radius$park_distance[address]<-distance
+ }, error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}
+dataset_radius$radius<-radius
+if(radius==500){
+  dataset_parkserve_full<-dataset_radius
+}
+if(radius>500){
+  dataset_parkserve_full<-rbind(dataset_parkserve_full, dataset_radius)
+}
+}
+
+```
+
+## export dataframe
+
+Now that you have pulled data for each radii, you can export the data. There is only one year to pull data from. 
+
+```{r export data}
+setwd("/home/rstudio/workspace/Inspace")
+write.csv(dataset_parkserve_full, 'dataset_parkserve.csv')
+
+
+```
