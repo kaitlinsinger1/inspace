@@ -99,6 +99,7 @@ for(radius in radius_vector){
   radius=radius
   print(radius)
   dataset_radius<-dataset_nlcd
+tryCatch({
 for (id in 1:nrow(dataset_radius)){
 print(id)
 #set long and lat
@@ -130,6 +131,7 @@ if(radius==500){
   if(radius>500){
     dataset_nlcd2<-plyr::rbind.fill(dataset_nlcd2, nlcd.data.full)
   }
+  }, error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #This will print any error messages
 }
 
 dataset_nlcd2<-dataset_nlcd2%>%
