@@ -398,11 +398,10 @@ process_file_park()</code></pre>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
 dataset_geocoded&lt;-read.csv('dataset_geocoded.csv')</code></pre>
 </div>
-<div id="park-functions-implementation" class="section level1">
-<h1>Park functions implementation</h1>
+
 <div id="calculate-proportion-of-park" class="section level2">
-<h2>1. Calculate Proportion of Park</h2>
-<p>We can calculate the proportion of park area within the target circle area around each location in our datafile with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)</p>
+<h2>4. Calculate Proportion of Park & Distance to park</h2>
+<p>We can calculate the proportion of park area within the target circle area around each location in our datafile as well as the distance to the nearest park with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)</p>
 <pre class="r"><code># First preprocess the shapefile - this process will take about 10 minutes.
 setwd('~/workspace')
 park_shp &lt;- shp_preprocess(shp_directory = &quot;external_data/ParkServe_shp/Shapefiles_08062021/ParkServe_shp_DataShare_08062021/ParkServe_Parks.shp&quot;)
@@ -448,8 +447,10 @@ if(radius==500){
   },error=function(e){cat(&quot;ERROR :&quot;, conditionMessage(e), &quot;\n&quot;)}) #this will print any error messages})
  }}</code></pre>
 </div>
-<div id="finally-export-the-dataset-with-the-parkscore-measures" class="section level2">
-<h2>Finally, export the dataset with the ParkScore measures</h2>
+<div id="Export the dataset finally-export-the-dataset-with-the-parkscore-measures" class="section level2">
+<h2>5. Export the dataset</h2>
+<p>Finally, we can export the dataset with the park proportion and distance to park measures<p>
+ 
 <pre class="r"><code>setwd('~/workspace/Inspace')
 write.csv(dataset_park2, 'dataset_parkscore.csv')</code></pre>
 </div>
