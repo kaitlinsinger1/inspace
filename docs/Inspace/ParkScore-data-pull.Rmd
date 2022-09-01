@@ -1,0 +1,117 @@
+---
+title: "ParkScore Data Pull"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+```
+
+## ParkServe Data
+
+The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration.
+
+For more information visit the website here: https://www.tpl.org/parkscore
+
+## 1. Load the ACMT package
+
+First, we need to load the ACMT packages by calling the following function
+```{r}
+setwd('~/workspace')
+source("setup-acmt.R")
+```
+
+## 2. Download the ParkServe data
+
+The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration. The shapefile format of the data is needed for the implementation of the functions. We can download the data from the ParkServe official website: https://www.tpl.org/parkserve/downloads and unzip it to the target directory external_data, first by setting up the functions, then by calling them. This process will take around 20 minutes to run.
+
+
+```{r create download and process file functions}
+setwd('~/workspace')
+# section: ParkServe data https://www.tpl.org/parkserve/downloads
+download_file_park <- function () {  # download the external dataset and give it a name (will use it in creating external_data_name_to_info_list)
+  download.file(url = "https://parkserve.tpl.org/downloads/ParkServe_shp_DataShare_08062021.zip", destfile = "external_data/ParkServe_shp_DataShare_08062021.zip")
+}
+process_file_park <- function () {  # unzip the downloaded file and save the target data layer as csv file)
+  unzip("external_data/ParkServe_shp_DataShare_08062021.zip", exdir="external_data/ParkServe_shp")
+}
+
+download_file_park()
+process_file_park()
+```
+
+## 3. Import geocoded dataset
+
+Next, import your geocoded dataset
+
+```{r}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocoded<-read.csv('dataset_geocoded.csv')
+```
+
+# Park functions implementation
+
+## 1. Calculate Proportion of Park
+We can calculate the proportion of park area within the target circle area around each location in our datafile with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)
+```{r}
+# First preprocess the shapefile - this process will take about 10 minutes.
+setwd('~/workspace')
+park_shp <- shp_preprocess(shp_directory = "external_data/ParkServe_shp/Shapefiles_08062021/ParkServe_shp_DataShare_08062021/ParkServe_Parks.shp")
+
+dataset_parkscore<-dataset_geocoded %>%
+  mutate(park_proportion=NA) %>%
+  dplyr::select(park_proportion, id, lat, long)
+
+radius_vector<-c(500, 1000, 5000)
+
+```
+
+```{r loop for park proportion}
+
+for(radius in radius_vector){
+  radius=radius
+  dataset_radius<-dataset_parkscore
+  print(radius)
+
+for(address in 1:nrow(dataset_radius)) {
+ tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  print(address) #print the number to keep track of progress
+  latitude<-dataset_radius$lat[address] #set lat
+  longitude<-dataset_radius$long[address] #set long
+  
+proportion_park<-get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
+distance_park<-get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
+
+park.table<-dataset_radius %>%
+  filter(id==address) %>%
+  mutate(park_proportion=proportion_park, 
+         park_distance=distance_park,
+         radius=radius)
+
+
+if (address == 1){
+  park.data.full<-park.table
+  }
+if(address>1){
+  park.data.full<-plyr::rbind.fill(park.table, park.data.full)
+}
+if(radius==500){
+  dataset_park2<-park.data.full
+}
+  if(radius>500){
+    dataset_park2<-plyr::rbind.fill(dataset_park2, park.data.full)
+  }
+  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages})
+ }}
+
+```
+
+## Finally, export the dataset with the ParkScore measures
+
+```{r export data}
+setwd('~/workspace/Inspace')
+write.csv(dataset_park2, 'dataset_parkscore.csv')
+
+```
+
+
