@@ -15,17 +15,17 @@ For this study, partners will be pulling data from the following datasets:
    -  [Sidewalk Score](https://journals.sagepub.com/doi/10.1177/0033354920968799)
 
 
-### Installing the Docker & Setting up the ACMT
+### Step 1: Installing the Docker & Setting up the ACMT
 
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
 Instructions for installing the Docker, downloading the ACMT source code can be found [here](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)
 
-### Geocoding your dataset
+### Step 2: Geocoding your dataset
 
 Geocode your dataset: If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! The ACMT Geocoder instructions are [here](https://aybloom.github.io/inspace/ACMT-geocoder.html)
 
-### Pull Measures from each dataset
+### Step 3: Pull Measures from each dataset
 
 Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below for you to review. To use the code with the ACMT, follow these instructions: 
 1. Download a zipped folder with all of the R files [here](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
