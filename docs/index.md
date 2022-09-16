@@ -20,7 +20,7 @@ For this study, partners will be pulling data from the following datasets:
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
    * *Instructions for installing the Docker, downloading the ACMT source code can be found [HERE](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)*
-      * *Follow [THIS LINK](https://youtu.be/44a6xOcktr4) for a vide guide to setting up the ACMT*
+      * *Follow [THIS LINK](https://youtu.be/hHCyvDOB3TY) for a vide guide to setting up the ACMT*
 
    * *A zipped folder with all of the R files you will need for geocoding and pulling Inspace data can be downloaded [HERE](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)*
 
