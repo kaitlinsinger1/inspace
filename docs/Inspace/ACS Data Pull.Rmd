@@ -47,7 +47,7 @@ Your dataset should be formatted as follows, with the following column names:
 | ..  | ......... | ........... |
 
 
-### 1 Designate ACS variables to be pulled
+### 1. Designate ACS variables to be pulled
 
 * The first step in pulling a list of ACS variables is to desigate the list of variables to be pulled. There is a built in list of ACS variables (ACSColumns.csv) that is downloaded with the GecoderACMT.R code. The interpolation strategy (to sum or not) for that built in list of ACS variables is written out in the GeocoderACMT.R code as well. We can modify this list of variables and the interpolation lists for the variables that we are interested in. Make sure the list of Inspace ACS variables to pull is uploaded into your workspace/Inspace folder, then proceed as follows.
 
@@ -66,7 +66,7 @@ write.csv(acs_columns_inspace, 'ACSColumns.csv')
 
 * If you are using a year prior to 2015, check with the InSpace team so that they can verify that those same variable columns codes apply to the same variables for that year. 
 
-### 2 Designate settings (radius, year, count names, proportion names) for ACS variable pull
+### 2. Designate settings (radius, year, count names, proportion names) for ACS variable pull
 
   Next, we will create count and proportion names from the list of ACS variables that we just created, and designate those named count and proportion variables for our 'names_of_variables_to_get' vector. We also need to designate the codes_of_acs_variables_to_get vector from our ACS variable dataframe and interpolation strategy. In addition, we can desigate the radius (or radii) and year for pulling variables. 
 
@@ -92,9 +92,9 @@ years <- c(2017, 2018) #set the year(s) for the data of interest
 ```
 
 
-### 3 Create additional columns in the dataset for each variable to be pulled
+### 3. Create additional columns in the dataset for each variable to be pulled
 
-  In order to directly add the measures to your dataset, we first need to create a column for each variable at each level (each year, each radius). 
+  In order to directly add the measures to your dataset, we first need to create a column for each variable.
   
 
 ```{r variable columns}
@@ -109,7 +109,7 @@ dataset_acs<-cbind(var.cols, dataset_acs)
 
 ```
 
-## 4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long
+### 4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long
 
 ```{r acmt loop, warnings='hide', results='hide'}
 setwd("/home/rstudio/workspace")
@@ -168,7 +168,7 @@ if(year!=2017){
 dataset_acs_full<-rbind(dataset_acs2017, dataset_acsyear) #combine acs 2018 data with year of program enrollment
 ```
 
-## 5 Next, pull the county GEOID for each lat/long location
+### 5. Next, pull the county GEOID for each lat/long location
 
 ```{r pull county GEOIDs}
 ##transform dataset1 lat/long into sf file with geometry: 
@@ -185,7 +185,27 @@ dataset_acs_full<-merge(dataset_acs_full, latlong_final)
 
 ```
 
-## 6 finally export your dataset_acs2018 & other years you pulled data from: 
+### 6. Additionally, we will pull the metropolitan statistical area (MSA) for each lat/long location
+
+```{r pull MSA}
+#download cbsa shapefile
+cbsa<-core_based_statistical_areas(year=2019)
+#lat-long shapefile with 
+latlong_sf<-st_as_sf(dataset_acs, coords=c('long', 'lat'), crs=4269)
+cbsa_sf<-st_as_sf(cbsa, crs=4269)
+intersected<-st_intersects(latlong_sf, cbsa_sf)
+
+latlong_final <- latlong_sf %>%
+  mutate(intersection = as.integer(intersected),
+         msa_GEOID = if_else(is.na(intersection), "",
+                        as.character(cbsa_sf$GEOID[intersection]))) %>%
+  dplyr::select(id, msa_GEOID)
+
+dataset_acs_full<-merge(dataset_acs_full, latlong_final)
+
+```
+
+### 7. Finally export your dataset
 
 ```{r export}
 setwd("/home/rstudio/workspace/Inspace")
