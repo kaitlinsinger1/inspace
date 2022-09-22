@@ -379,7 +379,8 @@ setwd(&quot;/home/rstudio/workspace/&quot;)
 source(&quot;GeocoderACMT.R&quot;)</code></pre>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. This document lays out instructions for how to pull the requested ACS variables for each participant.</p>
+<p>To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. ACS variables will be pulled for 2017 (2013-2017 5-year ACS) as well as for the 5-year period centered around your initial year of enrollment. For example, if enrollment in your program began in 2016, you would want to pull data from the 2014-2019 ACS (year=2019).</p>
+<p>This document lays out instructions for how to pull the requested ACS variables for each participant.</p>
 <p>Before we get started, we will pull in the geocodeded dataset:</p>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
 dataset_geocode&lt;-read.csv('dataset_geocoded.csv')</code></pre>
@@ -417,7 +418,7 @@ dataset_geocode&lt;-read.csv('dataset_geocoded.csv')</code></pre>
 </table>
 </div>
 <div id="designate-acs-variables-to-be-pulled" class="section level3">
-<h3>1 Designate ACS variables to be pulled</h3>
+<h3>1. Designate ACS variables to be pulled</h3>
 <ul>
 <li><p>The first step in pulling a list of ACS variables is to desigate the list of variables to be pulled. There is a built in list of ACS variables (ACSColumns.csv) that is downloaded with the GecoderACMT.R code. The interpolation strategy (to sum or not) for that built in list of ACS variables is written out in the GeocoderACMT.R code as well. We can modify this list of variables and the interpolation lists for the variables that we are interested in. Make sure the list of Inspace ACS variables to pull is uploaded into your workspace/Inspace folder, then proceed as follows.</p></li>
 <li><p>Create a list of the variables of interest. *</p></li>
@@ -433,7 +434,7 @@ write.csv(acs_columns_inspace, 'ACSColumns.csv')</code></pre>
 </ul>
 </div>
 <div id="designate-settings-radius-year-count-names-proportion-names-for-acs-variable-pull" class="section level3">
-<h3>2 Designate settings (radius, year, count names, proportion names) for ACS variable pull</h3>
+<h3>2. Designate settings (radius, year, count names, proportion names) for ACS variable pull</h3>
 <p>Next, we will create count and proportion names from the list of ACS variables that we just created, and designate those named count and proportion variables for our ‘names_of_variables_to_get’ vector. We also need to designate the codes_of_acs_variables_to_get vector from our ACS variable dataframe and interpolation strategy. In addition, we can desigate the radius (or radii) and year for pulling variables.</p>
 <pre class="r"><code>##create 'count' versions of each variable name and 'proportion' versions for each #ACS variable where applicable
 acs_count_names&lt;-paste(acs_columns_inspace$var_name, &quot;count&quot;, sep=&quot;_&quot;)
@@ -451,11 +452,11 @@ names(acs_variable_name_to_interpolate_by_sum_boolean_mapping)&lt;-acs_columns_i
 codes_of_acs_variables_to_get&lt;-acs_columns_inspace$acs_col
 names_of_variables_to_get&lt;-c(acs_count_names, acs_proportion_names)
 radius_vector &lt;- c(500, 1000, 5000)#set the radius for the area of interest
-years &lt;- c(2018, 2019) #set the year(s) for the data of interest</code></pre>
+years &lt;- c(2017, 2018) #set the year(s) for the data of interest</code></pre>
 </div>
 <div id="create-additional-columns-in-the-dataset-for-each-variable-to-be-pulled" class="section level3">
-<h3>3 Create additional columns in the dataset for each variable to be pulled</h3>
-<p>In order to directly add the measures to your dataset, we first need to create a column for each variable at each level (each year, each radius).</p>
+<h3>3. Create additional columns in the dataset for each variable to be pulled</h3>
+<p>In order to directly add the measures to your dataset, we first need to create a column for each variable.</p>
 <pre class="r"><code>dataset_acs&lt;-dataset_geocode
 
 #create dataset with a column for each variable at each radius level
@@ -464,9 +465,11 @@ colnames(var.cols)&lt;-names_of_variables_to_get #name the columns
 
 dataset_acs&lt;-cbind(var.cols, dataset_acs)</code></pre>
 </div>
-<div id="run-the-acmt-loop-to-pull-acs-data-and-interpolate-each-measures-for-each-latlong" class="section level2">
-<h2>4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long</h2>
-<pre class="r"><code>#run loop to pull variables
+<div id="run-the-acmt-loop-to-pull-acs-data-and-interpolate-each-measures-for-each-latlong" class="section level3">
+<h3>4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long</h3>
+<pre class="r"><code>setwd(&quot;/home/rstudio/workspace&quot;)
+
+#run loop to pull variables
 for(year in years){
   year&lt;-year
   print(year)
@@ -509,18 +512,18 @@ dataset_acs2&lt;-dataset_acs2 %&gt;%
   mutate(year=year) %&gt;%
   dplyr::select(id, radius, year, everything(), -lat, -long)
 
-if(year==2018){
- dataset_acs2018&lt;- dataset_acs2 #create a dataset for each year
+if(year==2017){
+ dataset_acs2017&lt;- dataset_acs2 #create a dataset for each year
 }
-if(year!=2018){
+if(year!=2017){
   dataset_acsyear&lt;-dataset_acs2
 }
 }
 
-dataset_acs_full&lt;-rbind(dataset_acs2018, dataset_acsyear) #combine acs 2018 data with year of program enrollment</code></pre>
+dataset_acs_full&lt;-rbind(dataset_acs2017, dataset_acsyear) #combine acs 2018 data with year of program enrollment</code></pre>
 </div>
-<div id="next-pull-the-county-geoid-for-each-latlong-location" class="section level2">
-<h2>5 Next, pull the county GEOID for each lat/long location</h2>
+<div id="next-pull-the-county-geoid-for-each-latlong-location" class="section level3">
+<h3>5. Next, pull the county GEOID for each lat/long location</h3>
 <pre class="r"><code>##transform dataset1 lat/long into sf file with geometry: 
 latlong_sf &lt;- st_as_sf(dataset_acs, coords = c(&quot;long&quot;, &quot;lat&quot;), crs = 4326)
 # find intersecting counties of lat/long points:
@@ -533,8 +536,25 @@ latlong_final &lt;- latlong_sf %&gt;%
 
 dataset_acs_full&lt;-merge(dataset_acs_full, latlong_final)</code></pre>
 </div>
-<div id="finally-export-your-dataset_acs2018-other-years-you-pulled-data-from" class="section level2">
-<h2>6 finally export your dataset_acs2018 &amp; other years you pulled data from:</h2>
+<div id="additionally-we-will-pull-the-metropolitan-statistical-area-msa-for-each-latlong-location" class="section level3">
+<h3>6. Additionally, we will pull the metropolitan statistical area (MSA) for each lat/long location</h3>
+<pre class="r"><code>#download cbsa shapefile
+cbsa&lt;-core_based_statistical_areas(year=2019)
+#lat-long shapefile with 
+latlong_sf&lt;-st_as_sf(dataset_acs, coords=c('long', 'lat'), crs=4269)
+cbsa_sf&lt;-st_as_sf(cbsa, crs=4269)
+intersected&lt;-st_intersects(latlong_sf, cbsa_sf)
+
+latlong_final &lt;- latlong_sf %&gt;%
+  mutate(intersection = as.integer(intersected),
+         msa_GEOID = if_else(is.na(intersection), &quot;&quot;,
+                        as.character(cbsa_sf$GEOID[intersection]))) %&gt;%
+  dplyr::select(id, msa_GEOID)
+
+dataset_acs_full&lt;-merge(dataset_acs_full, latlong_final)</code></pre>
+</div>
+<div id="finally-export-your-dataset" class="section level3">
+<h3>7. Finally export your dataset</h3>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
 write.csv(datsaet_acs_full, 'dataset_acs_full.csv')</code></pre>
 </div>
