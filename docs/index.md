@@ -43,7 +43,7 @@ To see the full list of dataset and variables that will be pulled from each data
 1. [American Community Survey Data Pull code](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
    * [ACS Data Instructional Video](https://youtu.be/VBwaBNqpgj4)
 3. [Walkability Index Data Pull code](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
-   * [Walkability Instructional Video](https://youtu.be/n6jk7XErmUs_
+   * [Walkability Instructional Video](https://youtu.be/n6jk7XErmUs_)
 5. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
 6. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
 7. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
