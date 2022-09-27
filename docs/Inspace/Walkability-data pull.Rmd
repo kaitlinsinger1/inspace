@@ -145,7 +145,7 @@ dataset_walk2<-dataset_walk2%>%
 Finally, once the measures for each lat/long and each radius has been pulled, we can export and save the dataset
 
 ```{r export dataset}
-sedwd('~/workspace/Inspace')
+setwd('~/workspace/Inspace')
 write.csv(dataset_walk2, 'dataset_walkability.csv')
 
 ```
