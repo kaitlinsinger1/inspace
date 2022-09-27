@@ -1,0 +1,260 @@
+---
+title: "External Data - PLACES"
+author: "Amy Youngbloom"
+date: "4/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
+```
+
+## CDC PLACES Data
+
+https://www.cdc.gov/places/about/index.html
+
+The Places dataset provides census tract level estimates of population behaviors taken from BRFSS responses.  As with the ACS data, we will use area-weighted interpolation of tract-level estimates to construct buffer-specific estimates of several measures. PLACES was an expasion of the 500 Cities project (https://www.cdc.gov/places/about/500-cities-2016-2019/index.html) and began in 2020, utilizing BRFSS data from 2017 and 2018. Since then the 2021 BRFSS has also been released and utilized 2019 BRFSS data. Below are instructions for pulling the 2020 or the 2021 PLACES data or the 2016 - 2019 500 Cities datasets. 
+
+For this dataset, you will pull the dataset using 2015 BRFSS data (cities2017) as well as the dataset that includes the year you began enrollment.  Because the data estimates across 2 years, choose the dataset that makes the most sense with the timing of your enrollment. For example, if enrollment began in late 2017 and continued into 2018, you would use the places 2020 dataset. If enrollment took place in the first part of 2017, you would use the cities 2019 dataset. 
+
+
+### 1. Download dataset
+
+First, we will download the PLACES dataset by census tract that we are interested in from the CDC website.
+
+```{r places data, warning=FALSE, results='hide'}
+#set the url for the dataset for the year of interest
+places2017url='https://chronicdata.cdc.gov/api/views/ib3w-k9rq/rows.csv?accessType=DOWNLOAD' #2018, 2017 data
+places2018url='https://chronicdata.cdc.gov/api/views/yjkw-uj5s/rows.csv?accessType=DOWNLOAD' #2018, 2019
+places2019url='https://chronicdata.cdc.gov/api/views/yjkw-uj5s/rows.csv?accessType=DOWNLOAD' #2018, 2019
+
+
+```
+
+If you are seeking data prior to 2019, and are looking only for data from the 500 largest cities, you can access the 500 Cities data. For a list of cities included visit this link: 
+https://www.cdc.gov/places/about/500-cities-2016-2019/pdfs/500-cities-by-state.pdf
+
+```{r cities data, eval=FALSE}
+
+cities2016url='https://chronicdata.cdc.gov/api/views/k86t-wghb/rows.csv?accessType=DOWNLOAD' #2016, 2017 BRFSS data
+cities2015url='https://chronicdata.cdc.gov/api/views/k25u-mg9b/rows.csv?accessType=DOWNLOAD' #2015, 2016 data
+cities2014url='https://chronicdata.cdc.gov/api/views/kucs-wizg/rows.csv?accessType=DOWNLOAD' #2014, 2015 data
+cities2013url='https://chronicdata.cdc.gov/api/views/5mtz-k78d/rows.csv?accessType=DOWNLOAD' #2013, 2014 data
+
+```
+
+
+```{r download function}
+## Function to download the PLACES dataset (2020 or 2021)
+download_file_places <- function () {
+  if(year==2016){
+    download.file(url = cities2016url, destfile = "external_data/downloaded_places.csv")
+  }
+  if(year==2017){
+    download.file(url = cities2017url, destfile = "external_data/downloaded_places.csv") 
+  }
+  if(year==2018){
+    download.file(url = cities2018url, destfile = "external_data/downloaded_places.csv") 
+  }
+  if(year==2019){
+    download.file(url = cities2019url, destfile = "external_data/downloaded_places.csv") 
+  }
+  }
+```
+
+### 2. Process PLACES dataset
+
+Next we will write a function to process the PLACES dataset into a 'ACMT-friendly' (long) format. 
+
+```{r process data}
+#set state(s) of interest to filter data by
+#state='WA'
+process_places<-function() {
+  raw_places<-read.csv('external_data/downloaded_places.csv')
+if(year>2016){
+  processed_dataframe<-raw_places %>%
+   #filter(StateAbbr==state) %>%
+    rename(total_pop_2010=TotalPopulation) %>% #updated label to reflect that this is the total population based on 2010 census
+    dplyr::select(everything(),-StateAbbr, -StateDesc, -CountyName, -CountyFIPS, -Geolocation)%>%
+    melt(id='TractFIPS')%>%
+    rename(GEOID=TractFIPS, estimate=value) %>%
+    mutate(GEOID=ifelse(GEOID<10000000000, as.character(paste0('0', as.character(GEOID), "")), as.character(GEOID)))%>% #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
+    filter(!grepl('95CI', variable)) #remove the 95% CI for the estimates
+}
+ if(year<2017){
+   processed_dataframe<-raw_places %>%
+     filter(StateAbbr==state) %>%
+     rename(total_pop_2010==Population2010) %>%
+     dplyr::select(everything(),-StateAbbr, -StateDesc, -CountyName, -CountyFIPS, -Geolocation)%>%
+    melt(id='TractFIPS')%>%
+    rename(GEOID=TractFIPS, estimate=value) %>%
+    mutate(GEOID=ifelse(GEOID<10000000000, as.character(paste0('0', as.character(GEOID), "")), as.character(GEOID)))%>% #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
+    filter(!grepl('95CI', variable))
+ }   
+processed_dataframe$estimate[is.na(processed_dataframe$estimate)]<-0 #impute NA with 0 values
+  
+write_csv(processed_dataframe, 'external_data/processed_places.csv')
+}
+
+```
+
+### 3. Designate settings for ACMT
+
+Next we need to designate settings for the ACMT, including the vector_of_expected_dowloaded_file_name, the process_file, the geoid_type, and the variable_name_to_interpolate_by_sum_boolean_mapping
+
+```{r, results='hide'}
+setwd('~/workspace')
+#source("setup-acmt.R")
+
+#set boolean mapping for interpolation
+variable_name_to_interpolate_by_sum_boolean_mapping = c(TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE )
+
+names(variable_name_to_interpolate_by_sum_boolean_mapping) = c("total_pop_2010", "ACCESS2_CrudePrev", "ARTHRITIS_CrudePrev",
+ "BINGE_CrudePrev", "BPHIGH_CrudePrev", "BPMED_CrudePrev", "CANCER_CrudePrev",   
+"CASTHMA_CrudePrev","CERVICAL_CrudePrev", "CHD_CrudePrev", "CHECKUP_CrudePrev",   
+"CHOLSCREEN_CrudePrev","COLON_SCREEN_CrudePrev", "COPD_CrudePrev", "COREM_CrudePrev",       
+"COREW_CrudePrev", "CSMOKING_CrudePrev", "DENTAL_CrudePrev", "DEPRESSION_CrudePrev",  
+"DIABETES_CrudePrev", "GHLTH_CrudePrev", "HIGHCHOL_CrudePrev", "KIDNEY_CrudePrev",      
+"LPA_CrudePrev", "MAMMOUSE_CrudePrev", "MHLTH_CrudePrev", "OBESITY_CrudePrev",     
+"PHLTH_CrudePrev", "SLEEP_CrudePrev", "STROKE_CrudePrev", "TEETHLOST_CrudePrev")
+
+#designate settings for external data pull
+external_data_name_to_info_list <- list(
+        places=list(vector_of_expected_downloaded_file_name=c("external_data/downloaded_places.csv"),
+                   download_file=download_file_places,
+                   process_file=process_places,
+                   geoid_type="Census Tract",
+                   variable_name_to_interpolate_by_sum_boolean_mapping=variable_name_to_interpolate_by_sum_boolean_mapping 
+        )
+)
+
+```
+
+### 4. Test external measures
+
+Before running for the full dataset, we can test for a single location to ensure the PLACES dataset was correctly configured. Below we use the University of Washington as the test address, but feel free to put any other address that is in the state that you are interested in. 
+
+```{r acmt test, results='hide'}
+setwd('~/workspace')
+#get lat / long for University of Washington (change the address if you didn't load the state of Washington when downloading the ACMT)
+lat = geocode('1400 NE Campus Parkway, Seattle, WA, 98195')$latitude
+long=geocode('1400 NE Campus Parkway, Seattle, WA, 98195')$longitude
+context_measurements <- get_acmt_standard_array(long=long, lat=lat, # set lat and long derived above 
+                                                codes_of_acs_variables_to_get = 'B01001_001', ## Include 1 ACS variable, otherwise the ACMT will try to retrieve all of them.
+                                                radius_meters = 200, 
+                                              year=2019,
+                                                external_data_name_to_info_list=external_data_name_to_info_list)
+```
+
+```{r}
+head(context_measurements)
+```
+
+
+### 6 Pull Places data for full dataset
+
+- First import your geocoded dataset
+
+```{r import geocoded data}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocode<-read.csv('dataset_geocoded.csv')
+
+```
+
+Your dataset should be formatted as follows, with the following column names: 
+
+| id  |  lat      | long        | 
+|-----|-----------|-------------|
+| 01  | 47.568922 | -122.306422 |
+| 02  | 47.632264 | -122.314978 |
+| 03  | 47.634820 | -122.292769 |
+| ..  | ......... | ........... |
+
+- Next, we create empty dataset columns for each variable to be pulled. 
+
+```{r set variable columns, results='hide'}
+places_vars<-c('total_pop_count', # total population measure from acs
+'total_pop_2010', 'ACCESS2_CrudePrev', 'ARTHRITIS_CrudePrev', 'BINGE_CrudePrev', 'BPHIGH_CrudePrev', 'BPMED_CrudePrev', 'CANCER_CrudePrev', 'CASTHMA_CrudePrev', 'CERVICAL_CrudePrev', 'CHD_CrudePrev', 'CHECKUP_CrudePrev', 'CHOLSCREEN_CrudePrev', 'COLON_SCREEN_CrudePrev', 'COPD_CrudePrev', 'COREM_CrudePrev', 'COREW_CrudePrev', 'CSMOKING_CrudePrev', 'DENTAL_CrudePrev', 'DEPRESSION_CrudePrev', 'DIABETES_CrudePrev', 'GHLTH_CrudePrev', 'HIGHCHOL_CrudePrev', 'KIDNEY_CrudePrev', 'LPA_CrudePrev', 'MAMMOUSE_CrudePrev', 'MHLTH_CrudePrev', 'OBESITY_CrudePrev', 'PHLTH_CrudePrev', 'SLEEP_CrudePrev', 'STROKE_CrudePrev', 'TEETHLOST_CrudePrev')
+
+#create dataset with a column for each variable at each radius level
+var.cols<-data.frame(matrix(nrow=nrow(dataset_geocode), ncol=(length(places_vars)))) #create dataset of columns
+colnames(var.cols)<-places_vars #name the columns
+
+dataset_places<-cbind(var.cols, dataset_geocode)
+
+```
+
+  - Next we set the year and radius for the ACMT
+  
+```{r designate acmt settings, results='hide'}
+
+#Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
+codes_of_acs_variables_to_get<-'B01001_001'
+names_of_variables_to_get<-places_vars
+radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
+years <- c(2018) #set the year(s) for the data of interest
+
+```
+
+
+  - Now we can create a loop to pull the Places variables for each location
+  
+```{r acmt loop, results='hide'}
+setwd('/home/rstudio/workspace/')
+
+#run loop to pull variables
+for(year in years){
+for(radius in 1:length(radius_vector)){
+  #radius<-1 #for testing
+radius<-radius_vector[radius]
+print(radius)
+dataset_radius<-dataset_places
+
+for(address in 1:nrow(dataset_radius)) {
+   tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
+  print(address) #print the number to keep track of progress
+  latitude<-dataset_radius$lat[address] #set lat
+  longitude<-dataset_radius$long[address] #set long
+  
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE) #pull measures for given lat & long
+ 
+      for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
+     value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
+     dataset_radius[[name_of_variable]][address]<-value_of_variable
+  }
+
+ for (name_of_variable in names_of_variables_to_get) {
+        dataset_radius[[name_of_variable]][address] <- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
+ }},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}
+
+if(radius==500) {
+dataset_places2<-dataset_radius
+dataset_places2$radius<-500}
+
+if(radius>500){
+dataset_radius$radius<-radius
+dataset_places2<-rbind(dataset_places2, dataset_radius)
+}
+
+}
+
+dataset_places2<-dataset_places2%>%
+  mutate(year=year)%>% # set year of data pull
+  dplyr::select(id, radius, year, everything()) # reorder variables
+
+}
+```
+  
+
+  For additional years, save this dataset under a different name and re-run from step 1 with the other year of PLACES data. 
+  
+```{r}
+places2020<-dataset_places2
+
+```
+
+ 
