@@ -131,12 +131,6 @@ external_data_name_to_info_list <- list(
 )
 
 ```
-
-```{r}
-head(context_measurements)
-```
-
-
 ### 3. Import geocoded dataset
 
 - First import your geocoded dataset
