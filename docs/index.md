@@ -45,12 +45,13 @@ To see the full list of dataset and variables that will be pulled from each data
 3. [Walkability Index Data Pull code](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
    * [Walkability Instructional Video](https://youtu.be/n6jk7XErmUs_)
 5. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
-   * [CDC PLACES Data Pull code](https://youtu.be/-agyvyfKztQ)
+   * [CDC PLACES Data Pull Instructional video](https://youtu.be/-agyvyfKztQ)
 7. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
-8. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
-9. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
-10. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
-11. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+   * [NLCD Data Pull Instructional video](https://youtu.be/bVSwlG6aVI4)
+9. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
+10. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
+11. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
+12. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
