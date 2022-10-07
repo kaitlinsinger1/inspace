@@ -13,19 +13,23 @@ knitr::opts_knit$set(root.dir = '~/workspace')
 
 ## AGS CrimeRisk
 
-https://www.cdc.gov/places/about/index.html
-
 Applied Geographic Systems publishes a block-group level dataset of ‘crime risk’.  This pulls from the FBI’s uniform crime reports and 16000 local law enforcement jurisdictions.  We will use area-weighted interpolation of block group-level estimates to construct buffer-specific estimates of the following measures of reported crime:
+
+## Set up ACMT
+
+```{r setup ACMT}
+setwd('~/workspace')
+source('setup-acmt.R')
+```
 
 ### 1. import dataset
 
 First, we will import the CrimeRisk dataset (located in the external_data folder)
 
 ```{r crimerisk data, warning=FALSE, results='hide'}
-setwd('~/workspace/external_data')
-crime_risk_raw<-read.csv('crimerisk_seattle.csv')
+setwd('~/workspace/Inspace')
+crime_risk_raw<-read.csv('raw_crimerisk.csv')
 head(crime_risk_raw)
-colnames(crime_risk_raw)
 ```
 
 ### 2. Process Crime Risk dataset
@@ -38,13 +42,10 @@ Next we will write a function to process the crime risk dataset into a 'ACMT-fri
 download_file_crimerisk<-function(){
 }
 
-#set state(s) of interest to filter data by
-state='Washington'
 
 #run file processing function
 process_crimerisk<-function() {
   processed_dataframe<-crime_risk_raw %>%
-   filter(state==state) %>%
     rename(total_pop_2022=POPCY) %>% #updated label to reflect that this is the total population based on 2022 census
     dplyr::select(everything(), -COUNTYNAME, -STATENAME)%>%
     melt(id='BLOCKGROUP')%>%
@@ -52,9 +53,11 @@ process_crimerisk<-function() {
     mutate(GEOID=ifelse(GEOID<100000000000, as.character(paste0('0', as.character(GEOID), "")), as.character(GEOID))) #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
 
 processed_dataframe$estimate[is.na(processed_dataframe$estimate)]<-0 #impute NA with 0 values
-  
-write_csv(processed_dataframe, 'external_data/processed_crime_risk.csv')
+
+write.csv(processed_dataframe, 'external_data/processed_crime_risk.csv', quote=TRUE, row.names = FALSE)
+
 }
+
 
 ```
 
@@ -65,8 +68,6 @@ Next we need to designate settings for the ACMT, including the vector_of_expecte
 
 ```{r, results='hide'}
 setwd('~/workspace')
-source("setup-acmt.R")
-
 #set boolean mapping for interpolation
 variable_name_to_interpolate_by_sum_boolean_mapping = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
 
@@ -74,7 +75,7 @@ names(variable_name_to_interpolate_by_sum_boolean_mapping) = c("total_pop_2022",
 
 #designate settings for external data pull
 external_data_name_to_info_list <- list(
-        crime_risk=list(vector_of_expected_downloaded_file_name=c("external_data/crimerisk_seattle.csv"),
+        crime_risk=list(vector_of_expected_downloaded_file_name=c("~/workspace/Inspace/raw_crimerisk.csv"),
                    download_file=download_file_crimerisk,
                    process_file=process_crimerisk,
                    geoid_type="Block Group",
@@ -111,7 +112,7 @@ dataset_crime<-cbind(var.cols, dataset_geocode)
 #Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
 codes_of_acs_variables_to_get<-'B01001_001' 
 names_of_variables_to_get<-crime_risk_vars
-radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
+radius_vector <- c(500, 1000, 2000)#set the radius for the area of interest
 years <- c(2019) #set the year for the data of interest
 
 ```
@@ -160,6 +161,9 @@ dataset_crime2<-rbind(dataset_crime2, dataset_radius)
 dataset_crime2<-dataset_crime2 %>% 
   mutate(year=year) %>%
   dplyr::select(id, radius, year, everything(), -lat, -long)
+
+head(dataset_crime2)
+dataset_crime2$X<-NULL
 
 
 ```
