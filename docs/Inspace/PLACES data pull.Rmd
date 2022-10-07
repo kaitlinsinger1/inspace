@@ -225,7 +225,7 @@ dataset_places2<-rbind(dataset_places2, dataset_radius)
 
 dataset_places2<-dataset_places2%>%
   mutate(year=year)%>% # set year of data pull
-  dplyr::select(id, radius, year, everything()) # reorder variables
+  dplyr::select(id, radius, year, everything(), -lat, -long) # reorder variables
 
 }
 ```
