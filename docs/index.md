@@ -42,18 +42,18 @@ To see the full list of dataset and variables that will be pulled from each data
 
 1. [American Community Survey Data Pull code](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
    * [ACS Data Instructional Video](https://youtu.be/VBwaBNqpgj4)
-3. [Walkability Index Data Pull code](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
+2. [Walkability Index Data Pull code](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
    * [Walkability Instructional Video](https://youtu.be/n6jk7XErmUs_)
-5. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
+3. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
    * [CDC PLACES Data Pull Instructional video](https://youtu.be/-agyvyfKztQ)
-7. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
+4. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
    * [NLCD Data Pull Instructional video](https://youtu.be/bVSwlG6aVI4)
-9. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
+5. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
    * [mRFEI Data Pull Instructional Video](https://youtu.be/JFFjrwxrFBQ)
-11. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
+6. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
    * [ParkServe Data Pull Instructional Video](https://youtu.be/N1FdRQPKTxE)
-13. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
-14. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+7. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
+8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
