@@ -56,13 +56,13 @@ To see the full list of dataset and variables that will be pulled from each data
    * *Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.
 5. [Modified Retail Food Environment Index Data Pull Instructions](http://aybloom.github.io/inspace/mfrei-data-pull.html)
    * [mRFEI Data - VIDEO GUIDE](https://youtu.be/JFFjrwxrFBQ)
-   * *Only year available is 2011.
+   * *Only year available is 2011.*
 6. [Trust for Public Lands' ParkServe Data Pull Instructions](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
    * [ParkServe Data - VIDEO GUIDE](https://youtu.be/N1FdRQPKTxE)
-   * *Only year available is 2021
+   * *Only year available is 2021*
 7. [AGS Crime Risk Data Pull Instructions](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
    * [Crime Risk Data - VIDEO GUIDE](https://youtu.be/k3xXwYiOBG8)
-   * *Only year available is 2022
+   * *Only year available is 2022*
 8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
    * [Sidewalk Score Data - VIDEO GUIDE](https://youtu.be/i4eCdeggAUo)
    * *Only year available is 2017
