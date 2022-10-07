@@ -44,16 +44,16 @@ To see the full list of dataset and variables that will be pulled from each data
 
 1. [American Community Survey Data Pull Instructions](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
    * [ACS Data - VIDEO GUIDE](https://youtu.be/VBwaBNqpgj4)
-   * *Years of data to pull: 2017 and first year of your program's enrollment + 2 (i.e., if enrollment year was 2016, you would want to pull the 2018 data, which are estimates based on 2014-2018)
+   * *Years of data to pull: 2017 and first year of your program's enrollment + 2 (i.e., if enrollment year was 2016, you would want to pull the 2018 data, which are estimates based on 2014-2018)*
 2. [Walkability Index Data Pull Instructions](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
    * [Walkability data - VIDEO GUIDE](https://youtu.be/n6jk7XErmUs_)
-   * *Only year available is 2018.
+   * *Only year available is 2018.*
 3. [CDC PLACES Data Pull Instructions](https://aybloom.github.io/inspace/PLACES-data-pull.html)
    * [CDC PLACES - VIDEO GUIDE](https://youtu.be/-agyvyfKztQ)
-   * *Years of data to pull: 2015 and the first year of your program's enrollment
+   * *Years of data to pull: 2015 and the first year of your program's enrollment*
 4. [National Land Cover Database Data Pull Instructions](https://aybloom.github.io/inspace/NLCD-data-pull.html)
    * [NLCD Data - VIDEO GUIDE](https://youtu.be/bVSwlG6aVI4)
-   * *Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.
+   * *Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.*
 5. [Modified Retail Food Environment Index Data Pull Instructions](http://aybloom.github.io/inspace/mfrei-data-pull.html)
    * [mRFEI Data - VIDEO GUIDE](https://youtu.be/JFFjrwxrFBQ)
    * *Only year available is 2011.*
@@ -65,7 +65,7 @@ To see the full list of dataset and variables that will be pulled from each data
    * *Only year available is 2022*
 8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
    * [Sidewalk Score Data - VIDEO GUIDE](https://youtu.be/i4eCdeggAUo)
-   * *Only year available is 2017
+   * *Only year available is 2017*
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
