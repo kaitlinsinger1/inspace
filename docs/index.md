@@ -32,14 +32,13 @@ If your addresses are not already gecoded to latitude and longitude, you can use
 
 ### Step 3: Pull Measures from each dataset
 
-Each of the 8 datastets from which measures are pulled has it's own code file. The pages with instructions for each dataset and the code are linked below for you to review, as are instructional videos walking through how to pull data from each dataset. Note that while most of the datasets only have one year of data available, you will need to pull specific data for the ACS data, the CDC PLACES data, and the NLCD data. Each partner will be pulling data from 2015 (or centered around 2015 in the case of ACS), as well as data from the year program enrollment began for their trial. If you ave questions about what years of data to pull, feel free to reach out. To use the code with the ACMT, follow these instructions: 
+The pages with instructions for each dataset and the code are linked below for you to review, as are instructional videos walking through how to pull data from each dataset. Note that while most of the datasets only have one year of data available, you will need to pull specific years of data for the ACS data, the CDC PLACES data, and the NLCD data. Each partner will be pulling data from 2015 (or centered around 2015 in the case of ACS), as well as data from the year program enrollment began for their trial. If you ave questions about what years of data to pull, feel free to reach out. 
+
+To measures for your dataset, follow these instructions: 
 
    1. If you haven't already done so, download a zipped folder with all of the R files [HERE](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
    2. Navigate to R in your browser, click the upload button in your files window, and upload the zipped Inspace folder that you just downloaded.
    3. Once the files are all uploaded, you should have a folder called ‘Inspace’ in your workspace in R, and in the Inspace folder is R code for each of the dataset. The HTML versions of each of these documents are also linked below.
-
-*Deciding what years to pull data for:*
-> For some of the datasets, you will need to designate the year of data that you would like to pull. 
 
 To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
