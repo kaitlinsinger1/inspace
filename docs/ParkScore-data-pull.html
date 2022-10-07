@@ -383,10 +383,10 @@ source(&quot;setup-acmt.R&quot;)</code></pre>
 <pre class="r"><code>setwd('~/workspace')
 # section: ParkServe data https://www.tpl.org/parkserve/downloads
 download_file_park &lt;- function () {  # download the external dataset and give it a name (will use it in creating external_data_name_to_info_list)
-  download.file(url = &quot;https://parkserve.tpl.org/downloads/ParkServe_shp_DataShare_08062021.zip&quot;, destfile = &quot;external_data/ParkServe_shp_DataShare_08062021.zip&quot;)
+  download.file(url = &quot;https://parkserve.tpl.org/downloads/ParkServe_Shapefiles_05042022.zip?_ga=2.103216521.887440371.1664905337-1364699585.1664905337&quot;, destfile = &quot;external_data/ParkServe_shp.zip&quot;)
 }
 process_file_park &lt;- function () {  # unzip the downloaded file and save the target data layer as csv file)
-  unzip(&quot;external_data/ParkServe_shp_DataShare_08062021.zip&quot;, exdir=&quot;external_data/ParkServe_shp&quot;)
+  unzip(&quot;external_data/ParkServe_shp.zip&quot;, exdir=&quot;external_data/ParkServe_shp&quot;)
 }
 
 download_file_park()
@@ -398,19 +398,60 @@ process_file_park()</code></pre>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
 dataset_geocoded&lt;-read.csv('dataset_geocoded.csv')</code></pre>
 </div>
-
-<div id="calculate-proportion-of-park" class="section level2">
-<h2>4. Calculate Proportion of Park & Distance to park</h2>
-<p>We can calculate the proportion of park area within the target circle area around each location in our datafile as well as the distance to the nearest park with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)</p>
+<div id="calculate-proportion-of-park-distance-to-the-nearest-park" class="section level2">
+<h2>4. Calculate Proportion of Park &amp; Distance to the nearest park</h2>
+<p>We can calculate the proportion of park area within the target circle area around each location in our datafile with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)</p>
 <pre class="r"><code># First preprocess the shapefile - this process will take about 10 minutes.
+# The function to preprocess the shapefile data 
+shp_preprocess &lt;- function (shp_directory){
+  #&quot;external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp&quot;
+  park_shp &lt;- st_read(shp_directory)
+  park_shp &lt;- st_transform(park_shp, crs = 4326)
+  park_shp &lt;- st_make_valid(park_shp)
+  return(park_shp)
+}
+
+# pre-process shapefile
 setwd('~/workspace')
-park_shp &lt;- shp_preprocess(shp_directory = &quot;external_data/ParkServe_shp/Shapefiles_08062021/ParkServe_shp_DataShare_08062021/ParkServe_Parks.shp&quot;)
+park_shp &lt;- shp_preprocess(shp_directory = &quot;external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp&quot;)
 
-dataset_parkscore&lt;-dataset_geocoded %&gt;%
-  mutate(park_proportion=NA) %&gt;%
-  dplyr::select(park_proportion, id, lat, long)
+# Update geocoded dataset and add columns
+dataset_parkscore&lt;-dataset_geocoded%&gt;%
+  mutate(park_proportion=NA, 
+         park_distance=NA) %&gt;%
+  dplyr::select(park_proportion, park_distance, id, lat, long)
 
+#set radii for calculating measures
 radius_vector&lt;-c(500, 1000, 5000)</code></pre>
+</div>
+<div id="create-functions-for-park-proportion-and-distance-to-park" class="section level2">
+<h2>5. Create Functions for Park Proportion and Distance to park</h2>
+<pre class="r"><code>get_distance_to_shapefile &lt;- function(lat, long, radius_meters, shp_processed){
+  park_shp &lt;- shp_processed
+  loc &lt;- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
+  area_intersect &lt;- st_intersection(park_shp, loc)
+  if (nrow(area_intersect) == 0){
+    return(NA)
+  }
+  long &lt;- c(long)
+  lat &lt;- c(lat)
+  lonlat &lt;- data.frame(cbind(long, lat))
+  point = st_as_sf(lonlat, coords=c(&quot;long&quot;, &quot;lat&quot;), crs=4326)
+  dist &lt;- st_distance(point, area_intersect, by_element = TRUE)
+  return(min(dist))
+}
+
+# The function to calculate the proportion of park area within the circle centered at (lat, long) point with radius = radius_meter
+get_proportion_in_shapefile &lt;- function(lat, long, radius_meters, shp_processed){
+  park_shp &lt;- shp_processed
+  loc &lt;- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
+  area_intersect &lt;- st_intersection(park_shp, loc)
+  proportion &lt;- sum(st_area(area_intersect))/st_area(loc)
+  return(proportion)
+}</code></pre>
+</div>
+<div id="run-loop-to-calculate-park-measures" class="section level2">
+<h2>6. Run loop to calculate Park measures</h2>
 <pre class="r"><code>for(radius in radius_vector){
   radius=radius
   dataset_radius&lt;-dataset_parkscore
@@ -445,15 +486,19 @@ if(radius==500){
     dataset_park2&lt;-plyr::rbind.fill(dataset_park2, park.data.full)
   }
   },error=function(e){cat(&quot;ERROR :&quot;, conditionMessage(e), &quot;\n&quot;)}) #this will print any error messages})
- }}</code></pre>
+}}
+
+dataset_park2&lt;-dataset_park2 %&gt;% 
+  dplyr::select(id, radius, park_proportion, park_distance) %&gt;%
+  mutate(year=2022)
+
+head(dataset_park2)</code></pre>
 </div>
-<div id="Export the dataset finally-export-the-dataset-with-the-parkscore-measures" class="section level2">
-<h2>5. Export the dataset</h2>
-<p>Finally, we can export the dataset with the park proportion and distance to park measures<p>
- 
+<div id="export-the-dataset" class="section level2">
+<h2>7. Export the dataset</h2>
+<p>Finally, export the dataset with the ParkScore measures</p>
 <pre class="r"><code>setwd('~/workspace/Inspace')
 write.csv(dataset_park2, 'dataset_parkscore.csv')</code></pre>
-</div>
 </div>
 
 

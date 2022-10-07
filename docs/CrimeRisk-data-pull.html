@@ -371,15 +371,18 @@ summary {
 
 <div id="ags-crimerisk" class="section level2">
 <h2>AGS CrimeRisk</h2>
-<p><a href="https://www.cdc.gov/places/about/index.html" class="uri">https://www.cdc.gov/places/about/index.html</a></p>
 <p>Applied Geographic Systems publishes a block-group level dataset of ‘crime risk’. This pulls from the FBI’s uniform crime reports and 16000 local law enforcement jurisdictions. We will use area-weighted interpolation of block group-level estimates to construct buffer-specific estimates of the following measures of reported crime:</p>
+</div>
+<div id="set-up-acmt" class="section level2">
+<h2>Set up ACMT</h2>
+<pre class="r"><code>setwd('~/workspace')
+source('setup-acmt.R')</code></pre>
 <div id="import-dataset" class="section level3">
 <h3>1. import dataset</h3>
 <p>First, we will import the CrimeRisk dataset (located in the external_data folder)</p>
-<pre class="r"><code>setwd('~/workspace/external_data')
-crime_risk_raw&lt;-read.csv('crimerisk_seattle.csv')
-head(crime_risk_raw)
-colnames(crime_risk_raw)</code></pre>
+<pre class="r"><code>setwd('~/workspace/Inspace')
+crime_risk_raw&lt;-read.csv('raw_crimerisk.csv')
+head(crime_risk_raw)</code></pre>
 </div>
 <div id="process-crime-risk-dataset" class="section level3">
 <h3>2. Process Crime Risk dataset</h3>
@@ -388,13 +391,10 @@ colnames(crime_risk_raw)</code></pre>
 download_file_crimerisk&lt;-function(){
 }
 
-#set state(s) of interest to filter data by
-state='Washington'
 
 #run file processing function
 process_crimerisk&lt;-function() {
   processed_dataframe&lt;-crime_risk_raw %&gt;%
-   filter(state==state) %&gt;%
     rename(total_pop_2022=POPCY) %&gt;% #updated label to reflect that this is the total population based on 2022 census
     dplyr::select(everything(), -COUNTYNAME, -STATENAME)%&gt;%
     melt(id='BLOCKGROUP')%&gt;%
@@ -402,16 +402,15 @@ process_crimerisk&lt;-function() {
     mutate(GEOID=ifelse(GEOID&lt;100000000000, as.character(paste0('0', as.character(GEOID), &quot;&quot;)), as.character(GEOID))) #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
 
 processed_dataframe$estimate[is.na(processed_dataframe$estimate)]&lt;-0 #impute NA with 0 values
-  
-write_csv(processed_dataframe, 'external_data/processed_crime_risk.csv')
+
+write.csv(processed_dataframe, 'external_data/processed_crime_risk.csv', quote=TRUE, row.names = FALSE)
+
 }</code></pre>
 </div>
 <div id="designate-external-dataset-settings" class="section level3">
 <h3>3. Designate external dataset settings</h3>
 <p>Next we need to designate settings for the ACMT, including the vector_of_expected_dowloaded_file_name, the process_fil, the geoid_type, and the variable_name_to_interpolate_by_sum_boolean_mapping</p>
 <pre class="r"><code>setwd('~/workspace')
-source(&quot;setup-acmt.R&quot;)
-
 #set boolean mapping for interpolation
 variable_name_to_interpolate_by_sum_boolean_mapping = c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
 
@@ -419,7 +418,7 @@ names(variable_name_to_interpolate_by_sum_boolean_mapping) = c(&quot;total_pop_2
 
 #designate settings for external data pull
 external_data_name_to_info_list &lt;- list(
-        crime_risk=list(vector_of_expected_downloaded_file_name=c(&quot;external_data/crimerisk_seattle.csv&quot;),
+        crime_risk=list(vector_of_expected_downloaded_file_name=c(&quot;~/workspace/Inspace/raw_crimerisk.csv&quot;),
                    download_file=download_file_crimerisk,
                    process_file=process_crimerisk,
                    geoid_type=&quot;Block Group&quot;,
@@ -449,7 +448,7 @@ dataset_crime&lt;-cbind(var.cols, dataset_geocode)</code></pre>
 <pre class="r"><code>#Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
 codes_of_acs_variables_to_get&lt;-'B01001_001' 
 names_of_variables_to_get&lt;-crime_risk_vars
-radius_vector &lt;- c(500, 1000, 5000)#set the radius for the area of interest
+radius_vector &lt;- c(500, 1000, 2000)#set the radius for the area of interest
 years &lt;- c(2019) #set the year for the data of interest</code></pre>
 </div>
 <div id="run-loop-to-pull-crime-data" class="section level2">
@@ -494,7 +493,10 @@ dataset_crime2&lt;-rbind(dataset_crime2, dataset_radius)
 }
 dataset_crime2&lt;-dataset_crime2 %&gt;% 
   mutate(year=year) %&gt;%
-  dplyr::select(id, radius, year, everything(), -lat, -long)</code></pre>
+  dplyr::select(id, radius, year, everything(), -lat, -long)
+
+head(dataset_crime2)
+dataset_crime2$X&lt;-NULL</code></pre>
 </div>
 <div id="export-final-crime-risk-dataset" class="section level2">
 <h2>6. Export final Crime Risk Dataset</h2>
