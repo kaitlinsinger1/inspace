@@ -38,23 +38,34 @@ Each of the 8 datastets from which measures are pulled has it's own code file. T
    2. Navigate to R in your browser, click the upload button in your files window, and upload the zipped Inspace folder that you just downloaded.
    3. Once the files are all uploaded, you should have a folder called ‘Inspace’ in your workspace in R, and in the Inspace folder is R code for each of the dataset. The HTML versions of each of these documents are also linked below.
 
+*Deciding what years to pull data for:*
+> For some of the datasets, you will need to designate the year of data that you would like to pull. 
+
 To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
 1. [American Community Survey Data Pull code](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
    * [ACS Data Instructional Video](https://youtu.be/VBwaBNqpgj4)
+   * Years of data to pull: 2017 and first year of your program's enrollment + 2 (i.e., if enrollment year was 2016, you would want to pull the 2018 data, which are estimates based on 2014-2018)
 2. [Walkability Index Data Pull code](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
    * [Walkability Instructional Video](https://youtu.be/n6jk7XErmUs_)
+   * Only year available is 2018.
 3. [CDC PLACES Data Pull code](https://aybloom.github.io/inspace/PLACES-data-pull.html)
    * [CDC PLACES Data Pull Instructional video](https://youtu.be/-agyvyfKztQ)
+   * Years of data to pull: 2015 and the first year of your program's enrollment
 4. [National Land Cover Database Data Pull code](https://aybloom.github.io/inspace/NLCD-data-pull.html)
    * [NLCD Data Pull Instructional video](https://youtu.be/bVSwlG6aVI4)
+   * Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.
 5. [Modified Retail Food Environment Index Data Pull code](http://aybloom.github.io/inspace/mfrei-data-pull.html)
    * [mRFEI Data Pull Instructional Video](https://youtu.be/JFFjrwxrFBQ)
+   * Only year available is 2011.
 6. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
    * [ParkServe Data Pull Instructional Video](https://youtu.be/N1FdRQPKTxE)
 7. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
-   * [Crime Risk Data Pull Instructional Vidoe](https://youtu.be/k3xXwYiOBG8)
-9. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+   * [Crime Risk Data Pull Instructional Video](https://youtu.be/k3xXwYiOBG8)
+   * Only year available is 2022
+8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+   * [Sidewalk Score Data Pull Instuctional Video](https://youtu.be/i4eCdeggAUo)
+   * Only year available is 2017
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
