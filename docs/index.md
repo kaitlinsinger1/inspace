@@ -53,7 +53,8 @@ To see the full list of dataset and variables that will be pulled from each data
 6. [Trust for Public Lands' ParkServe Data Pull code](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
    * [ParkServe Data Pull Instructional Video](https://youtu.be/N1FdRQPKTxE)
 7. [AGS Crime Risk Data Pull code](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
-8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+   * [Crime Risk Data Pull Instructional Vidoe](https://youtu.be/k3xXwYiOBG8)
+9. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
