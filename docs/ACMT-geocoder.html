@@ -451,7 +451,7 @@ head(inspace_geocoded)</code></pre>
   mutate(percent=round(n/sum(n), digits=2)) %&gt;%
   dplyr::select(rating_group, n, percent)
 
-round()</code></pre>
+</code></pre>
 </div>
 <div id="check-a-sample-of-geocodes" class="section level2">
 <h2>Check a sample of geocodes</h2>
@@ -494,7 +494,7 @@ for(i in 1:nrow(dataset_geocode_50)){
 <div id="export-your-geocoded-data." class="section level2">
 <h2>Export your geocoded data.</h2>
 <p>It is ready to be used for pulling measures. We will first remove the address column, which we don’t need anymore, then export the dataset</p>
-<pre class="r"><code>dataset_geocode&lt;-dataset_geocode%&gt;%dplyr::select(id, lat, long)
+<pre class="r"><code>dataset_geocode&lt;-dataset_geocode%&gt;%dplyr::select(id, lat, long, rating)
 
 setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
 write.csv(dataset_geocode, 'dataset_geocoded.csv')</code></pre>
