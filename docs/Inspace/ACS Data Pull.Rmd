@@ -168,44 +168,28 @@ if(year!=2017){
 dataset_acs_full<-rbind(dataset_acs2017, dataset_acsyear) #combine acs 2018 data with year of program enrollment
 ```
 
-### 5. Next, pull the county GEOID for each lat/long location
+### 5. Next, we will pull the metropolitan statistical area (MSA) and county GEOID for each lat/long location
 
-```{r pull county GEOIDs}
-##transform dataset1 lat/long into sf file with geometry: 
-latlong_sf <- st_as_sf(dataset_acs, coords = c("long", "lat"), crs = 4326)
-# find intersecting counties of lat/long points:
-intersected<-st_intersects(latlong_sf, counties)
-latlong_final <- latlong_sf %>%
-  mutate(intersection = as.integer(intersected),
-         county_GEOID = if_else(is.na(intersection), "",
-                        as.character(counties$GEOID[intersection]))) %>%
-  dplyr::select(id, county_GEOID)
-
-dataset_acs_full<-merge(dataset_acs_full, latlong_final)
-
-```
-
-### 6. Additionally, we will pull the metropolitan statistical area (MSA) for each lat/long location
-
-```{r pull MSA}
+```{r pull MSA and county GEOID}
 #download cbsa shapefile
 cbsa<-core_based_statistical_areas(year=2019)
+
 #lat-long shapefile with 
-latlong_sf<-st_as_sf(dataset_acs, coords=c('long', 'lat'), crs=4269)
+latlong_sf<-st_as_sf(dataset_acs%>%dplyr::select(id, lat, long), coords=c('long', 'lat'), crs=4269)
+counties_sf<-st_transform(counties, crs=4269)
 cbsa_sf<-st_as_sf(cbsa, crs=4269)
-intersected<-st_intersects(latlong_sf, cbsa_sf)
+intersected_msa<-st_intersection(latlong_sf, cbsa_sf)
+intersected_county<-st_intersection(latlong_sf, counties_sf)
 
-latlong_final <- latlong_sf %>%
-  mutate(intersection = as.integer(intersected),
-         msa_GEOID = if_else(is.na(intersection), "",
-                        as.character(cbsa_sf$GEOID[intersection]))) %>%
-  dplyr::select(id, msa_GEOID)
+msa_dataset <- merge(dataset_acs %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)%>% dplyr::select(id, msa_geoid=GEOID)
+county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID)
 
-dataset_acs_full<-merge(dataset_acs_full, latlong_final, all=TRUE)
+dataset_acs_full<-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
+dataset_acs_full<-merge(dataset_acs_full, county_dataset, by='id', all.x=TRUE)
 
 ```
 
-### 7. Finally export your dataset
+### 6. Finally export your dataset
 
 ```{r export}
 setwd("/home/rstudio/workspace/Inspace")
