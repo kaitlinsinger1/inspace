@@ -93,7 +93,6 @@ dataset_geocode%>% mutate(rating_group=ifelse(rating == 0, '0', ifelse(rating>0 
   mutate(percent=round(n/sum(n), digits=2)) %>%
   dplyr::select(rating_group, n, percent)
 
-round()
 ```
 
 
@@ -152,7 +151,7 @@ It is ready to be used for pulling measures. We will first remove the address co
 
 ```{r data export}
 
-dataset_geocode<-dataset_geocode%>%dplyr::select(id, lat, long)
+dataset_geocode<-dataset_geocode%>%dplyr::select(id, lat, long, rating)
 
 setwd("/home/rstudio/workspace/Inspace")
 write.csv(dataset_geocode, 'dataset_geocoded.csv')
