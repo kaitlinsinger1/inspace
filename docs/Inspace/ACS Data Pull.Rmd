@@ -201,7 +201,7 @@ latlong_final <- latlong_sf %>%
                         as.character(cbsa_sf$GEOID[intersection]))) %>%
   dplyr::select(id, msa_GEOID)
 
-dataset_acs_full<-merge(dataset_acs_full, latlong_final)
+dataset_acs_full<-merge(dataset_acs_full, latlong_final, all=TRUE)
 
 ```
 
