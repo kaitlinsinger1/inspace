@@ -383,7 +383,15 @@ source(&quot;GeocoderACMT.R&quot;)</code></pre>
 <p>This document lays out instructions for how to pull the requested ACS variables for each participant.</p>
 <p>Before we get started, we will pull in the geocodeded dataset:</p>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
-dataset_geocode&lt;-read.csv('dataset_geocoded.csv')</code></pre>
+dataset_geocode&lt;-read.csv('dataset_geocoded.csv')
+
+#dataset_geocode&lt;-dataset_geocode%&gt;%
+#  rename(lat=latitude)%&gt;%
+#  select(id, lat, long)
+
+head(dataset_geocode)
+
+dataset_geocode$X&lt;-NULL</code></pre>
 <p>Your dataset should be formatted as follows, with the following column names:</p>
 <table>
 <thead>
@@ -452,7 +460,7 @@ names(acs_variable_name_to_interpolate_by_sum_boolean_mapping)&lt;-acs_columns_i
 codes_of_acs_variables_to_get&lt;-acs_columns_inspace$acs_col
 names_of_variables_to_get&lt;-c(acs_count_names, acs_proportion_names)
 radius_vector &lt;- c(500, 1000, 5000)#set the radius for the area of interest
-years &lt;- c(2017, 2018) #set the year(s) for the data of interest</code></pre>
+years &lt;- c(2020) #set the year(s) for the data of interest</code></pre>
 </div>
 <div id="create-additional-columns-in-the-dataset-for-each-variable-to-be-pulled" class="section level3">
 <h3>3. Create additional columns in the dataset for each variable to be pulled</h3>
@@ -522,41 +530,28 @@ if(year!=2017){
 
 dataset_acs_full&lt;-rbind(dataset_acs2017, dataset_acsyear) #combine acs 2018 data with year of program enrollment</code></pre>
 </div>
-<div id="next-pull-the-county-geoid-for-each-latlong-location" class="section level3">
-<h3>5. Next, pull the county GEOID for each lat/long location</h3>
-<pre class="r"><code>##transform dataset1 lat/long into sf file with geometry: 
-latlong_sf &lt;- st_as_sf(dataset_acs, coords = c(&quot;long&quot;, &quot;lat&quot;), crs = 4326)
-# find intersecting counties of lat/long points:
-intersected&lt;-st_intersects(latlong_sf, counties)
-latlong_final &lt;- latlong_sf %&gt;%
-  mutate(intersection = as.integer(intersected),
-         county_GEOID = if_else(is.na(intersection), &quot;&quot;,
-                        as.character(counties$GEOID[intersection]))) %&gt;%
-  dplyr::select(id, county_GEOID)
-
-dataset_acs_full&lt;-merge(dataset_acs_full, latlong_final)</code></pre>
-</div>
-<div id="additionally-we-will-pull-the-metropolitan-statistical-area-msa-for-each-latlong-location" class="section level3">
-<h3>6. Additionally, we will pull the metropolitan statistical area (MSA) for each lat/long location</h3>
+<div id="next-we-will-pull-the-metropolitan-statistical-area-msa-and-county-geoid-for-each-latlong-location" class="section level3">
+<h3>5.Next, we will pull the metropolitan statistical area (MSA) and county GEOID for each lat/long location</h3>
 <pre class="r"><code>#download cbsa shapefile
 cbsa&lt;-core_based_statistical_areas(year=2019)
+
 #lat-long shapefile with 
-latlong_sf&lt;-st_as_sf(dataset_acs, coords=c('long', 'lat'), crs=4269)
+latlong_sf&lt;-st_as_sf(dataset_acs%&gt;%dplyr::select(id, lat, long), coords=c('long', 'lat'), crs=4269)
+counties_sf&lt;-st_transform(counties, crs=4269)
 cbsa_sf&lt;-st_as_sf(cbsa, crs=4269)
-intersected&lt;-st_intersects(latlong_sf, cbsa_sf)
+intersected_msa&lt;-st_intersection(latlong_sf, cbsa_sf)
+intersected_county&lt;-st_intersection(latlong_sf, counties_sf)
 
-latlong_final &lt;- latlong_sf %&gt;%
-  mutate(intersection = as.integer(intersected),
-         msa_GEOID = if_else(is.na(intersection), &quot;&quot;,
-                        as.character(cbsa_sf$GEOID[intersection]))) %&gt;%
-  dplyr::select(id, msa_GEOID)
+msa_dataset &lt;- merge(dataset_acs %&gt;%dplyr::select(id), intersected_msa, by='id', all=TRUE)%&gt;% dplyr::select(id, msa_geoid=GEOID)
+county_dataset&lt;-merge(dataset_acs%&gt;%dplyr::select(id), intersected_county, by='id', all=TRUE)%&gt;%dplyr::select(id, county_geoid=GEOID)
 
-dataset_acs_full&lt;-merge(dataset_acs_full, latlong_final)</code></pre>
+dataset_acs_full&lt;-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
+dataset_acs_full&lt;-merge(dataset_acs_full, county_dataset, by='id', all.x=TRUE)</code></pre>
 </div>
 <div id="finally-export-your-dataset" class="section level3">
-<h3>7. Finally export your dataset</h3>
+<h3>6. Finally export your dataset</h3>
 <pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
-write.csv(datsaet_acs_full, 'dataset_acs_full.csv')</code></pre>
+write.csv(dataset_acs_full, 'dataset_acs_full.csv')</code></pre>
 </div>
 
 
