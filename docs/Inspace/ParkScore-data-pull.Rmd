@@ -75,6 +75,7 @@ dataset_parkscore<-dataset_geocoded%>%
 #set radii for calculating measures
 radius_vector<-c(500, 1000, 5000)
 
+
 ```
 
 ## 5. Create Functions for Park Proportion and Distance to park
@@ -126,27 +127,21 @@ for(address in 1:nrow(dataset_radius)) {
 proportion_park<-get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
 distance_park<-get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
 
-park.table<-dataset_radius %>%
-  filter(id==address) %>%
-  mutate(park_proportion=proportion_park, 
-         park_distance=distance_park,
-         radius=radius)
+dataset_radius$park_proportion[address]<-proportion_park
+dataset_radius$park_distance[address]<-distance_park
 
-
-if (address == 1){
-  park.data.full<-park.table
-  }
-if(address>1){
-  park.data.full<-plyr::rbind.fill(park.table, park.data.full)
+},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages})
 }
 if(radius==500){
-  dataset_park2<-park.data.full
+  #dataset_park2<-park.data.full 
+  dataset_park2<-dataset_radius
+  dataset_park2$radius<-radius
 }
   if(radius>500){
-    dataset_park2<-plyr::rbind.fill(dataset_park2, park.data.full)
+    dataset_radius$radius<-radius
+    dataset_park2<-plyr::rbind.fill(dataset_park2, dataset_radius)
   }
-  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages})
-}}
+}
 
 dataset_park2<-dataset_park2 %>% 
   dplyr::select(id, radius, park_proportion, park_distance) %>%
