@@ -466,27 +466,21 @@ for(address in 1:nrow(dataset_radius)) {
 proportion_park&lt;-get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
 distance_park&lt;-get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
 
-park.table&lt;-dataset_radius %&gt;%
-  filter(id==address) %&gt;%
-  mutate(park_proportion=proportion_park, 
-         park_distance=distance_park,
-         radius=radius)
+dataset_radius$park_proportion[address]&lt;-proportion_park
+dataset_radius$park_distance[address]&lt;-distance_park
 
-
-if (address == 1){
-  park.data.full&lt;-park.table
-  }
-if(address&gt;1){
-  park.data.full&lt;-plyr::rbind.fill(park.table, park.data.full)
+},error=function(e){cat(&quot;ERROR :&quot;, conditionMessage(e), &quot;\n&quot;)}) #this will print any error messages})
 }
 if(radius==500){
-  dataset_park2&lt;-park.data.full
+  #dataset_park2&lt;-park.data.full 
+  dataset_park2&lt;-dataset_radius
+  dataset_park2$radius&lt;-radius
 }
   if(radius&gt;500){
-    dataset_park2&lt;-plyr::rbind.fill(dataset_park2, park.data.full)
+    dataset_radius$radius&lt;-radius
+    dataset_park2&lt;-plyr::rbind.fill(dataset_park2, dataset_radius)
   }
-  },error=function(e){cat(&quot;ERROR :&quot;, conditionMessage(e), &quot;\n&quot;)}) #this will print any error messages})
-}}
+}
 
 dataset_park2&lt;-dataset_park2 %&gt;% 
   dplyr::select(id, radius, park_proportion, park_distance) %&gt;%
