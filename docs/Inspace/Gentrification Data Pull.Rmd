@@ -1,0 +1,94 @@
+---
+title: "Gentrification Data Pull"
+author: "Amy Youngbloom & Najma Abdi"
+date: "10/18/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Introduction
+
+This measure of gentrification comes from the Urban Health Collaborative (UHC) at Drexel University and conceptualize gentrification as a neighborhood change process that occurs over a period of time. The UHC measure identifies census tracts that have gentrified using a two-step process: 1) Identify census tracts that are eligible to gentrify at a specific baseline 2) Of those that were eligible, identify the tracts that show evidence of moderate or intense gentrification between baseline and a follow-up year. This results in four categories of gentrification: ineligible to gentrify (9), eligible to gentrify but did not gentrify (0), evidence of gentrification (1), intense gentrification (2). 
+
+## 1. Set up ACMT & Import dataset
+
+First, we need to load the ACMT packages by calling the following function
+```{r}
+setwd('~/workspace')
+source("setup-acmt.R")
+```
+
+Next, import your geocoded dataset
+
+```{r}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocoded<-read.csv('dataset_geocoded.csv')
+```
+
+## 2. Pull tracts for each participant
+
+```{r pull tracts data}
+#designate state
+state<-'WA'
+
+#download tract shapefile
+tracts.2010<-tracts(year=2010, state=state)
+
+#create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
+latlong_sf<-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
+tract_2010_sf<-st_as_sf(tracts.2010, crs=4269)
+
+#find intersections of lat/long with tracts
+intersected_tracts<-st_intersection(latlong_sf, tract_2010_sf)%>%dplyr::select(id, GEOID10)%>%st_drop_geometry()
+head(intersected_tracts)
+
+```
+
+### 3. Download Gentrification data
+
+```{r import price parity data}
+
+#set URL to download from github
+genturl<-'https://raw.githubusercontent.com/aybloom/inspace/main/docs/Inspace/raw_gentrification.csv'
+
+download.file(url = genturl, destfile = "external_data/downloaded_gentrification.csv")
+
+
+```
+
+### 4. Process Gentrification data
+
+```{r process data}
+raw_gent_data<-read.csv('~/workspace/external_data/downloaded_gentrification.csv')
+
+processed_gentrification<- raw_gent_data %>%
+  rename(GEOID10=geoid10)%>%
+  mutate(GEOID10=ifelse(GEOID10<10000000000, as.character(paste0('0', as.character(GEOID10), "")), as.character(GEOID10))) #convert to GEOID to character for joining data, need to add an extra 0 in front for some values
+
+head(processed_gentrification)
+
+
+```
+
+### 5. Pull gentrification data for participants
+
+
+```{r pull gent data}
+
+dataset_gentrification<-merge(intersected_tracts, processed_gentrification, by='GEOID10', all.x=TRUE)
+head(dataset_gentrification)
+
+```
+
+
+
+### 4. Export your dataset
+
+```{r export data}
+
+write.csv(dataset_gentrification, '~/workspace/Inspace/dataset_gentrification.csv')
+
+```
