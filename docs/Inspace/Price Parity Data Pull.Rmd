@@ -1,0 +1,87 @@
+---
+title: "Price Parity Data Pull"
+author: "Amy Youngbloom"
+date: "10/13/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+```
+
+## Introduction
+
+Regional price parities (RPPs) measure the differences in price levels across states and metropolitan areas for a given year and are expressed as a percentage of the overall national price level. States with the highest RPPs in 2020 were Hawaii (112.0), New Jersey (111.2), and California (110.4); the RPP in the District of Columbia was 111.5. States with the lowest RPPs were Mississippi (87.8), West Virginia (88.0), and Arkansas (89.2). The release also includes new estimates of 2020 regional price parities for the metropolitan areas and revised data for the states and metropolitan areas for 2008 to 2019.
+
+## 1. Set up ACMT & Import dataset
+
+First, we need to load the ACMT packages by calling the following function
+```{r}
+setwd('~/workspace')
+source("setup-acmt.R")
+```
+
+Next, import your geocoded dataset
+
+```{r}
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocoded<-read.csv('dataset_geocoded.csv')
+```
+
+## 2. Pull MSA or state (for non-metro) GEOIDs for each participant
+
+```{r pull MSA}
+#download cbsa and state shapefile
+cbsa<-core_based_statistical_areas(year=2019) # download CBSA shapefiles 
+
+cbsa.data<-as.data.frame(cbsa)
+head(cbsa)
+state<-states(year=2019)
+
+#create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
+latlong_sf<-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
+cbsa_sf<-st_as_sf(cbsa, crs=4269)
+state_sf<-st_as_sf(state, crs=4269)
+
+#find intersections of lat/long with state and msa (filter msa file to just metro areas [i.e., remove the micro areas])
+intersected_msa<-st_intersection(latlong_sf, cbsa_sf)%>%filter(LSAD=='M1')%>%dplyr::select(id, msa_geoid=GEOID)%>%st_drop_geometry()
+intersected_state<-st_intersection(latlong_sf, state_sf)%>%dplyr::select(id, state_geoid=GEOID)%>%st_drop_geometry()
+
+msa_state_dataset <- merge(dataset_geocoded %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)
+msa_state_dataset<-merge(msa_state_dataset, intersected_state, by='id', all=TRUE)
+msa_state_dataset<-msa_state_dataset%>%mutate(GEOID_pp=ifelse(is.na(msa_geoid), state_geoid, msa_geoid))
+
+```
+
+### 3. Pull in the processed price parity dataset
+
+```{r import price parity data}
+
+#set year of interest:
+years<-c(2010, 2019)
+
+#loop for multiple years
+for(y in years){
+rpp<-read.csv('~/workspace/Inspace/price_parity_processed.csv')
+rpp_year<-rpp %>% filter(year==y)
+dataset_rpp<-merge(msa_state_dataset%>%dplyr::select(state_geoid, msa_geoid, GEOID_pp, id), rpp_year, by.x='GEOID_pp', by.y='FIPS', all.x= TRUE)
+
+assign(paste0('dataset_rpp', y), dataset_rpp)
+
+}
+
+##merge your dataset years together: 
+#### UPDATE dataset names to match the years you pulled
+dataset_rpp<-rbind(dataset_rpp2010, dataset_rpp2019) %>% dplyr::select(id, state_geoid, msa_geoid, GeoName, year, rpp_all_items, rpp_goods, rpp_services_housing, rpp_services_other, rpp_services_utilities)
+
+head(dataset_rpp)
+
+```
+
+### 4. Export your dataset
+
+```{r export data}
+
+write.csv(dataset_rpp, '~/workspace/Inspace/dataset_rpp.csv')
+
+```
