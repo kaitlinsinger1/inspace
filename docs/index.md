@@ -17,18 +17,16 @@ For this study, partners will be pulling data from the following datasets:
    -  [Gentrification Measure](https://drexel.edu/uhc/resources/briefs/Measure-of-Gentrification-for-Use-in-Longitudinal-Public-Health-Studies-in-the-US/)
 
 
-### Step 1: Installing the Docker & Setting up the ACMT
+### Step 1: [Installing the Docker & Setting up the ACMT](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)
 
 The first step in using the ACMT is to install the Docker, which creates a container on your local destop and and allows the ACMT to gather measures for your data without sending our data outside of your local machine. Once you install Docker, you will download the ACMT source code and install it. 
 
    * *Instructions for installing the Docker, downloading the ACMT source code can be found [HERE](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)*
       * *Follow [THIS LINK](https://youtu.be/hHCyvDOB3TY) for a video guide to setting up the ACMT*
 
-   * *A zipped folder with all of the R files you will need for geocoding and pulling Inspace data can be downloaded [HERE](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)*
-
 ### Step 2: Geocoding your dataset
 
-If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step! 
+If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to do this step. 
    * *The ACMT Geocoder instructions are [here](https://aybloom.github.io/inspace/ACMT-geocoder.html)*
    *  *Follow [THIS LINK](https://youtu.be/VOisNBEsB8g) for a video guide to using the ACMT's geocoder*
 
