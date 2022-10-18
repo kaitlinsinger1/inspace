@@ -13,6 +13,8 @@ For this study, partners will be pulling data from the following datasets:
    -  [Trust for Public Lands' ParkServe](https://www.tpl.org/parkserve)
    -  [Applied Geographic Solutions CrimeRisk Data](https://appliedgeographic.com/crimerisk/)
    -  [Sidewalk Score](https://journals.sagepub.com/doi/10.1177/0033354920968799)
+   -  [Regional Price Parity](https://www.bea.gov/data/prices-inflation/regional-price-parities-state-and-metro-area)
+   -  [Gentrification Measure](https://drexel.edu/uhc/resources/briefs/Measure-of-Gentrification-for-Use-in-Longitudinal-Public-Health-Studies-in-the-US/)
 
 
 ### Step 1: Installing the Docker & Setting up the ACMT
@@ -63,9 +65,13 @@ To see the full list of dataset and variables that will be pulled from each data
 7. [AGS Crime Risk Data Pull Instructions](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
    * [Crime Risk Data - VIDEO GUIDE](https://youtu.be/k3xXwYiOBG8)
    * *Only year available is 2022*
-8. [Sidewalk Score Data Pull code](http://aybloom.github.io/inspace/Sidewalk-View.html)
+8. [Sidewalk Score Data Pull Instructions](http://aybloom.github.io/inspace/Sidewalk-View.html)
    * [Sidewalk Score Data - VIDEO GUIDE](https://youtu.be/i4eCdeggAUo)
    * *Only year available is 2017*
+9. [Regional Price Parity Data Pull Instructions](http://aybloom.github.io/inspace/Price-Parity-Data-Pull.html)
+   * *Available for 2008 through 2020. Years to pull: 2015 and the first year of your program's enrollment*
+10. [Gentrification Data Pull Instructions](http://aybloom.github.io/inspace/Gentrification-Data-Pull.html)
+   * *Measures include gentrification from 1990 to 2000 and from 2000 to 2010. Both measures will be pulled (no years need to be designated)*
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
