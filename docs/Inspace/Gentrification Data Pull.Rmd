@@ -54,7 +54,7 @@ head(intersected_tracts)
 #set URL to download from github
 genturl<-'https://raw.githubusercontent.com/aybloom/inspace/main/docs/Inspace/raw_gentrification.csv'
 
-download.file(url = genturl, destfile = "external_data/downloaded_gentrification.csv")
+download.file(url = genturl, destfile = "~/workspace/external_data/downloaded_gentrification.csv")
 
 
 ```
