@@ -112,7 +112,7 @@ dataset_crime<-cbind(var.cols, dataset_geocode)
 #Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
 codes_of_acs_variables_to_get<-'B01001_001' 
 names_of_variables_to_get<-crime_risk_vars
-radius_vector <- c(500, 1000, 2000)#set the radius for the area of interest
+radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
 years <- c(2019) #set the year for the data of interest
 
 ```
