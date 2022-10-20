@@ -27,7 +27,15 @@ library(dplyr)
 knitr::include_graphics(paste0(getwd(), "/Inspace/Docker-pic.png"))
 ```
 
-###	2 Download the ACMT Source code
+### 2 Install WSL 
+
+* Download and WSL 2 Linux kernel Windows update
+  + Go to https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-4---download-the-linux-kernel-update-package 
+  + Click the link to download the WSL2 Linux kernel update package 
+  + The update will download, follow the steps to finalize the update
+
+
+###	3 Download the ACMT Source code
 * Go to https://github.com/2533245542/acmt-network
   +	Click on the green ‘Code’ button, then select Download ZIP. 
 	+ Unzip the ACMT Code to the documents folder on your computer (i.e., C:\Users\username\Documents) and rename the folder to acmt-network. 
@@ -36,14 +44,25 @@ knitr::include_graphics(paste0(getwd(), "/Inspace/Docker-pic.png"))
 knitr::include_graphics(paste0(getwd(),"/Inspace/github-pic.png"))
 ```
  
-### 3	Edit the .env file
+### 4	Edit the .env file
   *	In the ‘acmt-network’ folder, find the file named .env (If you do not see the file named .env on MacOS, you may need to press “command + shift + .” to make finder show you hidden files) and open it in Notepad. 
     +	Edit the GEOCODER_STATES line to include any state that you would like included: 
-      +	i.e., GEOCODER_STATES=WA, MN, TX
-      +	To include all states, put GEOCODER_STATES=* (note that including all states will take a long time to install)
+      ++	i.e., GEOCODER_STATES=WA, MN, TX
+      ++	To include all states, put GEOCODER_STATES=* (note that including all states will take a long time to install)
     +	Save and close the file
-    
-### 4	Install the ACMT
+
+### 5 Restart your computer 
+  + After installing the docker and the WSL 2 Linux kernel update, restart your computer.
+  
+  
+### 6 Open Docker and update settings
+  + Once the docker is installed, open the docker to the settings and select the check box for 'Use Docker V2': 
+  
+```{r docker, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '50%'}
+knitr::include_graphics(paste0(getwd(),"/Inspace/Docker-pic.png"))
+```
+
+### 7	Install the ACMT
   *	Open a command line terminal
     +	In Windows: https://www.howtogeek.com/235101/10-ways-to-open-the-command-prompt-in-windows-10/
     +	On a Mac: https://www.howtogeek.com/682770/how-to-open-the-terminal-on-a-mac/
@@ -67,9 +86,9 @@ knitr::include_graphics(paste0(getwd(),"/Inspace/cp-pic2.png"))
 knitr::include_graphics(paste0(getwd(),"/Inspace/cp-pic3.png"))
 ```
 
-V.	This process can take up to an hour (depending on how many states you elected to load in). 
+  *	This process can take up to an hour (depending on how many states you elected to load in). 
 
-### 5 Test the ACMT
+### 8 Test the ACMT
 
   * Once installation is complete, navigate to the docker and click the START button for the acmt-network container, if it’s not already greyed out (greyed out indicates it is already started). This starts the container and allows you to use the ACMT in the web browser
   
@@ -79,8 +98,8 @@ knitr::include_graphics(paste0(getwd(),"/Inspace/docker-pic2.png"))
   
   * Navigate to http://localhost:8787/ in a web browser. You should see a Rstudio workspace in your browser: 
 
-```{r Rstudio browser, echo=FALSE, fig.cap="Navigate to the ACMT url in your browswer to open a Rstudio environment", out.width = '50%'}
-knitr::include_graphics(paste0(getwd(),"/Inspace/docker-pic2.png"))
+```{r Rstudio browser, echo=FALSE, out.width = '50%'}
+knitr::include_graphics(paste0(getwd(),"/Inspace/rstudio-pic.png"))
 ```
 
   * Note that this environment is your own customizable environment. When you close the window and stop the container in the Docker, your environment will be retained. However, if you upgrade your Docker, your Rstudio environment will renew, so it is important to download and save all of the work you do in this Rstudio environment on your network so as to not lose any information. A good practice is to download and save your work after each session as a backup. 
@@ -88,10 +107,9 @@ knitr::include_graphics(paste0(getwd(),"/Inspace/docker-pic2.png"))
   * Run the setup-acmt code and test the docker
     + Now we can open the TestDockerACMT.R file, which is located in the workspace folder, the first line of code in this file will appear as follows: 
     
-```{r setup acmt test}
+```{r setup acmt test, results='hide'}
 source("setup-acmt.R")
 ```
-
 
   * In this code chunk, the setup-acmt.R code will run several other code files to setup the ACMT Geocoder, and other tools built into the ACMT. 
     + In some cases, there may be packages that were not automaticlaly included and you will get an error saying that package does not exist. In these cases, install any packages that do not currently exist in the environment, but are required as part of set up in order to move forward. For example, if you get an error saying that the package 'leaflet' does no exist or is not currently installed, you would run the following code: 
@@ -124,24 +142,7 @@ data.frame(measures$names, round(measures$values, 2))
 
 ```
 
-### 6 Pulling non-ACS data
-
-In addition to pulling ACS variables, the ACMT can also interpolate datat from other external data sources. The settings for several other data sources are already built into the ACMT. For example, below we can pull the Modified Retail Food Environment Index score for the location that we geocoded above. Note that the function requires at least one ACS variable, here we put total pop in (B01001_001)
-
-```{r test external}
-# Use external data source (the below uses mRFEI)
-external_data_name_to_info_list <- list(
-  mrfei=external_data_presets_mrfei
-)
-
-
-measures_for_2013_with_external_data_with_fill_missing <- get_acmt_standard_array(long=location$longitude, lat=location$latitude, radius_meters = 2000, year=2013, codes_of_acs_variables_to_get = 'B01001_001', #you still need to enter at least 1 ACS variable here!
-                                                                                  external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE)
-
-head(measures_for_2013_with_external_data_with_fill_missing)
-```
-
-### 7 Pausing and restaring the ACMT
+### 9 Pausing and restaring the ACMT
 
   * Pausing the ACMT saves your work in the Rstudio environment. However, because any updates to the Docker may result in a loss of your work. A good practice is to download any progress and save locally before closing the ACMT. 
   * To pause the ACMT, save any work, then close the browser tab. 
@@ -149,7 +150,17 @@ head(measures_for_2013_with_external_data_with_fill_missing)
   * When you are ready to resume, reopen the Docker and press the start button for the acmt-network container (may take a few seconds to start). 
     + Once the container is started, go to http://localhost:8787/ in your we browser. 
     
-### 8 Pulling Inspace ACS data
+### 10 Download Inspace Code
     
-*When you are ready to start pulling ACS data, see the 'Pulling ACS Data for Inspace Projects' Document for further instructions. 
+  * For Inspace, there are 10 datasets that you will pull environmental measures from. To make an Inspace folder in your R environment and download all of the R code you will need for geocoding and for each of the 10 datasets, copy and paste the code below into R and run it. 
+
+```{r create folder, eval=FALSE}
+## Create Inspace Folder
+dir.create('~/workspace/Inspace')
+```
+  * Download the R code that you will need for the Inspace data pulls by clicking [HERE](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace)
+
+
+  * Once the code has been downloaded, upload it into R and then you can start with geocoding, or if your data is already geocoded, you can begin with the ACS data pull (Which will likely take the longest). 
   
+  * Visit the [Inspace Repository Page](https://aybloom.github.io/inspace/) for additional instructions. 
