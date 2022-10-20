@@ -560,43 +560,10 @@ measures &lt;- get_acmt_standard_array(long=location$longitude, lat=location$lat
 <li>For Inspace, there are 10 datasets that you will pull environmental measures from. To make an Inspace folder in your R environment and download all of the R code you will need for geocoding and for each of the 10 datasets, copy and paste the code below into R and run it.</li>
 </ul>
 <pre class="r"><code>## Create Inspace Folder
-dir.create('~/workspace/Inspace')
-
-## ACMT Geocoder
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/ACMT-geocoder.Rmd', 
-              destfile='~/workspace/Inspace/ACMT-geocoder2.Rmd')
-## 1. ACS data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/ACS%20Data%20Pull.Rmd', 
-              destfile='~/workspace/Inspace/ACS-Data-Pull.Rmd')
-## 2. Walkability data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/Walkability-data%20pull.Rmd', 
-              destfile='~/workspace/Inspace/Walkability-Data-Pull.Rmd')
-## 3. CDC PLaces data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/PLACES%20data%20pull.Rmd', 
-              destfile='~/workspace/Inspace/PLACES-Data-Pull.Rmd')
-## 4. National Land Cover Database Data Pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/NLCD-data-pull.Rmd', 
-              destfile='~/workspace/Inspace/NLCD-Data-Pull.Rmd')
-## 5. mRFEI Data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/mfrei-data-pull.Rmd', 
-              destfile='~/workspace/Inspace/mrfei-Data-Pull.Rmd')
-## 6. ParkServe data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/ParkScore-data-pull.Rmd', 
-             destfile='~/workspace/Inspace/parkserve-Data-Pull.Rmd')
-## 7. Crime Risk data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/CrimeRisk%20data%20pull.Rmd', 
-              destfile='~/workspace/Inspace/crimerisk-Data-Pull.Rmd')
-## 8. Sidewalk Score data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/Sidewalk%20View.Rmd', 
-              destfile='~/workspace/Inspace/sidewalk-Data-Pull.Rmd')
-## 9. Regional Price parity data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/Price%20Parity%20Data%20Pull.Rmd', 
-              destfile='~/workspace/Inspace/price-parity-Data-Pull.Rmd')
-## 10. Gentrification data pull code
-download.file('https://github.com/aybloom/inspace/blob/163e23f14fa540508072f75cc8fae4f7b836e390/docs/Inspace/Gentrification%20Data%20Pull.Rmd', 
-              destfile='~/workspace/Inspace/gentrification-Data-Pull.Rmd')</code></pre>
+dir.create('~/workspace/Inspace')</code></pre>
 <ul>
-<li><p>Once the code has been downloaded, you can start with geocoding, of if your data is already geocoded, you can begin with the ACS data pull (Which will likely take the longest).</p></li>
+<li><p>Download the R code that you will need for the Inspace data pulls by clicking <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace">HERE</a></p></li>
+<li><p>Once the code has been downloaded, upload it into R and then you can start with geocoding, or if your data is already geocoded, you can begin with the ACS data pull (Which will likely take the longest).</p></li>
 <li><p>Visit the <a href="https://aybloom.github.io/inspace/">Inspace Repository Page</a> for additional instructions.</p></li>
 </ul>
 </div>
