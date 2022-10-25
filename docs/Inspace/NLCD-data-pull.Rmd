@@ -36,16 +36,30 @@ source('setup-acmt.R')
 knitr::include_graphics(paste0(getwd(),"/Inspace/nlcd-image.png"))
 ```
 
-  - Once data is downloaded, extract the data and upload into workspace folder. If you left "All Land Cover Years" select, you'll see a landcover tiff file for: 2001, 2004, 2006, 2008, 2011, 2013, 2016, and 2019. If you chose 2019 Land Cover ONLY, you should see a tiff file just for 2019. 
+  - Once data is downloaded, extract the data and upload into workspace folder. You should see a landcover tiff file for: 2001, 2004, 2006, 2008, 2011, 2013, 2016, and 2019. 
   
-  - Depending on the year you are looking for, identify the correct Tiff file to import into R. In this example, we will use the 2019 data.
+  - Depending on the year you are looking for, identify the correct Tiff file to import into R. In this example, we will use the 2019 data. Rename your file to match the file name in the raster() function below (you may want to update the year in code below if you are using a different year)
 
 # 2 Import NLCD data into R
 
 ```{r import raster data & geocoded dataset, results='hide'}
 ##update the data file name to match the file you've imported into workspace:
 setwd('~/workspace/Inspace')
-nlcd_data_2019<-raster('NLCD_2019_Land_Cover_L48_20210604_Uc5hg3Tn1GKOFX5OK1bT.tiff')
+##set year(s) of interest
+year<-2016
+
+##pull data for given year
+if(year>2017){
+nlcd_data<- raster('NLCD_2019_Land_Cover.tiff')
+}
+if(year<2018 & year>2014){
+nlcd_data<-raster('NLCD_2016_Land_Cover.tiff')
+}
+if(year<2015){
+nlcd_data<-raster('NLCD_2013_Land_Cover.tiff')  
+}
+
+##Import geocoded dataset
 dataset_geocode<-read.csv('dataset_geocoded.csv')
 dataset_nlcd<-dataset_geocode
 
@@ -99,9 +113,9 @@ for(radius in radius_vector){
   radius=radius
   print(radius)
   dataset_radius<-dataset_nlcd
-tryCatch({
 for (id in 1:nrow(dataset_radius)){
 print(id)
+    tryCatch({
 #set long and lat
 long<-dataset_radius$long[id]
 lat<-dataset_radius$lat[id]
@@ -109,10 +123,11 @@ lat<-dataset_radius$lat[id]
 buffer1<-get_point_buffer_for_lat_long(long, lat, radius_meters=radius)
 
 ##extract NLCD data for buffer
-nlcd_extract<-raster::extract(nlcd_data_2019, buffer1)
+nlcd_extract<-raster::extract(nlcd_data, buffer1)
 #calculate proportion of each type of land cover, convert prop.table to dataframe
 prop.nlcd<-lapply(nlcd_extract, FUN=function(x) {prop.table(table(x))})
 prop.tb<-data.frame(prop.nlcd)
+#tryCatch({
 nlcd.table<-spread(prop.tb, x, Freq)
 nlcd.table<-nlcd.table %>%
   mutate(id = dataset_radius$id[id], 
@@ -124,6 +139,8 @@ if (id == 1){
 if(id>1){
   nlcd.data.full<-plyr::rbind.fill(nlcd.table, nlcd.data.full)
 }
+  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages})
+
 }
 if(radius==500){
   dataset_nlcd2<-nlcd.data.full
@@ -131,12 +148,13 @@ if(radius==500){
   if(radius>500){
     dataset_nlcd2<-plyr::rbind.fill(dataset_nlcd2, nlcd.data.full)
   }
-  }, error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #This will print any error messages
-}
+  }
 
 dataset_nlcd2<-dataset_nlcd2%>%
   mutate_all(~replace(., is.na(.), 0))%>%   #replace NA values with 0
   dplyr::select(id, radius, everything())
+
+head(dataset_nlcd2)
 ```
 
 Proportion of buffer that is water
@@ -148,7 +166,7 @@ Proportion of buffer that is water
 
 ```{r update nlcd columns}
 
-##udpate colnames -- you may need to # out columsn that don't apply to your dataset
+##udpate colnames -- you may need to # out columns that don't apply to your dataset
 dataset_nlcd2 <- dataset_nlcd2 %>%
   rename('open_water'='11', 
   'develop_openspace'='21', 
@@ -166,25 +184,48 @@ dataset_nlcd2 <- dataset_nlcd2 %>%
   #'lichen'='73', 
   #'moss'='74', 
   'pasture'='81',
-  #'cultivate_crops'='82', 
+  'cultivate_crops'='82', 
   'wood_wetlands'='90', 
   'herb_wetlands'='95') %>%
+  rowwise()%>%
   mutate(undeveloped = sum(c(barren_land, decid_forest, evergreen_forest, mixed_forest, 
                            #dwarf_scrub, 
                            shrub_scrub, grassland, 
                            #sedge_herb, lichen, moss, 
                            pasture, 
-                           #cultivate_crops, 
-                           wood_wetlands, herb_wetlands), na.rm=TRUE))
-  
+                           cultivate_crops, 
+                           wood_wetlands, herb_wetlands), na.rm=TRUE))%>% mutate(year=year)
+ 
+head(dataset_nlcd2) 
+```
+
+## 4. Exporting datasets
+
+### for multiple years
+
+If you are pulling data for multiple years, save the dataset, then return to step 2, change the year, and re-pull the data for the additional year.
+
+```{r set year}
+assign(paste('dataset_nlcd2', year, sep='_'), dataset_nlcd2)
 
 ```
 
-##export dataset
+### export dataset - for 2 years: 
+
+If you've pulled data for 2 years, run this step to combine datasets (you may need to update the dataset names if your years differ)
+
+```{r combine datasets}
+
+dataset_nlcd_full<-rbind(dataset_nlcd2_2015, dataset_nlcd2_2019)
+
+write.csv(dataset_nlcd_full, '~/workspace/Inspace/dataset_nlcd.csv')
+```
+
+
+### export dataset -- for only 1 year:
 
 ```{r export datset}
 setwd('~/workspace/Inspace')
 write.csv(dataset_nlcd2, 'dataset_nlcd.csv')
-
 
 ```
