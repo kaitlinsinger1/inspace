@@ -569,7 +569,7 @@ dataset_places2&lt;-rbind(dataset_places2, dataset_radius)
 
 dataset_places2&lt;-dataset_places2%&gt;%
   mutate(year=year)%&gt;% # set year of data pull
-  dplyr::select(id, radius, year, everything(), -lat, -long) # reorder variables
+  dplyr::select(id, radius, year, everything()) # reorder variables
 
 }</code></pre>
 </div>

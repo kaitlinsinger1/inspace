@@ -377,19 +377,20 @@ summary {
 <div id="set-up-acmt-import-dataset" class="section level2">
 <h2>1. Set up ACMT &amp; Import dataset</h2>
 <p>First, we need to load the ACMT packages by calling the following function</p>
-<pre class="r"><code>setwd('~/workspace')
-source(&quot;setup-acmt.R&quot;)</code></pre>
-<p>Next, import your geocoded dataset</p>
-<pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
-dataset_geocoded&lt;-read.csv('dataset_geocoded.csv')</code></pre>
+<pre class="r"><code>source(&quot;GeocoderACMT.R&quot;)
+source('Inspace/Inspace_external_data_functions.R')</code></pre>
+<p>Next, import your geocoded dataset and pull the states of interest</p>
+<pre class="r"><code>dataset_geocoded&lt;-read.csv('Inspace/dataset_geocoded.csv')
+
+## get states of interest from datatset
+states_sf &lt;- st_transform( us_states( map_date = NULL, resolution = c(&quot;low&quot;, &quot;high&quot;), states = NULL), 4326)
+points_sf = st_as_sf(dataset_geocode, coords = c(&quot;long&quot;, &quot;lat&quot;), crs = 4326, agr = &quot;constant&quot;)
+states &lt;- as.data.frame( st_join(points_sf, states_sf, join = st_intersects) ) %&gt;% dplyr::select(state_abbr, -geometry)%&gt;%unique()%&gt;% as.list()</code></pre>
 </div>
 <div id="pull-tracts-for-each-participant" class="section level2">
 <h2>2. Pull tracts for each participant</h2>
-<pre class="r"><code>#designate state
-state&lt;-'WA'
-
-#download tract shapefile
-tracts.2010&lt;-tracts(year=2010, state=state)
+<pre class="r"><code>#download tract shapefile
+tracts.2010&lt;-tracts(year=2010, state=states$state_abbr)
 
 #create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
 latlong_sf&lt;-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
@@ -403,7 +404,7 @@ head(intersected_tracts)</code></pre>
 <pre class="r"><code>#set URL to download from github
 genturl&lt;-'https://raw.githubusercontent.com/aybloom/inspace/main/docs/Inspace/raw_gentrification.csv'
 
-download.file(url = genturl, destfile = &quot;external_data/downloaded_gentrification.csv&quot;)</code></pre>
+download.file(url = genturl, destfile = &quot;~/workspace/external_data/downloaded_gentrification.csv&quot;)</code></pre>
 </div>
 <div id="process-gentrification-data" class="section level3">
 <h3>4. Process Gentrification data</h3>

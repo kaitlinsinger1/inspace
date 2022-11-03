@@ -372,91 +372,63 @@ summary {
 <div id="the-modified-food-retail-environment-index" class="section level2">
 <h2>The Modified Food Retail Environment Index</h2>
 <ul>
-<li><p>The CDC’s modified retail food environment index provides census tract level estimates the ratio of healthy food outlets to total food outlets. We will use area-weighted interpolation of tract-level estimates to construct buffer-specific estimates of the following measures.</p></li>
-<li><p>The mRFEI settings are built into the ACMT external data file_loader, external_data_presents, and external_data_file_downloader R code files.</p></li>
+<li>The CDC’s modified retail food environment index provides census tract level estimates the ratio of healthy food outlets to total food outlets. We will use area-weighted interpolation of tract-level estimates to construct buffer-specific estimates of the following measures.</li>
 </ul>
-<pre class="r"><code>##Ensure workspace is set to 'workspace' folder, and run the following R files: 
-setwd('~/workspace')
-source('external_data-file_downloader_and_processor.R')
-source('external_data-file_loader.R')
-source('external_data-presets.R')
-source('setup-acmt.R')</code></pre>
-<p>The mRFEI dataset is built into the ACMT, making accessing this data easy. This guide provides steps on pulling mRFEI data for your geocoded dataset</p>
+<div id="setup-acmt" class="section level3">
+<h3>1. Setup ACMT</h3>
+<pre class="r"><code>source('setup-acmt.R')
+source('Inspace/inspace_external_data_functions.R')</code></pre>
 </div>
-<div id="first-we-will-import-your-geocoded-dataset-and-add-columns-for-each-measure-to-be-pulled" class="section level2">
-<h2>1. First we will import your geocoded dataset and add columns for each measure to be pulled</h2>
-<pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
-dataset_geocode&lt;-read.csv('dataset_geocoded.csv')
-
-mrfei_vars&lt;-c('total_pop_count', # total population measure from acs
-'mRFEI')
-
-#create dataset with a column for each variable at each radius level
-var.cols&lt;-data.frame(matrix(nrow=nrow(dataset_geocode), ncol=(length(mrfei_vars)))) #create dataset of columns
-colnames(var.cols)&lt;-mrfei_vars #name the columns
-
-dataset_mrfei&lt;-cbind(var.cols, dataset_geocode)</code></pre>
+<div id="designate-settings-for-data-pull" class="section level3">
+<h3>2. Designate settings for data pull</h3>
+<pre class="r"><code>years&lt;-c(2011) #set year of data pulls (may only be one available)
+radius_vector&lt;-c(500, 1000, 5000) #set radii
+variable_list&lt;-names(mrfei_variable_name_to_interpolate_by_sum_boolean_mapping) ## set variables -- should be designated in the external_data_presets
+names_of_variables_to_get&lt;-variable_list
+external_data_name_to_info_list &lt;- list(mrfei=external_data_presets_mrfei) ## update with presets for external dataset (be sure presets are designated in the external_data-presets.R)</code></pre>
 </div>
-<div id="designate-settings" class="section level2">
-<h2>2. Designate settings</h2>
-<p>Next we set the year and radius for the ACMT. We need to include at least 1 ACS variable, otherwise the function will try to pull all of the ACS variables in the ACS Columns file (which will take a while)</p>
-<pre class="r"><code>#Set the list of variable codes, the list of variable names, the radius, and the year for the data you want pulled
-codes_of_acs_variables_to_get&lt;-'B01001_001'
-names_of_variables_to_get&lt;-mrfei_vars
-radius_vector &lt;- c(500, 1000, 5000)#set the radius for the area of interest
-year &lt;- c(2019) #set the year for the data of interest
-
-# set up mrfei settings:
-external_data_name_to_info_list &lt;- list(
-  mrfei=external_data_presets_mrfei
-)</code></pre>
+<div id="import-dataset-and-process" class="section level3">
+<h3>3. Import dataset and process</h3>
+<pre class="r"><code>dataset_geocoded&lt;-read.csv('~/workspace/Inspace/dataset_geocoded.csv')%&gt;%dplyr::select(id, lat, long)
+dataset_mrfei&lt;-add_rows_columns(dataset_geocoded, variable_list=variable_list, years=years, radius_vector=radius_vector)</code></pre>
 </div>
-<div id="run-loop-to-pull-mrfei-data" class="section level2">
-<h2>3. Run loop to pull mRFEI data</h2>
-<pre class="r"><code>## Create loop for pulling mRFEI values for each address in the dataset
-setwd('/home/rstudio/workspace/')
-
-#run loop to pull variables
+<div id="run-loop-to-pull-measures" class="section level3">
+<h3>4. Run loop to pull measures</h3>
+<ul>
+<li>Now we can create a loop to pull the mrfei variables for each location</li>
+</ul>
+<pre class="r"><code>#run loop to pull variables
+for(i in 1:length(years)){
+year&lt;-years[i]
+print(year)
 for(radius in 1:length(radius_vector)){
-  #radius&lt;-1 #for testing
 radius&lt;-radius_vector[radius]
 print(radius)
-dataset_radius&lt;-dataset_mrfei
 
-for(address in 1:nrow(dataset_radius)) {
-   tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
-  if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
-  print(address) #print the number to keep track of progress
-  latitude&lt;-dataset_radius$lat[address] #set lat
-  longitude&lt;-dataset_radius$long[address] #set long
+for(address in 1:nrow(dataset_mrfei[dataset_mrfei$radius==radius &amp; dataset_mrfei$year==year,])) {
+   tryCatch({if(!is.na(dataset_mrfei[dataset_mrfei$radius==radius &amp; dataset_mrfei$year==year,][,1][address])) next #skip the row if the data is already there
+print(address) #print the number to keep track of progress
+  latitude&lt;-dataset_mrfei[dataset_mrfei$radius==radius &amp; dataset_mrfei$year==year,]$lat[address] #set lat
+  longitude&lt;-dataset_mrfei[dataset_mrfei$radius==radius &amp; dataset_mrfei$year==year,]$long[[address]] #set long
   
-  environmental_measures&lt;-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE) #pull measures for given lat &amp; long
- 
- 
-for (name_of_variable in names_of_variables_to_get) {
-        dataset_radius[[name_of_variable]][address] &lt;- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
+##pull measures for each lat/long 
+setwd('~/workspace')  
+  environmental_measures&lt;-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = NULL, external_data_name_to_info_list=external_data_name_to_info_list, fill_missing_GEOID_with_zero = TRUE)
+ for (name_of_variable in names_of_variables_to_get) {
+        dataset_mrfei[dataset_mrfei$radius==radius &amp; dataset_mrfei$year==year,][[name_of_variable]][address] &lt;- environmental_measures[environmental_measures$names == name_of_variable, ]$values 
+        
  }},error=function(e){cat(&quot;ERROR :&quot;, conditionMessage(e), &quot;\n&quot;)}) #this will print any error messages
 }
-
-if(radius==500) {
-dataset_mrfei2&lt;-dataset_radius
-dataset_mrfei2$radius&lt;-500}
-
-if(radius&gt;500){
-dataset_radius$radius&lt;-radius
-dataset_mrfei2&lt;-rbind(dataset_mrfei2, dataset_radius)
+}
 }
 
-}
-
-dataset_mrfei2&lt;-dataset_mrfei2%&gt;%
-  mutate(year=year)%&gt;% # set year of data pull
-  dplyr::select(-lat, -long, id, radius, year, everything()) # reorder variables</code></pre>
+#### Notes: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####</code></pre>
 </div>
-<div id="export-dataset" class="section level2">
-<h2>4. Export dataset</h2>
-<pre class="r"><code>setwd(&quot;/home/rstudio/workspace/Inspace&quot;)
-write.csv(dataset_mrfei2, 'dataset_mrfei.csv')</code></pre>
+<div id="export-dataset" class="section level3">
+<h3>5. Export dataset</h3>
+<pre class="r"><code>dataset_mrfei&lt;-dataset_mrfei %&gt;% dplyr::select(everything(), -lat, -long)
+write.csv(dataset_mrfei, 'Inspace/dataset_mrfei.csv')</code></pre>
+</div>
 </div>
 
 
