@@ -4,7 +4,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
 ```
 
 ## ParkServe Data
@@ -13,145 +15,75 @@ The ParkServe dataset contains geographical information of parks in the US. Data
 
 For more information visit the website here: https://www.tpl.org/parkscore
 
-## 1. Load the ACMT package
+### 1. Setup ACMT
 
-First, we need to load the ACMT packages by calling the following function
-```{r}
-setwd('~/workspace')
-source("setup-acmt.R")
+```{r setup acmt}
+source('setup-acmt.R')
+source('Inspace/inspace_external_data_functions.R')
 ```
 
-## 2. Download the ParkServe data
+## 2. Download and process the ParkServe data
 
 The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration. The shapefile format of the data is needed for the implementation of the functions. We can download the data from the ParkServe official website: https://www.tpl.org/parkserve/downloads and unzip it to the target directory external_data, first by setting up the functions, then by calling them. This process will take around 20 minutes to run.
 
 
-```{r create download and process file functions}
-setwd('~/workspace')
-# section: ParkServe data https://www.tpl.org/parkserve/downloads
-download_file_park <- function () {  # download the external dataset and give it a name (will use it in creating external_data_name_to_info_list)
-  download.file(url = "https://parkserve.tpl.org/downloads/ParkServe_Shapefiles_05042022.zip?_ga=2.103216521.887440371.1664905337-1364699585.1664905337", destfile = "external_data/ParkServe_shp.zip")
-}
-process_file_park <- function () {  # unzip the downloaded file and save the target data layer as csv file)
-  unzip("external_data/ParkServe_shp.zip", exdir="external_data/ParkServe_shp")
-}
-
+```{r download and process parkdata}
 download_file_park()
 process_file_park()
+park_shp <- shp_preprocess(shp_directory = "external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp")
 ```
 
-## 3. Import geocoded dataset
+## 3. Designate settings for data pull
+
+```{r designate settings}
+years<-c(2021) #set year of data pulls (may only be one available)
+radius_vector<-c(500, 1000, 5000) #set radii
+variable_list<-c('park_proportion', 'park_distance')
+names_of_variables_to_get<-variable_list
+```
+
+
+## 4. Import and process geocoded dataset
 
 Next, import your geocoded dataset
 
-```{r}
-setwd("/home/rstudio/workspace/Inspace")
-dataset_geocoded<-read.csv('dataset_geocoded.csv')
-```
-
-## 4. Calculate Proportion of Park & Distance to the nearest park
-We can calculate the proportion of park area within the target circle area around each location in our datafile with the following steps. First we preprocess the shapefile below and set up our dataset with the variable that will be calculated (park_proportion)
-```{r}
-# First preprocess the shapefile - this process will take about 10 minutes.
-# The function to preprocess the shapefile data 
-shp_preprocess <- function (shp_directory){
-  #"external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp"
-  park_shp <- st_read(shp_directory)
-  park_shp <- st_transform(park_shp, crs = 4326)
-  park_shp <- st_make_valid(park_shp)
-  return(park_shp)
-}
-
-# pre-process shapefile
-setwd('~/workspace')
-park_shp <- shp_preprocess(shp_directory = "external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp")
-
-# Update geocoded dataset and add columns
-dataset_parkscore<-dataset_geocoded%>%
-  mutate(park_proportion=NA, 
-         park_distance=NA) %>%
-  dplyr::select(park_proportion, park_distance, id, lat, long)
-
-#set radii for calculating measures
-radius_vector<-c(500, 1000, 5000)
-
-
-```
-
-## 5. Create Functions for Park Proportion and Distance to park
-
-```{r create park functions}
-get_distance_to_shapefile <- function(lat, long, radius_meters, shp_processed){
-  park_shp <- shp_processed
-  loc <- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
-  area_intersect <- st_intersection(park_shp, loc)
-  if (nrow(area_intersect) == 0){
-    return(NA)
-  }
-  long <- c(long)
-  lat <- c(lat)
-  lonlat <- data.frame(cbind(long, lat))
-  point = st_as_sf(lonlat, coords=c("long", "lat"), crs=4326)
-  dist <- st_distance(point, area_intersect, by_element = TRUE)
-  return(min(dist))
-}
-
-# The function to calculate the proportion of park area within the circle centered at (lat, long) point with radius = radius_meter
-get_proportion_in_shapefile <- function(lat, long, radius_meters, shp_processed){
-  park_shp <- shp_processed
-  loc <- get_point_buffer_for_lat_long(long=long, lat=lat, radius_meters)
-  area_intersect <- st_intersection(park_shp, loc)
-  proportion <- sum(st_area(area_intersect))/st_area(loc)
-  return(proportion)
-}
-
-
+```{r import data}
+dataset_geocoded<-read.csv('Inspace/dataset_geocoded.csv')
+dataset_parkscore<-add_rows_columns(dataset=dataset_geocoded, variable_list=variable_list, radius_vector=radius_vector, years=years)
 ```
 
 
-## 6. Run loop to calculate Park measures
+## 5. Run loop to calculate Park measures
 
 ```{r loop for park proportion}
+for(year in 1:length(years)){
+  year<-years[year]
+print(year)
+for(radius in 1:length(radius_vector)){
+  radius<-radius_vector[radius]
 
-for(radius in radius_vector){
-  radius=radius
-  dataset_radius<-dataset_parkscore
-  print(radius)
+for(address in 1:nrow(dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,])) {
+   tryCatch({if(!is.na(dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][,1][address])) next #skip the row if the data is already there
+print(address) #print the number to keep track of progress
+  latitude<-dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,]$lat[address] #set lat
+  longitude<-dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,]$long[address] #set long
 
-for(address in 1:nrow(dataset_radius)) {
- tryCatch({if(!is.na(dataset_radius[,1][address])) next #skip the row if the data is already there
-  print(address) #print the number to keep track of progress
-  latitude<-dataset_radius$lat[address] #set lat
-  longitude<-dataset_radius$long[address] #set long
-  
-proportion_park<-get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
-distance_park<-get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp)
+environmental_measures<-data.frame(proportion_park=get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp), distance_park=get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp))
 
-dataset_radius$park_proportion[address]<-proportion_park
-dataset_radius$park_distance[address]<-distance_park
+  dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][['park_proportion']][address] <-environmental_measures$proportion_park
+  dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][['park_distance']][address] <-environmental_measures$distance_park
 
-},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages})
-}
-if(radius==500){
-  #dataset_park2<-park.data.full 
-  dataset_park2<-dataset_radius
-  dataset_park2$radius<-radius
-}
-  if(radius>500){
-    dataset_radius$radius<-radius
-    dataset_park2<-plyr::rbind.fill(dataset_park2, dataset_radius)
-  }
-}
 
-dataset_park2<-dataset_park2 %>% 
-  dplyr::select(id, radius, park_proportion, park_distance) %>%
-  mutate(year=2022)
+},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}}}
 
-head(dataset_park2)
+### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
+### note: you may get NA values for some values of park_distance, if there are no parks within the buffer areas. There should be a 0 for park proportion in these cases. 
+
 
 ```
 
-## 7. Export the dataset
+## 6. Export the dataset
 Finally, export the dataset with the ParkScore measures
 
 ```{r export data}

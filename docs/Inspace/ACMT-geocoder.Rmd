@@ -23,30 +23,37 @@ source("GeocoderACMT.R")
 
 ## Using the ACMT Geocoder
 
-If your data has not yet been geocoded, you can use the ACMT Geocoder to do this step. The first step is to import your dataset as raw_data and ensure that the entire address is in one field:
+If your data has not yet been geocoded, you can use the ACMT Geocoder to do this step. Before geocoding, run the Mapping addresses & geocodes Code to check geocodes and update addresses as necessary. 
+
+## 1. Import dataset
+
+Once addresses have been updated as much as possible, you can import your data and ensure that the entire address is in one field.
+
+```{r import raw data}
+setwd("/home/rstudio/workspace/Inspace")
+raw_data<-read.csv('dataset_example.csv')
+head(raw_data)
+```
+
+If your data has the address field separated into multiple columns (street, city, state, zip), you can combine them with the code below. If the address is already in one field, check that the 'id' is lowercase.  
 
 
 | id  |  address                              | 
 |-----|---------------------------------------|
-| 01  | 3400 Rainier Ave S, Seattle, WA 98144 | 
+| 01  | Street, City, State, zipcode          | 
 
 
-If your data has the address field separated into multiple columns (street, city, state, zip), you can combine them with the following code: 
 
 ```{r combine address fields}
-setwd("/home/rstudio/workspace/Inspace")
-raw_data<-read.csv('raw_data_example.csv')
-head(raw_data)
-
 dataset<-raw_data %>%
   mutate(address=paste(street, city, state, zip, sep=', ')) %>% ##Ensure your dataset has these column names
-  dplyr::select(id, address)
+  dplyr::select(id=ID, address)
 head(dataset)
-
 ```
 
+## 2. Add lat/long fields to your dataset
 
-Once we have one address field, we can write a loop that geocodes each address and finds the latitude and longitude for each address point. Those latitude and longitude values are added to the dataset with the following loop code: 
+* Once we have one address field, we can write a loop that geocodes each address and finds the latitude and longitude for each address point. Those latitude and longitude values are added to the dataset with the following loop code: 
 
 ```{r geocode addresses, results='hide'}
 #create lat and long columns
@@ -56,8 +63,9 @@ dataset_geocode<-dataset %>%
          rating=NA)
 ```
 
-```{r geocode loop, results='hide'}
+## 3. Run geocoding loop to geocode all your data
 
+```{r geocode loop, results='hide'}
 #Geocoding loop
 for (i in 1:nrow(dataset_geocode)) {
   if(!is.na(dataset_geocode$lat[i])) next #skip already geocoded
@@ -65,13 +73,14 @@ for (i in 1:nrow(dataset_geocode)) {
   print(i) #print the number to track progress
   
   address<-dataset_geocode$address
-  lat_long<-geocode(address[i])
+  tryCatch({
+  lat_long<-geocode(address[i])},error=function(e){cat("ERROR :", conditionMessage(e), "\n")})
   dataset_geocode$lat[i]<-lat_long$latitude # add latitude to dataset_geocode
   dataset_geocode$long[i] <-lat_long$longitude # add longitude to dataset_geocode
   dataset_geocode$rating[i]<-lat_long$rating # add rating to the dataset_geocode
 }
 
-head(inspace_geocoded)
+head(dataset_geocode%>%dplyr::select(id, lat, long, rating))
 ```
 
 Your geocoded dataset should now look as follows: 
@@ -81,79 +90,15 @@ Your geocoded dataset should now look as follows:
 | 01  | 3400 Rainier Ave S, Seattle, WA 98144 | 47.57296| -122.2939 | 10      |
 
 
-*Note that the 'rating' column rates the level of confidence in the geocoding lat-long values that were generated, with higher ratings indicating lower levels of confidence. Confidence levels that are above 20 are not considered valid. Cleaning up the address fields may help improve the geocoding - for instance, writing out the word 'South', rather than using an 'S', writing out street names rather than using abbreviations (i.e., write out Martin Luther King Jr. Way, rather than use MLK Way). If necessary, you can do some additional cleaning of addresses in your editor of choice (i.e., export and clean up in excel, or use R)
+Save a file with your ratings -- this will be shared when you share your data. 
 
-To examine the distribution of your ratings, you can build a table: 
+## 4. Export your geocoded data. 
 
-```{r ratings table}
-
-dataset_geocode%>% mutate(rating_group=ifelse(rating == 0, '0', ifelse(rating>0 & rating<6, '1-5', ifelse(rating>5 & rating<11, '6-11', ifelse(rating >10 & rating<21, '11-20', ifelse(rating>20, '20 or higher', NA))))))%>%
-  group_by(rating_group)%>%
-  summarise(n=n()) %>% 
-  mutate(percent=round(n/sum(n), digits=2)) %>%
-  dplyr::select(rating_group, n, percent)
-
-```
-
-
-## Check a sample of geocodes 
-
-We can get a map showing the results of the geocode function given an address. In the title of the map, the address and the rate are listed. The point with coordinates equal to the calculated longtitude and latitude is plotted. This is a good way to verify the accuracy of geocoding. First, we create the functions: 
-
-```{r check geocode functions}
-
-check_geocode <- function(lat, long, address, rate, id){
-  side_len = 0.007
-  bbox <- c(left = long - side_len, bottom = lat - side_len, right = long + side_len, top = lat + side_len)
-  map <- ggmap(get_stamenmap(bbox, zoom = 15)) +
-    geom_point(x = c(long), y = c(lat), size = 3) +
-    ggtitle(paste(paste('ID = ', id, sep=''), address, paste("Rate =", rate, sep = ""), sep='\n'))
-  return(map)
-}
-check_geocode_for_address <- function(address){
-  location <- geocode(address = address)
-  map <- check_geocode(lat = location$latitude, long = location$longitude, address = address, rate = location$rating)
-  return(map)
-}
-
-```
-
-Next, we can create maps for the first 50 geocoded addresses in the dataset
-
-```{r run map checker}
-#install.packages('ggmap')
-#library(ggmap)
-dataset_geocode_50<-dataset_geocode[1:50,]
-pdf('Inspace/geocode_checker_maps.pdf', height=10, width=10)
-for(i in 1:nrow(dataset_geocode_50)){
-  print(i) #print the number to track progress
-  #set values for function
-  lat<-dataset_geocode_50$lat[i]
-  long<-dataset_geocode_50$long[i]
-  address<-dataset_geocode_50$address[i]
-  rating<-dataset_geocode_50$rating[i]
-  id<-dataset_geocode_50$id[i]
-  
-  map<-check_geocode(lat=lat, long=long, address=address, rate=rating, id=id)
-
- print(map)
- 
-} 
-  
-## All 50 maps will be printed to a pdf in your Inspace folder called 'geocoder_checker_maps.pdf'; Open the pdf to check mapping. 
-
-
-```
-
-
-## Export your geocoded data. 
 It is ready to be used for pulling measures. We will first remove the address column, which we don't need anymore, then export the dataset
 
 ```{r data export}
-
-dataset_geocode<-dataset_geocode%>%dplyr::select(id, lat, long, rating)
-
-setwd("/home/rstudio/workspace/Inspace")
-write.csv(dataset_geocode, 'dataset_geocoded.csv')
-
+#export rating dataset
+write.csv(dataset_geocode%>%dplyr::select(id, rating), 'Inspace/dataset_ratings.csv')
+#export lat/long dataset -- this will be used for pulling environmental measures
+write.csv(dataset_geocode%>%dplyr::select(id, lat, long), 'Inspace/dataset_geocoded.csv') 
 ```

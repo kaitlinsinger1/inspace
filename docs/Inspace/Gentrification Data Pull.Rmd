@@ -6,7 +6,9 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval=FALSE)
+#knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
 ```
 
 ## Introduction
@@ -17,25 +19,27 @@ This measure of gentrification comes from the Urban Health Collaborative (UHC) a
 
 First, we need to load the ACMT packages by calling the following function
 ```{r}
-setwd('~/workspace')
-source("setup-acmt.R")
+source("GeocoderACMT.R")
+source('Inspace/Inspace_external_data_functions.R')
 ```
 
-Next, import your geocoded dataset
+Next, import your geocoded dataset and pull the states of interest
 
-```{r}
-setwd("/home/rstudio/workspace/Inspace")
-dataset_geocoded<-read.csv('dataset_geocoded.csv')
+```{r import geocoded data}
+dataset_geocoded<-read.csv('Inspace/dataset_geocoded.csv')
+
+## get states of interest from datatset
+states_sf <- st_transform( us_states( map_date = NULL, resolution = c("low", "high"), states = NULL), 4326)
+points_sf = st_as_sf(dataset_geocode, coords = c("long", "lat"), crs = 4326, agr = "constant")
+states <- as.data.frame( st_join(points_sf, states_sf, join = st_intersects) ) %>% dplyr::select(state_abbr, -geometry)%>%unique()%>% as.list()
+
 ```
 
 ## 2. Pull tracts for each participant
 
 ```{r pull tracts data}
-#designate state
-state<-'WA'
-
 #download tract shapefile
-tracts.2010<-tracts(year=2010, state=state)
+tracts.2010<-tracts(year=2010, state=states$state_abbr)
 
 #create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
 latlong_sf<-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
@@ -49,7 +53,7 @@ head(intersected_tracts)
 
 ### 3. Download Gentrification data
 
-```{r import price parity data}
+```{r import gentrification data}
 
 #set URL to download from github
 genturl<-'https://raw.githubusercontent.com/aybloom/inspace/main/docs/Inspace/raw_gentrification.csv'

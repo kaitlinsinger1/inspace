@@ -1,7 +1,7 @@
 ---
 title: "Pulling ACS Data for Inspace Projects"
 author: "Amy Youngbloom"
-date: "3/31/2022"
+date: "11/2/2022"
 output: html_document
 ---
 
@@ -11,6 +11,12 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
 knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
 ```
 
+### Introduction
+
+To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. ACS variables will be pulled for 2017 (2013-2017 5-year ACS) as well as for the 5-year period centered around your initial year of enrollment. For example, if enrollment in your program began in 2016, you would want to pull data from the 2014-2019 ACS (year=2019). 
+
+This document lays out instructions for how to pull the requested ACS variables for each participant. 
+
 ```{r load packages & ACMT}
 library(tidycensus)
 library(tidyverse)
@@ -18,33 +24,9 @@ library(dplyr)
 #install.packages('janitor')
 library(janitor)
 library(reshape2)
-setwd("/home/rstudio/workspace/")
 source("GeocoderACMT.R")
+source('Inspace/Inspace_external_data_functions.R')
 ```
-
-
-### Introduction
-
-To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. ACS variables will be pulled for 2017 (2013-2017 5-year ACS) as well as for the 5-year period centered around your initial year of enrollment. For example, if enrollment in your program began in 2016, you would want to pull data from the 2014-2019 ACS (year=2019). 
-
-This document lays out instructions for how to pull the requested ACS variables for each participant. 
-
-Before we get started, we will pull in the geocodeded dataset: 
-
-```{r import geocoded data}
-setwd("/home/rstudio/workspace/Inspace")
-dataset_geocode<-read.csv('dataset_geocoded.csv')
-
-```
-
-Your dataset should be formatted as follows, with the following column names: 
-
-| id  |  lat      | long        | 
-|-----|-----------|-------------|
-| 01  | 47.568922 | -122.306422 |
-| 02  | 47.632264 | -122.314978 |
-| 03  | 47.634820 | -122.292769 |
-| ..  | ......... | ........... |
 
 
 ### 1. Designate ACS variables to be pulled
@@ -56,7 +38,8 @@ Your dataset should be formatted as follows, with the following column names:
 ```{r set acs vars}
 
 setwd("/home/rstudio/workspace/Inspace")
-acs_columns_inspace<-read.csv('ACSColumns_inspace.csv')
+acs_columns_inspace<-read.csv('ACSColumns_inspace.csv') %>% dplyr::select(-X)
+acs_columns_inspace$acs_variable_name_to_interpolate_by_sum_boolean_mapping<-acs_columns_inspace$interpolation
 
 #overwrite current ACSColumns.csv file
 setwd("/home/rstudio/workspace/ACMT")
@@ -87,112 +70,115 @@ names(acs_variable_name_to_interpolate_by_sum_boolean_mapping)<-acs_columns_insp
 codes_of_acs_variables_to_get<-acs_columns_inspace$acs_col
 names_of_variables_to_get<-c(acs_count_names, acs_proportion_names)
 radius_vector <- c(500, 1000, 5000)#set the radius for the area of interest
-years <- c(2017, 2018) #set the year(s) for the data of interest
+years <- c(2017, 2019) #set the year(s) for the data of interest
 
 ```
 
 
 ### 3. Create additional columns in the dataset for each variable to be pulled
 
-  In order to directly add the measures to your dataset, we first need to create a column for each variable.
+In order to directly add the measures to your dataset, we first need to add columns for each variable and rows for years/radii
   
 
-```{r variable columns}
+```{r process geocoded data}
 
-dataset_acs<-dataset_geocode
+setwd("/home/rstudio/workspace/Inspace")
+dataset_geocode<-read.csv('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
 
-#create dataset with a column for each variable at each radius level
-var.cols<-data.frame(matrix(nrow=nrow(dataset_acs), ncol=(length(names_of_variables_to_get)))) #create dataset of columns
-colnames(var.cols)<-names_of_variables_to_get #name the columns
+#dataset_geocode<-dataset_geocode%>%
+#  rename(lat=latitude)%>%
+#  select(id, lat, long)
 
-dataset_acs<-cbind(var.cols, dataset_acs)
+head(dataset_geocode)
+```
 
+Your imported dataset should be formatted as follows, with the following column names: 
+
+| id  |  lat      | long        | 
+|-----|-----------|-------------|
+| 01  | 47.568922 | -122.306422 |
+| 02  | 47.632264 | -122.314978 |
+| 03  | 47.634820 | -122.292769 |
+| ..  | ......... | ........... |
+
+To this dataset, we will add columsn for each variable to be pulled, and rows for each year/radii: 
+
+```{r process dataframe}
+dataset_acs<-add_rows_columns(dataset=dataset_geocode, variable_list=names_of_variables_to_get, radius_vector=radius_vector, years=years)
 ```
 
 ### 4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long
 
+Finally, we will run this loop to pull the ACS Measures for each lat/long and each year/radii in our dataset. This loop is set up so it can be interrupted, and restart from this step. If the loop is interrupted and you close R, be sure to save your dataset_acs into your Inspace folder before shutting down. 
+
+If returning to this data pull after shutting down R, you will need to reimport your dataset_acs, and rerun the code in the introduction through step 2 (NOT STEP 3). 
+
 ```{r acmt loop, warnings='hide', results='hide'}
-setwd("/home/rstudio/workspace")
+
+## to reimport your dataset_acs after interruping the process (don't forget to run code in the introduction through step 2)
+dataset_acs<-read.csv('Inspace/dataset_acs.csv')%>%mutate(X=NULL)
 
 #run loop to pull variables
-for(year in years){
-  year<-year
+for(year in 1:length(years)){
+  year<-years[year]
   print(year)
 for(radius in 1:length(radius_vector)){
   #radius<-1 #for testing
 radius<-radius_vector[radius]
-dataset_radius<-dataset_acs
+#dataset_radius<-dataset_acs
 print(radius)
 
-for(id in 1:nrow(dataset_radius)) {
-   tryCatch({if(!is.na(dataset_radius[,1][id])) next #skip the row if the data is already there
-  if(!is.na(dataset_radius[,1][id])) next #skip the row if the data is already there
+for(id in 1:nrow(dataset_acs)) {
+   tryCatch({if(!is.na(dataset_acs[,1][id])) next #skip the row if the data is already there
   print(id) #print the number to keep track of progress
-  latitude<-dataset_radius$lat[id] #set lat
-  longitude<-dataset_radius$long[id] #set long
+  latitude<-dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,]$lat[id] #set lat
+  longitude<-dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,]$long[id] #set long
   
-  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get) #pull measures for given lat & long
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, set_var_list=TRUE) #pull measures for given lat & long
  
-      for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
-     value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
-     dataset_radius[[name_of_variable]][id]<-value_of_variable
-  }
+#      for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
+#     value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
+#     dataset_radius[[name_of_variable]][id]<-value_of_variable
+#  }
 
  for (name_of_variable in names_of_variables_to_get) {
-        dataset_radius[[name_of_variable]][id] <- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
- }},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+        dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,][[name_of_variable]][id]<- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
+ }
+  },error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
 }
+}
+}  
 
-if(radius==500) {
-dataset_acs2<-dataset_radius
-dataset_acs2$radius<-500}
-
-if(radius>500){
-dataset_radius$radius<-radius
-dataset_acs2<-rbind(dataset_acs2, dataset_radius)
-}
-}
-#clean up dataset & set name:  
-dataset_acs2<-dataset_acs2 %>% 
-  mutate(year=year) %>%
-  dplyr::select(id, radius, year, everything(), -lat, -long)
-
-if(year==2017){
- dataset_acs2017<- dataset_acs2 #create a dataset for each year
-}
-if(year!=2017){
-  dataset_acsyear<-dataset_acs2
-}
-}
-
-dataset_acs_full<-rbind(dataset_acs2017, dataset_acsyear) #combine acs 2018 data with year of program enrollment
+#### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
 ```
 
-### 5. Next, we will pull the metropolitan statistical area (MSA) and county GEOID for each lat/long location
 
-```{r pull MSA and county GEOID}
+### 5.Next, the county GEOID for each lat/long location
+
+```{r pull county GEOID}
 #download cbsa shapefile
-cbsa<-core_based_statistical_areas(year=2019)
+#cbsa<-core_based_statistical_areas(year=2019)
 
 #lat-long shapefile with 
 latlong_sf<-st_as_sf(dataset_acs%>%dplyr::select(id, lat, long), coords=c('long', 'lat'), crs=4269)
 counties_sf<-st_transform(counties, crs=4269)
-cbsa_sf<-st_as_sf(cbsa, crs=4269)
-intersected_msa<-st_intersection(latlong_sf, cbsa_sf)
+#cbsa_sf<-st_as_sf(cbsa, crs=4269)
+#intersected_msa<-st_intersection(latlong_sf, cbsa_sf)
 intersected_county<-st_intersection(latlong_sf, counties_sf)
 
-msa_dataset <- merge(dataset_acs %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)%>% dplyr::select(id, msa_geoid=GEOID)
-county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID)
+#msa_dataset <- merge(dataset_acs %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)%>% dplyr::select(id, #msa_geoid=GEOID)
+county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID, -geometry)
 
-dataset_acs_full<-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
-dataset_acs_full<-merge(dataset_acs_full, county_dataset, by='id', all.x=TRUE)
+#dataset_acs_full<-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
+dataset_acs<-merge(dataset_acs, county_dataset, by='id', all.x=TRUE)
 
 ```
 
 ### 6. Finally export your dataset
 
 ```{r export}
-setwd("/home/rstudio/workspace/Inspace")
-write.csv(datsaet_acs_full, 'dataset_acs_full.csv')
+dataset_acs<-dataset_acs %>% dplyr::select(-lat, -long)
+write.csv(dataset_acs, 'Inspace/dataset_acs.csv')
 
 ```
+
