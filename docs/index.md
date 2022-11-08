@@ -55,7 +55,7 @@ To see the full list of dataset and variables that will be pulled from each data
    * [NLCD Data - VIDEO GUIDE](https://youtu.be/sUp2LKcmQHo)
    * *Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.*
 5. [Modified Retail Food Environment Index Data Pull Instructions](http://aybloom.github.io/inspace/mfrei-data-pull.html)
-   * [mRFEI Data - VIDEO GUIDE](https://youtu.be/JFFjrwxrFBQ)
+   * [mRFEI Data - VIDEO GUIDE](https://youtu.be/4WGegaBN_w4)
    * *Only year available is 2011.*
 6. [Trust for Public Lands' ParkServe Data Pull Instructions](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
    * [ParkServe Data - VIDEO GUIDE](https://youtu.be/N1FdRQPKTxE)
