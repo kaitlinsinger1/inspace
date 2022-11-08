@@ -36,14 +36,11 @@ source('Inspace/Inspace_external_data_functions.R')
 * Create a list of the variables of interest. *
 
 ```{r set acs vars}
-
-setwd("/home/rstudio/workspace/Inspace")
-acs_columns_inspace<-read.csv('ACSColumns_inspace.csv') %>% dplyr::select(-X)
+acs_columns_inspace<-read.csv('Inspace/ACSColumns_inspace.csv') %>% dplyr::select(-X)
 acs_columns_inspace$acs_variable_name_to_interpolate_by_sum_boolean_mapping<-acs_columns_inspace$interpolation
 
 #overwrite current ACSColumns.csv file
-setwd("/home/rstudio/workspace/ACMT")
-write.csv(acs_columns_inspace, 'ACSColumns.csv')
+write.csv(acs_columns_inspace, 'ACMT/ACSColumns.csv')
 
 ```
 
@@ -81,9 +78,7 @@ In order to directly add the measures to your dataset, we first need to add colu
   
 
 ```{r process geocoded data}
-
-setwd("/home/rstudio/workspace/Inspace")
-dataset_geocode<-read.csv('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
+dataset_geocode<-read.csv('Inspace/dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
 
 #dataset_geocode<-dataset_geocode%>%
 #  rename(lat=latitude)%>%
@@ -105,6 +100,7 @@ To this dataset, we will add columsn for each variable to be pulled, and rows fo
 
 ```{r process dataframe}
 dataset_acs<-add_rows_columns(dataset=dataset_geocode, variable_list=names_of_variables_to_get, radius_vector=radius_vector, years=years)
+head(dataset_acs)
 ```
 
 ### 4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long
@@ -150,10 +146,15 @@ for(id in 1:nrow(dataset_acs)) {
 }  
 
 #### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
+
+getwd()
+
+write.csv(dataset_acs, 'Inspace/dataset_acs.csv')
+
 ```
 
 
-### 5.Next, the county GEOID for each lat/long location
+### 5. Next, the county GEOID for each lat/long location
 
 ```{r pull county GEOID}
 #download cbsa shapefile
