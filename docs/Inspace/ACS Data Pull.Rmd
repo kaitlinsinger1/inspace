@@ -13,7 +13,7 @@ knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
 
 ### Introduction
 
-To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. ACS variables will be pulled for 2017 (2013-2017 5-year ACS) as well as for the 5-year period centered around your initial year of enrollment. For example, if enrollment in your program began in 2016, you would want to pull data from the 2014-2019 ACS (year=2019). 
+To allow for pooling of Inspace projects, we have generated a wishlist of ACS variables that we are hoping each project can pull for all participants. ACS variables will be pulled for 2017 (2013-2017 5-year ACS) as well as for the 5-year period centered around your initial year of enrollment. For example, if enrollment in your program began in 2017, you would want to pull data from the 2015-2019 ACS (year=2019). 
 
 This document lays out instructions for how to pull the requested ACS variables for each participant. 
 
@@ -112,7 +112,6 @@ If returning to this data pull after shutting down R, you will need to reimport 
 ```{r acmt loop, warnings='hide', results='hide'}
 
 ## to reimport your dataset_acs after interruping the process (don't forget to run code in the introduction through step 2)
-dataset_acs<-read.csv('Inspace/dataset_acs.csv')%>%mutate(X=NULL)
 
 #run loop to pull variables
 for(year in 1:length(years)){
@@ -124,19 +123,14 @@ radius<-radius_vector[radius]
 #dataset_radius<-dataset_acs
 print(radius)
 
-for(id in 1:nrow(dataset_acs)) {
-   tryCatch({if(!is.na(dataset_acs[,1][id])) next #skip the row if the data is already there
+for(id in 1:nrow(dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,])) {
+   tryCatch({if(!is.na(dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,][,1][id])) next #skip the row if the data is already there
   print(id) #print the number to keep track of progress
   latitude<-dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,]$lat[id] #set lat
   longitude<-dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,]$long[id] #set long
   
-  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, set_var_list=TRUE) #pull measures for given lat & long
- 
-#      for(name_of_variable in names_of_variables_to_get){ #for each measures, get the value and put it into the column of the same name
-#     value_of_variable <- environmental_measures[environmental_measures$names == name_of_variable,]$values  
-#     dataset_radius[[name_of_variable]][id]<-value_of_variable
-#  }
-
+  environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = codes_of_acs_variables_to_get, set_var_list=TRUE) 
+  
  for (name_of_variable in names_of_variables_to_get) {
         dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year,][[name_of_variable]][id]<- environmental_measures[environmental_measures$names == name_of_variable, ]$values  
  }
@@ -147,9 +141,6 @@ for(id in 1:nrow(dataset_acs)) {
 
 #### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
 
-getwd()
-
-write.csv(dataset_acs, 'Inspace/dataset_acs.csv')
 
 ```
 
