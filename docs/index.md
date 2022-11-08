@@ -58,18 +58,19 @@ To see the full list of dataset and variables that will be pulled from each data
    * [mRFEI Data - VIDEO GUIDE](https://youtu.be/4WGegaBN_w4)
    * *Only year available is 2011.*
 6. [Trust for Public Lands' ParkServe Data Pull Instructions](http://aybloom.github.io/inspace/ParkScore-data-pull.html)
-   * [ParkServe Data - VIDEO GUIDE](https://youtu.be/N1FdRQPKTxE)
+   * [ParkServe Data - VIDEO GUIDE](https://youtu.be/Hqp61KTvPnE)
    * *Only year available is 2021*
 7. [AGS Crime Risk Data Pull Instructions](http://aybloom.github.io/inspace/CrimeRisk-data-pull.html)
-   * [Crime Risk Data - VIDEO GUIDE](https://youtu.be/k3xXwYiOBG8)
+   * [Crime Risk Data - VIDEO GUIDE](https://youtu.be/ZywbGsG6vZ0)
    * *Only year available is 2022*
 8. [Sidewalk Score Data Pull Instructions](http://aybloom.github.io/inspace/Sidewalk-View.html)
-   * [Sidewalk Score Data - VIDEO GUIDE](https://youtu.be/i4eCdeggAUo)
+   * [Sidewalk Score Data - VIDEO GUIDE](https://youtu.be/tk2W6r1RjEA)
    * *Only year available is 2017*
 9. [Regional Price Parity Data Pull Instructions](http://aybloom.github.io/inspace/Price-Parity-Data-Pull.html)
    * *Available for 2008 through 2020. Years to pull: 2015 and the first year of your program's enrollment*
 10. [Gentrification Data Pull Instructions](http://aybloom.github.io/inspace/Gentrification-Data-Pull.html)
    * *Measures include gentrification from 1990 to 2000 and from 2000 to 2010. Both measures will be pulled (no years need to be designated)*
+   * [Video Guide for Regional Price Parity & Gentrification data pulls](https://youtu.be/v5JWq0a4NYQ)
 
 Each dataset will be separately saved. Once you have pulled the variables for each year, contact the InSpace team for instructions on sharing the de-identified data with the team. 
 
