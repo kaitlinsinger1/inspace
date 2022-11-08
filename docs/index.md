@@ -46,13 +46,13 @@ To see the full list of dataset and variables that will be pulled from each data
    * [ACS Data - VIDEO GUIDE](https://youtu.be/wYz1r26XG5A)
    * *Years of data to pull: 2017 and first year of your program's enrollment + 2 (i.e., if enrollment year was 2016, you would want to pull the 2018 data, which are estimates based on 2014-2018)*
 2. [Walkability Index Data Pull Instructions](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
-   * [Walkability data - VIDEO GUIDE](https://youtu.be/n6jk7XErmUs_)
+   * [Walkability data - VIDEO GUIDE](https://youtu.be/iY3y1hxBFQQ)
    * *Only year available is 2018.*
 3. [CDC PLACES Data Pull Instructions](https://aybloom.github.io/inspace/PLACES-data-pull.html)
    * [CDC PLACES - VIDEO GUIDE](https://youtu.be/-agyvyfKztQ)
    * *Years of data to pull: only data available for 2017 and 2018. Choose the year closest to enrollment.
 4. [National Land Cover Database Data Pull Instructions](https://aybloom.github.io/inspace/NLCD-data-pull.html)
-   * [NLCD Data - VIDEO GUIDE](https://youtu.be/bVSwlG6aVI4)
+   * [NLCD Data - VIDEO GUIDE](https://youtu.be/sUp2LKcmQHo)
    * *Years of data to pull: 2016, and if your year of enrollment is 2018 or later, also pull 2019 data.*
 5. [Modified Retail Food Environment Index Data Pull Instructions](http://aybloom.github.io/inspace/mfrei-data-pull.html)
    * [mRFEI Data - VIDEO GUIDE](https://youtu.be/JFFjrwxrFBQ)
