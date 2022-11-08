@@ -468,7 +468,10 @@ head(dataset_acs)</code></pre>
 <h3>4. Run the ACMT Loop to pull ACS data and interpolate each measures for each lat/long</h3>
 <p>Finally, we will run this loop to pull the ACS Measures for each lat/long and each year/radii in our dataset. This loop is set up so it can be interrupted, and restart from this step. If the loop is interrupted and you close R, be sure to save your dataset_acs into your Inspace folder before shutting down.</p>
 <p>If returning to this data pull after shutting down R, you will need to reimport your dataset_acs, and rerun the code in the introduction through step 2 (NOT STEP 3).</p>
-<pre class="r"><code>## to reimport your dataset_acs after interruping the process (don't forget to run code in the introduction through step 2)
+<pre class="r"><code>## to reimport your dataset_acs after interruping the process, run the code at the top through step 2, then pull in your exported dataset with the line below (remove # to run):
+#dataset_acs&lt;-read.csv('Inspace/dataset_acs.csv')
+
+getwd()
 
 #run loop to pull variables
 for(year in 1:length(years)){
@@ -496,7 +499,10 @@ for(id in 1:nrow(dataset_acs[dataset_acs$radius==radius &amp; dataset_acs$year==
 }
 }  
 
-#### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####</code></pre>
+#### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
+
+#export data when interrupting: 
+write.csv(dataset_acs, 'Inspace/dataset_acs.csv')</code></pre>
 </div>
 <div id="next-the-county-geoid-for-each-latlong-location" class="section level3">
 <h3>5. Next, the county GEOID for each lat/long location</h3>
@@ -511,7 +517,7 @@ counties_sf&lt;-st_transform(counties, crs=4269)
 intersected_county&lt;-st_intersection(latlong_sf, counties_sf)
 
 #msa_dataset &lt;- merge(dataset_acs %&gt;%dplyr::select(id), intersected_msa, by='id', all=TRUE)%&gt;% dplyr::select(id, #msa_geoid=GEOID)
-county_dataset&lt;-merge(dataset_acs%&gt;%dplyr::select(id), intersected_county, by='id', all=TRUE)%&gt;%dplyr::select(id, county_geoid=GEOID, -geometry)
+county_dataset&lt;-merge(dataset_acs%&gt;%dplyr::select(id), intersected_county, by='id', all=TRUE)%&gt;%dplyr::select(id, county_geoid=GEOID, -geometry)%&gt;%unique()
 
 #dataset_acs_full&lt;-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
 dataset_acs&lt;-merge(dataset_acs, county_dataset, by='id', all.x=TRUE)</code></pre>
