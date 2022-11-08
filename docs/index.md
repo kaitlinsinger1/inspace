@@ -43,7 +43,7 @@ To measures for your dataset, follow these instructions:
 To see the full list of dataset and variables that will be pulled from each dataset click [here](https://aybloom.github.io/inspace/InSPACE-Measures-list.html)
 
 1. [American Community Survey Data Pull Instructions](https://aybloom.github.io/inspace/ACS-Data-Pull.html)
-   * [ACS Data - VIDEO GUIDE](https://youtu.be/VBwaBNqpgj4)
+   * [ACS Data - VIDEO GUIDE](https://youtu.be/wYz1r26XG5A)
    * *Years of data to pull: 2017 and first year of your program's enrollment + 2 (i.e., if enrollment year was 2016, you would want to pull the 2018 data, which are estimates based on 2014-2018)*
 2. [Walkability Index Data Pull Instructions](https://aybloom.github.io/inspace/epa-walkability-data-pull.html)
    * [Walkability data - VIDEO GUIDE](https://youtu.be/n6jk7XErmUs_)
