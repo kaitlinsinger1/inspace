@@ -111,7 +111,10 @@ If returning to this data pull after shutting down R, you will need to reimport 
 
 ```{r acmt loop, warnings='hide', results='hide'}
 
-## to reimport your dataset_acs after interruping the process (don't forget to run code in the introduction through step 2)
+## to reimport your dataset_acs after interruping the process, run the code at the top through step 2, then pull in your exported dataset with the line below (remove # to run):
+#dataset_acs<-read.csv('Inspace/dataset_acs.csv')
+
+getwd()
 
 #run loop to pull variables
 for(year in 1:length(years)){
@@ -141,6 +144,9 @@ for(id in 1:nrow(dataset_acs[dataset_acs$radius==radius & dataset_acs$year==year
 
 #### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
 
+#export data when interrupting: 
+write.csv(dataset_acs, 'Inspace/dataset_acs.csv')
+
 
 ```
 
@@ -159,7 +165,7 @@ counties_sf<-st_transform(counties, crs=4269)
 intersected_county<-st_intersection(latlong_sf, counties_sf)
 
 #msa_dataset <- merge(dataset_acs %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)%>% dplyr::select(id, #msa_geoid=GEOID)
-county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID, -geometry)
+county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID, -geometry)%>%unique()
 
 #dataset_acs_full<-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
 dataset_acs<-merge(dataset_acs, county_dataset, by='id', all.x=TRUE)
