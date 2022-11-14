@@ -50,7 +50,7 @@ To see the full list of dataset and variables that will be pulled from each data
    * [Walkability data - VIDEO GUIDE](https://youtu.be/iY3y1hxBFQQ)
    * *Only year available is 2018.*
 3. [CDC PLACES Data Pull Instructions](https://aybloom.github.io/inspace/PLACES-data-pull.html)
-   * [CDC PLACES - VIDEO GUIDE](https://youtu.be/-agyvyfKztQ)
+   * [CDC PLACES - VIDEO GUIDE](https://youtu.be/0pWVMQRp__0)
    * *Years of data to pull: only data available for 2017 and 2018. Choose the year closest to enrollment.
 4. [National Land Cover Database Data Pull Instructions](https://aybloom.github.io/inspace/NLCD-data-pull.html)
    * [NLCD Data - VIDEO GUIDE](https://youtu.be/sUp2LKcmQHo)
