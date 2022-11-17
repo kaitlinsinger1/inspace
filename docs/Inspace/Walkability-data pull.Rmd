@@ -95,6 +95,6 @@ Finally, once the measures for each lat/long and each radius has been pulled, we
 ```{r export dataset}
 setwd('~/workspace/Inspace')
 
-dataset_walk<-dataset_walk %>% dplry::select(everything(), -lat, -long)
+dataset_walk<-dataset_walk %>% dplyr::select(everything(), -lat, -long)
 write.csv(dataset_walk, 'dataset_walkability.csv')
 ```
