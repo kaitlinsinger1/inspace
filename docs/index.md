@@ -24,10 +24,10 @@ The first step in using the ACMT is to install the Docker, which creates a conta
    * *Instructions for installing the Docker, downloading the ACMT source code can be found [HERE](https://aybloom.github.io/inspace/ACMT-setup-Inspace.html)*
       * *Follow [THIS LINK](https://youtu.be/hHCyvDOB3TY) for a video guide to setting up the ACMT*
 
-### Step 2: Geocoding your dataset
+### Step 2: [Geocoding your dataset](https://aybloom.github.io/inspace/Mapping-addresses---protocol.html)
 
 If your addresses are not already gecoded to latitude and longitude, you can use the ACMT to geocode your data.
-   * *To ensure the most accurate geocode locations possible, the geocoding process is an iterative process of mapping locations and cleaning addresses. This step is the most hands-on, and will require a few to several hours of work, depending on the size of your dataset. Mapping and addresses cleaning can all be done in R by following **[THESE INSTRUCTIONS](https://aybloom.github.io/inspace/Mapping-addresses---geocodes.html)** *
+   * *To ensure the most accurate geocode locations possible, the geocoding process is an iterative process of mapping locations and cleaning addresses. This step is the most hands-on, and will require a few to several hours of work, depending on the size of your dataset. Mapping and addresses cleaning can all be done in R by following **[THESE INSTRUCTIONS](https://aybloom.github.io/inspace/Mapping-addresses---protocol.html)** *
    * *Use these instructions to map the geocodes and update any that have high ratings and/or look incorrect when mapped. With the final addresses, make a note of any that have high ratings, but look accurate, or have low ratings, but do not look accurate. Video instructions for this step can be found [here](https://youtu.be/3YF3F4-bLOo).*
    * 
 
