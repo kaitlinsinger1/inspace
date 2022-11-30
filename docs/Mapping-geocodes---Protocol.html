@@ -372,8 +372,11 @@ summary {
 
 <div id="inspace-geocoding-protocol" class="section level1">
 <h1>InSpace – Geocoding Protocol</h1>
+<p><strong><em>Important NOTE: do not put any participant addresses into google maps. Google is a third party and you are providing them with identifiable participant information when you enter an address</em></strong></p>
 <p>Ensuring the most precise geocoding of participant addresses will enable you to pull the most accurate measures of the environmental context. While the ACMT has a built-in geocoder, we are also relying on our partners to verify that the geocodes produced by the ACMT accurately represent the location of the participant.</p>
+<p>This exercise of cleaning up addresses and checking geocodes can benefit from local knowledge of the area in which your participants reside. It may be beneficial to talk to someone else in your lab (who is on the IRB for your project) to help identify potential address and/or geocoding errors.</p>
 <p>The process of verifying participant locations is an iterative process of mapping geocodes, updating addresses, re-mapping, and noting where location are inaccurate, even after address updates. This process utilizes the ACMT map checking and geocoder functions to produce maps, geocodes, and ratings of the geocodes.</p>
+<p>This tool can be helpful in verifying zip codes in your area: <a href="https://www.unitedstateszipcodes.org/" class="uri">https://www.unitedstateszipcodes.org/</a></p>
 <div id="import-address-data-combine-address-fields-if-necessary" class="section level2">
 <h2>Import address data &amp; combine address fields if necessary</h2>
 <ul>
@@ -421,7 +424,7 @@ summary {
 <p><strong>For each address with rating &gt;0, take the following steps: </strong> <em>NOTE: Do not put any participant addresses into google maps. If you need to check the address, you can put the street name into google maps, but do not include the house number</em></p>
 <ol style="list-style-type: decimal">
 <li>Update the address to write out any ‘Ave’ to ‘Avenue’, ‘S’ to ‘South’, etc.</li>
-<li>Check the zip code for the given city and/or cross street (you can use google maps, but DO NOT put in the entire street address).</li>
+<li>Check the zip code for the given city and/or cross street. This website: <a href="https://www.unitedstateszipcodes.org/" class="uri">https://www.unitedstateszipcodes.org/</a> is a helpful tool for locating zip codes in your area.</li>
 <li>Increase/Decrease the level of detail by changing the ‘z’ value (higher numbers here give more detailed maps, but may not be available for more rural areas - you can lower the number to 14 or 15 if the map is blank)</li>
 <li>Increase/Decrease the level of zoom by changing the ‘side_len’ value (higher numbers give a larger map, but may take longer to load (I recommend not going higher than 0.05))</li>
 <li>If the street name is not appearing on the map after the above edits, you can search the street name or nearby cross streets in google maps to pinpoint the geocoded location and ensure the geocode is mapping to the correct street (DO NOT PUT THE FULL ADDRESS IN GOOGLE MAPS)</li>
