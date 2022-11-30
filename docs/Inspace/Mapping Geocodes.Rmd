@@ -23,11 +23,17 @@ source("GeocoderACMT.R")
 ```
 If the above code results in an error, you may need to remove the '#' before install.packages('ggmap'). 
 
-## InSpace – Geocoding Protocol
+# InSpace – Geocoding Protocol
 
-	Ensuring the most precise geocoding of participant addresses will enable you to pull the most accurate measures of the environmental context. While the ACMT has a built-in geocoder, we are also relying on our partners to verify that the geocodes produced by the ACMT accurately represent the location of the participant. 
+***Important NOTE: do not put any participant addresses into google maps. Google is a third party and you are providing them with identifiable participant information when you enter an address***
+
+Ensuring the most precise geocoding of participant addresses will enable you to pull the most accurate measures of the environmental context. While the ACMT has a built-in geocoder, we are also relying on our partners to verify that the geocodes produced by the ACMT accurately represent the location of the participant. 
+
+This exercise of cleaning up addresses and checking geocodes can benefit from local knowledge of the area in which your participants reside. It may be beneficial to talk to someone else in your lab (who is on the IRB for your project) to help identify potential address and/or geocoding errors. 
 	
-	The process of verifying participant locations is an iterative process of mapping geocodes, updating addresses, re-mapping, and noting where location are inaccurate, even after address updates. This process utilizes the ACMT map checking and geocoder functions to produce maps, geocodes, and ratings of the geocodes. 
+The process of verifying participant locations is an iterative process of mapping geocodes, updating addresses, re-mapping, and noting where location are inaccurate, even after address updates. This process utilizes the ACMT map checking and geocoder functions to produce maps, geocodes, and ratings of the geocodes. 
+
+This tool can be helpful in verifying zip codes in your area: https://www.unitedstateszipcodes.org/
 
 ## 1. Import address data & combine address fields if necessary
 
@@ -130,7 +136,7 @@ for(i in 1:nrow(dataset_geocode)){
   rating<-dataset_geocode$rating[i]
   id<-dataset_geocode$id[i]
   
-map<-tryCatch({check_geocode(lat=lat, long=long, address=address, rate=rating, id=id)}, error=function(x){map<-NA})
+map<-tryCatch({check_geocode(lat=lat, long=long, address=address, rate=rating, id=id, z=15)}, error=function(x){map<-NA})
 
  print(map)
 }
@@ -142,17 +148,20 @@ map<-tryCatch({check_geocode(lat=lat, long=long, address=address, rate=rating, i
   * Open up the pdf of maps file that should now be in your Inspace folder (you may need to reload your Inspace folder), called, 'geocode_checker_maps'. 
   * Export the csv file (called dataset_address_check) and open it in excel. You will be working off of this file check geolocations and make notes about addresses that have high ratings, but look accurate.
   
-### For each address with rating >0, 
-
-For each address with a geocoding rating >0, and whose map is either blank, or appears inaccurate, take the following steps. After each step, you can use the code below, updating the i <- ## with the id number you are updating, and the update.address<- '' with the updated address text. 
+## Check the mapped geocodes
+  * Once you have geocoded your data and exported the dataset_address_check document, open the file in excel. You can work off of this file as you check geolocations and make notes about addresses that have high ratings, but look accurate.
+  
+**For each address with rating >0, take the following steps: ** 
+*NOTE: Do not put any participant addresses into google maps. If you need to check the address, you can put the street name into google maps, but do not include the house number*
 
   1. Update the address to write out any 'Ave' to 'Avenue', 'S' to 'South', etc. 
-  2. Check the zip code for the given city and/or cross street. 
+  2. Check the zip code for the given city and/or cross street. This website: https://www.unitedstateszipcodes.org/ is a helpful tool for locating zip codes in your area.
   3. Increase/Decrease the level of detail by changing the 'z' value (higher numbers here give more detailed maps, but may not be available for more rural areas - you can lower the number to 14 or 15 if the map is blank)
   4. Increase/Decrease the level of zoom by changing the 'side_len' value (higher numbers give a larger map, but may take longer to load (I recommend not going higher than 0.05))
-  5. If you are unsure if the location is correct or not, and the rating is >0, 
-  
-    * update the code below wth the id number of the individuals whose address you are looking to update, and paste the entire new address in the code below to update: 
+  5. If the street name is not appearing on the map after the above edits, you can search the street name or nearby cross streets in google maps to pinpoint the geocoded location and ensure the geocode is mapping to the correct street (DO NOT PUT THE FULL ADDRESS IN GOOGLE MAPS) 
+  6. If you are unsure if the location is correct or not based off of the map, and the rating is still >0 after edits, leave the comment field blank and move on to the next address (this geocode will be assummed inaccurate)
+ 
+  **After each step, you can use the code below to make the updates to the dataset directly in R and to re-geocode and re-map the updated location.**
   
 ```{r update address, fig.height=10, fig.width=10}
 
