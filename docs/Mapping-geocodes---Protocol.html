@@ -422,14 +422,15 @@ summary {
 <li>Once you have geocoded your data and exported the dataset_address_check document, open the file in excel. You can work off of this file as you check geolocations and make notes about addresses that have high ratings, but look accurate.</li>
 </ul>
 <p><strong>For each address with rating &gt;10, take the following steps: </strong> <em>NOTE: Do not put any participant addresses into google maps. We recommend you rely solely on the ACMT mapper for this step to avoid inappropriate sharing of participant data</em></p>
+<p><em>NOTE: your exported dataset with addresses and ratings will be sorted by rating, starting with the highest rating. While we want to you to check all addresses with &gt;0 rating, prioritize those with the highest rating, and spend the least amount of time on those with 1-10 ratings. Comment on all geocodes that still have ratings &gt;10 after updates.</em></p>
 <ol style="list-style-type: decimal">
 <li>Update the address to write out any ‘Ave’ to ‘Avenue’, ‘S’ to ‘South’, etc.</li>
 <li>Check the zip code for the given city and/or cross street. This website: <a href="https://www.unitedstateszipcodes.org/" class="uri">https://www.unitedstateszipcodes.org/</a> is a helpful tool for locating zip codes in your area.</li>
-<li>Increase/Decrease the level of detail of the map by changing the ‘z’ value (higher numbers here give more detailed maps, but may not be available for more rural areas - you can lower the number to 14 or 15 if the map is blank)</li>
-<li>Increase/Decrease the level of zoom by changing the ‘side_len’ value (higher numbers give a larger map, but may take longer to load (I recommend not going higher than 0.05))</li>
-<li>If you are unsure if the location is correct or not based off of the map, and the rating is still &gt;10 after edits, make a comment (i.e., ‘unable to verify address based on map, cannot improve the address’ or ‘unable to improve geocode, unsure of the issue’) and move on to the next address (this geocode will be assummed inaccurate)</li>
+<li>Use the ACMT to map the geocode (using the settings to adjust zoom and detail level) to help confirm whether the geocode is accurate (getting help from a teammate who is familiar with the area may be beneficial here).</li>
+<li>If the geocode is &gt;0 but is mapping to the correct location, make a comment in the notes column.</li>
+<li>If you are unsure if the location is correct or not based off of the map, and the rating is still &gt;10 after edits, make a comment in the notes column (i.e., ‘unable to verify address based on map, cannot improve the address’) and move on to the next address.</li>
 </ol>
-<p><strong>After each step, you can use the code below to make the updates to the dataset directly in R and to re-geocode and re-map the updated location.</strong></p>
+<p><strong>After each step, you can use the code below to make the updates to the dataset directly in R and to re-geocode and re-map the updated location. Use the ‘z’ value and the ‘side_len’ values and update to increase/decrease the detail or the zoom level of the map (helpful if some or all tiles of the map are missing)</strong></p>
 <pre class="r"><code>## enter the id number for the participant whose address you are updating here: 
 i&lt;- 30 #
 ## enter the updated address text for the individual here:  
