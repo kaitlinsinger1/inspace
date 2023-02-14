@@ -69,7 +69,7 @@ check_geocode_for_address <- function(address, id, z=17, side_len=0.007){
 
 ## create data pull measures folder if it doesn't exist: 
 if(dir.exists('~/workspace/Inspace/data_pull_measures')==FALSE){
-  dir.ceate('~/workspace/Inspace/data_pull_measures')
+  dir.create('~/workspace/Inspace/data_pull_measures')
 }
 ### save data frame to Inspace Folder ####
 
