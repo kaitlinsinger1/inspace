@@ -11,7 +11,7 @@ source('~/workspace/setup-acmt.R')
 source('external_data-presets.R')
 source('external_data-file_loader.R')
 source('~/workspace/Inspace/data_pull_settings/shinyapp-functions.R')
-source('~/workspace/Inspace/Inspace_external_data_functions.R')
+source('~/workspace/Inspace/data_pull_settings/Inspace_external_data_functions.R')
 source('~/workspace/Inspace/data_pull_settings/cdc_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/acs_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/walk_data_settings.R')
@@ -49,7 +49,7 @@ ui<-shinyUI(
           ),
           
 ### DATA UPLOAD & GEOCODING ####
-  tabPanel('Upload Participant Data & Geocode', 
+  tabPanel('UPLOAD & GEOCODE', 
 
            navlistPanel(widths=c(3, 9),
                         'Data Upload Process',
