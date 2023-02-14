@@ -156,7 +156,7 @@ ui<-shinyUI(
                                      ),
                                      wellPanel(
                                        style='background-color: #fff; font-size:16px',
-                                       radioButtons('geocode_check', '6. Update geocoding notes', choices=c('Geocode looks accurate (correct street/city)', 'Geocode does not look accurate')),
+                                       radioButtons('geocode_check', "6. Update geocoding notes (only necessary when you can't get a rating to 0)", choices=c('Geocode looks accurate (correct street/city)', 'Geocode does not look accurate')),
                                        actionButton('geocode_notes', 'Update Notes'),
                                      )
                               ), 
@@ -996,7 +996,7 @@ observeEvent(input$dataset_geocoded2_cell_edit, {
     dataset_geocoded$rating[dataset_geocoded$id==id]<-new_lat_long$rating
   }
   saveData(data=dataset_geocoded, fileName='dataset_geocoded.csv')
-  write.csv(data%>%dplyr::select(id, rating, geocode_notes), '~/workspace/Inspace/data_pull_measures/geocode_ratings_notes.csv')
+  write.csv(dataset_geocoded%>%dplyr::select(id, rating, geocode_notes), '~/workspace/Inspace/data_pull_measures/geocode_ratings_notes.csv')
   filter_uploaded_data()
 })
 
@@ -3389,8 +3389,8 @@ observeEvent(input$progress_button, {
                     (total.participants)) #Gentrification
 
   progress.table$data=data.frame(dataset, total_complete, total_expected)
-  progress.table$data$percent.complete<-round(total_complete/total_expected, 1)
-  colnames(progress.table$data)<-c('Dataset', 'Total # Complete', 'Total #', 'Percent Complete')
+  progress.table$data$percent.complete<-round(total_complete/total_expected, 2)
+  colnames(progress.table$data)<-c('Dataset', 'Total # Complete', 'Total #', 'Proportion Complete')
 
   output$progress_summary<-DT::renderDataTable({progress.table$data}, editable=FALSE, 
                                                rownames=FALSE,
