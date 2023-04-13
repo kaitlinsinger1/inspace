@@ -28,11 +28,18 @@ The first step in using the ACMT is to install the Docker, which creates a conta
 
 Next you will need to download the R code that is specific to the Inspace project. 
 
-   * [Click this link](url) to download a zipped file of the R code for Inspace. If you are prevented on downloading files due to a firewall, email Amy and she can send you a zipped folder of the code via email. 
+   * [Click this link](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/Inspace/docs/Inspace) to download a zipped file of the R code for Inspace. If you are prevented on downloading files due to a firewall, email Amy and she can send you a zipped folder of the code via email. 
 
 ### Step 3: Open and run the R script to run the Inspace - ACMT Application
 
-   
+ Finally, you are ready to run the Inspace application in your Rstudio environment, which will guide you through the process of uploading your data, geocoding (if necessary), and pulling environmental measures. 
+ 
+   * In Rstudio in your browser, you will open the 'Inspace - ACMT Shiny App.R' file located in your Inspace folder (this folder is created when you upload the Inspace code in Step 2). 
+   * In the top right of the page of code, click the 'Run App' button (green play button). This will open the Application in a new window. 
+   * Follow instructions in the application to upload your data (be sure to check formatting of your data prior to uploading). 
+   * If geocoding is necessary, follow the application instructions for geocoding and checking your geocodes. 
+   * Run each data pull, one by one to pull environmental measures. Your progress can be check on the 'Overall Progress' tab of the application.
+   * All of your data pulls are saved in separate files in your Inspace > data_pull_measures folder in you Rstudio environment. 
 
 ### Support or Contact. 
 
