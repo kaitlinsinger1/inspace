@@ -1,0 +1,146 @@
+---
+title: "National Land Cover Database"
+author: "Amy Youngbloom"
+date: "4/13/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
+library(tidyverse)
+library(sf)
+library(raster)
+```
+
+## Introduction
+
+  The National Land Cover Database uses satelitte imagery to create pixel-by-pixes maps of land cover features. Areas of 30-meters are categorized into land cover classes including forest, low-, medium-, and high-intensity developed, and more. For more information about the NLCD, visit this link: https://www.usgs.gov/news/technical-announcement/new-land-cover-maps-capture-nearly-two-decades-change-across-us
+  
+
+### 1. Download NLCD data
+
+  - To download NLCD data, navigate in another window to the MRLC.gov NLCD viewer site: https://www.mrlc.gov/viewer/
+  - In the viewer, zoom into the state of interest. 
+  - Next click the 'download' button in the top left of the map, which will allow you to select a box on the map that includes your area of interest
+  - Click on the map where the top left corner of your box will start, then bring your curser to where the bottom right of your box will be and click again. A partially transparent box will cover your area. 
+  - A Data Download section will open on the right side of the screen where you can enter your email, select 'Land Cover', then click download.
+  - You should receive an email shortly with the data download.
+
+```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '50%', eval=TRUE}
+knitr::include_graphics(paste0(getwd(),"/Inspace/nlcd-image.png"))
+```
+
+  - Once data is downloaded, extract the data and upload into workspace folder. You should see a landcover TIFF file for: 2001, 2004, 2006, 2008, 2011, 2013, 2016, and 2019. 
+  
+  - Depending on the year you are looking for, identify the correct Tiff file to import into R. Rename your file to match the file name in the process_nlcd function below (i.e., NLCD_year.tiff)
+
+### 2. Function to import NLCD data into R
+
+```{r import raster data & geocoded dataset, results='hide'}
+##update the data file name to match the file you've imported into workspace:
+process_nlcd<-function(year){
+##pull data for given year
+if(year>2017){
+nlcd_data<- raster('Inspace/NLCD_2019.tiff')
+}
+if(year<2018 & year>2014){
+nlcd_data<-raster('Inspace/NLCD_2016.tiff')
+}
+if(year<2015){
+nlcd_data<-raster('Inspace/NLCD_2013.tiff')  
+}
+return(nlcd_data)
+}
+```
+
+### 3. Setup ACMT
+
+```{r setup acmt}
+source('setup-acmt.R')
+source('Inspace/inspace_external_data_functions.R')
+```
+
+
+### 4. Designate settings for data pull
+
+```{r designate settings}
+years<-c(2016, 2019) #set year of data pulls (note that years available are 2013, 2016, 2019)
+radius_vector<-c(500, 1000, 5000) #set radii
+variable_list<-read.csv('Inspace/nlcd_legend.csv')%>%dplyr::select(x, legend)
+names_of_variables_to_get<-variable_list$legend
+
+```
+
+### 5. Import and process geocoded dataset
+
+```{r import dataset}
+##Import geocoded dataset
+dataset_geocode<-read.csv('Inspace/dataset_geocoded.csv')%>%dplyr::select(id, lat, long)
+dataset_nlcd<-add_rows_columns(dataset=dataset_geocode, variable_list=variable_list$legend, radius_vector=radius_vector, years=years)
+```
+
+
+### 6. Run the loop to calculate NCLD data for each buffer
+
+```{r loop to get buffers, results='hide'}
+for (i in 1:length(years)){
+  year<-years[i]
+print(year)
+nlcd_data<-process_nlcd(year)
+for(radius in 1:length(radius_vector)){
+radius<-radius_vector[radius]
+print(radius)
+
+for(address in 1:nrow(dataset_nlcd[dataset_nlcd$radius==radius & dataset_nlcd$year==year,])) {
+print(address)
+   tryCatch({if(!is.na(dataset_nlcd[dataset_nlcd$radius==radius & dataset_nlcd$year==year,][,1][address])) next #skip the row if the data is already there
+
+print(address) #print the number to keep track of progress
+  latitude<-dataset_nlcd[dataset_nlcd$radius==radius & dataset_nlcd$year==year,]$lat[address] #set lat
+  longitude<-dataset_nlcd[dataset_nlcd$radius==radius & dataset_nlcd$year==year,]$long[address] #set long
+  
+#create buffer shapefile
+buffer1<-st_sf(get_point_buffer_for_lat_long(longitude, latitude, radius_meters=radius))
+
+##extract NLCD data for buffer
+nlcd_extract<-raster::extract(nlcd_data, buffer1)
+#calculate proportion of each type of land cover, convert prop.table to dataframe
+prop.nlcd<-lapply(nlcd_extract, FUN=function(x) {prop.table(table(x))})
+
+environmental_measures<-post_process_nlcd(variable_list, prop.nlcd)
+
+for(name_of_variable in names_of_variables_to_get){
+  dataset_nlcd[dataset_nlcd$radius==radius & dataset_nlcd$year==year,][[name_of_variable]][address]<-environmental_measures[environmental_measures$legend == name_of_variable, ]$Freq 
+}
+   },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})}}
+dataset_nlcd<-dataset_nlcd %>%
+rowwise()%>%
+  mutate(undeveloped = sum(c(barren_land, decid_forest, evergreen_forest, mixed_forest, 
+                           dwarf_scrub, shrub_scrub, herbacious, sedge_herb, lichen, moss, 
+                           pasture, cultivate_crops, wood_wetlands, herb_wetlands), na.rm=TRUE))%>% mutate(year=year)
+}
+
+#### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
+```
+
+
+Proportion of buffer that is water
+  - Proportion of buffer that is developed open space
+  - Proportion of buffer that is developed low intensity
+  - Proportion of buffer that is developed medium intensity
+  - Proportion of buffer that is developed high intensity
+  - Proportion of buffer that is any undeveloped
+
+
+### 7. Export the dataset
+
+
+```{r export dataset}
+
+dataset_nlcd<-dataset_nlcd %>% dplyr::select(-lat, -long)
+write.csv(dataset_nlcd, 'Inspace/dataset_nlcd.csv')
+```
+
+

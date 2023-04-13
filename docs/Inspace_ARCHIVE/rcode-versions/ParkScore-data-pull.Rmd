@@ -1,0 +1,95 @@
+---
+title: "ParkScore Data Pull"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=FALSE)
+knitr::opts_knit$set(root.dir = '~/workspace')
+```
+
+## ParkServe Data
+
+The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration.
+
+For more information visit the website here: https://www.tpl.org/parkscore
+
+### 1. Setup ACMT
+
+```{r setup acmt}
+source('setup-acmt.R')
+source('Inspace/inspace_external_data_functions.R')
+```
+
+## 2. Download and process the ParkServe data
+
+The ParkServe dataset contains geographical information of parks in the US. Data is provided for download in a variety of file formats and configuration. The shapefile format of the data is needed for the implementation of the functions. We can download the data from the ParkServe official website: https://www.tpl.org/parkserve/downloads and unzip it to the target directory external_data, first by setting up the functions, then by calling them. This process will take around 20 minutes to run.
+
+
+```{r download and process parkdata}
+download_file_park()
+process_file_park()
+park_shp <- shp_preprocess(shp_directory = "external_data/ParkServe_shp/ParkServe_Shapefiles_05042022/ParkServe_Parks.shp")
+```
+
+## 3. Designate settings for data pull
+
+```{r designate settings}
+years<-c(2021) #set year of data pulls (may only be one available)
+radius_vector<-c(500, 1000, 5000) #set radii
+variable_list<-c('park_proportion', 'park_distance')
+names_of_variables_to_get<-variable_list
+```
+
+
+## 4. Import and process geocoded dataset
+
+Next, import your geocoded dataset
+
+```{r import data}
+dataset_geocoded<-read.csv('Inspace/dataset_geocoded.csv')
+dataset_parkscore<-add_rows_columns(dataset=dataset_geocoded, variable_list=variable_list, radius_vector=radius_vector, years=years)
+```
+
+
+## 5. Run loop to calculate Park measures
+
+```{r loop for park proportion}
+for(year in 1:length(years)){
+  year<-years[year]
+print(year)
+for(radius in 1:length(radius_vector)){
+  radius<-radius_vector[radius]
+
+for(address in 1:nrow(dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,])) {
+   tryCatch({if(!is.na(dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][,1][address])) next #skip the row if the data is already there
+print(address) #print the number to keep track of progress
+  latitude<-dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,]$lat[address] #set lat
+  longitude<-dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,]$long[address] #set long
+
+environmental_measures<-data.frame(proportion_park=get_proportion_in_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp), distance_park=get_distance_to_shapefile(long=longitude, lat=latitude, radius_meters=radius, shp_processed = park_shp))
+
+  dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][['park_proportion']][address] <-environmental_measures$proportion_park
+  dataset_parkscore[dataset_parkscore$radius==radius & dataset_parkscore$year==year,][['park_distance']][address] <-environmental_measures$distance_park
+
+
+},error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
+}}}
+
+### Note: this loop is set up to fill in your dataset as it runs, so if the loop is interrupted, you can re-run this chunk only, and it will skip over data that is has already pulled. ####
+### note: you may get NA values for some values of park_distance, if there are no parks within the buffer areas. There should be a 0 for park proportion in these cases. 
+
+
+```
+
+## 6. Export the dataset
+Finally, export the dataset with the ParkScore measures
+
+```{r export data}
+setwd('~/workspace/Inspace')
+write.csv(dataset_park2, 'dataset_parkscore.csv')
+
+```
+
+

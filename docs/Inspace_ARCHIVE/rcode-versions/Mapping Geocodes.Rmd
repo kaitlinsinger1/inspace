@@ -1,0 +1,210 @@
+---
+title: "Checking addresses with geocoder & mapping tool"
+author: "Amy Youngbloom"
+date: "10/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#knit this file with the working directory of "workspace/" instead of "workspace/examples"
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval=TRUE)
+knitr::opts_knit$set(root.dir = '/home/rstudio/workspace/')
+```
+
+```{r load packages & the ACMT}
+library(tidycensus)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(reshape2)
+#install.packages('ggmap')
+library(ggmap)
+source("GeocoderACMT.R")
+```
+If the above code results in an error, you may need to remove the '#' before install.packages('ggmap'). 
+
+# InSpace – Geocoding Protocol
+
+***Important NOTE: do not put any participant addresses into google maps. Google is a third party and you are providing them with identifiable participant information when you enter an address***
+
+Ensuring the most precise geocoding of participant addresses will enable you to pull the most accurate measures of the environmental context. While the ACMT has a built-in geocoder, we are also relying on our partners to verify that the geocodes produced by the ACMT accurately represent the location of the participant. 
+
+This exercise of cleaning up addresses and checking geocodes can benefit from local knowledge of the area in which your participants reside. It may be beneficial to talk to someone else in your lab (who is on the IRB for your project) to help identify potential address and/or geocoding errors. 
+	
+The process of verifying participant locations is an iterative process of mapping geocodes, updating addresses, re-mapping, and noting where location are inaccurate, even after address updates. This process utilizes the ACMT map checking and geocoder functions to produce maps, geocodes, and ratings of the geocodes. 
+
+This tool can be helpful in verifying zip codes in your area: https://www.unitedstateszipcodes.org/
+
+## 1. Import address data & combine address fields if necessary
+
+* You will first need to upload your datatset into your Inspace folder. 
+* Next, you will update the code below with the name of your dataset
+
+
+```{r import dataset}
+dataset<-read.csv('Inspace/dataset_example.csv') %>% dplyr::select(-X) ##update with the name of your dataset
+colnames(dataset) 
+```
+
+Look at the column names in your dataset. You should have an id field titled 'id'. 
+
+* If your address field is already in one column, you can skip the chunk of code below. 
+* If your address fields are in separate columns, (i.e., street, city, state, zip), you can use the code below to combine your addresses into one field.
+
+```{r combine address fields}
+dataset<-dataset %>%
+  #rename(id=ID, address=oldAddressName) %>% # use this line to update your ID column name
+  mutate(address=paste(street, city, state, zip, sep=', ')) %>% ##Ensure your dataset has these column names
+  dplyr::select(id, address)
+
+head(dataset)
+```
+
+## 2. Write mapping functions
+
+We can get a map showing the results of the geocode function given an address. In the title of the map, the address and the rate are listed. The point with coordinates equal to the calculated longtitude and latitude is plotted. This is a good way to verify the accuracy of geocoding. First, we create the functions:
+
+```{r check geocode function}
+check_geocode <- function(lat, long, address, rate, id, z=16, side_len=0.007){
+  bbox <- c(left = long - side_len, bottom = lat - side_len, right = long + side_len, top = lat + side_len)
+  map <- ggmap(get_stamenmap(bbox, zoom = z)) +
+    geom_point(x = c(long), y = c(lat), size = 3) +
+    ggtitle(paste(paste('ID = ', id, sep=''), address, paste("Rate =", rate, sep = ""), sep='\n'))
+  return(map)
+}
+check_geocode_for_address <- function(address, id){
+  location <- geocode(address = address)
+  map <- check_geocode(lat = location$latitude, long = location$longitude, address = address, rate = location$rating, id=id)
+  return(map)
+}
+
+
+```
+
+## 3. Run Mapping function loop to map all addresses
+
+Next, we will geocode and print maps for all individuals in order to check the geocoded locations.
+
+This loop will create a pdf file with a map printed for each individual in your dataset as well as a csv file with ratings, address, and a notes columns. You'll find these documents in your Inspace folder. Export them and use them to review the maps. 
+
+
+```{r geocode and get ratings}
+#dataset<-read.csv('Inspace/dataset_address_check.csv')%>%dplyr::select(id, address)
+
+## geocode addresses
+#create lat and long columns
+dataset_geocode<-dataset %>%
+  mutate(lat=NA, 
+         long=NA, 
+         rating=NA)
+#Geocoding loop
+for (i in 1:nrow(dataset_geocode)) {
+  if(!is.na(dataset_geocode$lat[i])) next #skip already geocoded
+  if(is.na(dataset_geocode$address[i])) next #skip NA address values
+  print(i) #print the number to track progress
+address<-dataset_geocode$address
+  lat_long<-tryCatch({geocode(address[i])}, 
+                     error=function(x){
+                       lat_long<-list(latitude=NA, longitude=NA, rating=NA)
+                       })
+  dataset_geocode$lat[i]<-lat_long$latitude # add latitude to dataset_geocode
+  dataset_geocode$long[i] <-lat_long$longitude # add longitude to dataset_geocode
+  dataset_geocode$rating[i]<-lat_long$rating # add rating to the dataset_geocode
+}
+dataset_geocode<-dataset_geocode %>% arrange(-rating)
+write.csv(dataset_geocode %>% dplyr::select(id, address, rating)%>%mutate(map_check_notes=""), 'Inspace/dataset_address_check.csv') ##writes a csv file with address and ratings and a column for update notes;
+
+ratings.table<-dataset_geocode %>%
+  mutate(rating_group=ifelse(rating==0, '0', ifelse(rating>0 & rating<10, '0 to 9', ifelse(rating>9 & rating < 21, '10-20', ifelse(rating>20, '20 or higher', NA)))))%>%group_by(rating_group)%>%summarise(n=n())%>%mutate(percent=round(n/sum(n), 2)) %>%
+  dplyr::select(rating_group, n, percent)
+
+ratings.table
+```
+
+## take a screenshot of the rating table above and save. 
+
+Next, we will print a pdf file with the initial maps for all of your geocoded addresses. 
+
+```{r print maps, eval=FALSE}
+pdf('Inspace/geocode_checker_maps.pdf', height=10, width=10)
+for(i in 1:nrow(dataset_geocode)){
+  print(i) #print the number to track progress
+  #set values for function
+  lat<-dataset_geocode$lat[i]
+  long<-dataset_geocode$long[i]
+  address<-dataset_geocode$address[i]
+  rating<-dataset_geocode$rating[i]
+  id<-dataset_geocode$id[i]
+  
+map<-tryCatch({check_geocode(lat=lat, long=long, address=address, rate=rating, id=id, z=15)}, error=function(x){map<-NA})
+
+ print(map)
+}
+
+```
+
+## 4. Check the mapped geocodes
+
+  * Open up the pdf of maps file that should now be in your Inspace folder (you may need to reload your Inspace folder), called, 'geocode_checker_maps'. 
+  * Export the csv file (called dataset_address_check) and open it in excel. You will be working off of this file check geolocations and make notes about addresses that have high ratings, but look accurate.
+  
+## Check the mapped geocodes
+  * Once you have geocoded your data and exported the dataset_address_check document, open the file in excel. You can work off of this file as you check geolocations and make notes about addresses that have high ratings, but look accurate.
+  
+**For each address with rating >0, take the following steps: ** 
+*NOTE: Do not put any participant addresses into google maps. If you need to check the address, you can put the street name into google maps, but do not include the house number*
+
+  1. Update the address to write out any 'Ave' to 'Avenue', 'S' to 'South', etc. 
+  2. Check the zip code for the given city and/or cross street. This website: https://www.unitedstateszipcodes.org/ is a helpful tool for locating zip codes in your area.
+  3. Increase/Decrease the level of detail by changing the 'z' value (higher numbers here give more detailed maps, but may not be available for more rural areas - you can lower the number to 14 or 15 if the map is blank)
+  4. Increase/Decrease the level of zoom by changing the 'side_len' value (higher numbers give a larger map, but may take longer to load (I recommend not going higher than 0.05))
+  5. If the street name is not appearing on the map after the above edits, you can search the street name or nearby cross streets in google maps to pinpoint the geocoded location and ensure the geocode is mapping to the correct street (DO NOT PUT THE FULL ADDRESS IN GOOGLE MAPS) 
+  6. If you are unsure if the location is correct or not based off of the map, and the rating is still >0 after edits, leave the comment field blank and move on to the next address (this geocode will be assummed inaccurate)
+ 
+  **After each step, you can use the code below to make the updates to the dataset directly in R and to re-geocode and re-map the updated location.**
+  
+```{r update address, fig.height=10, fig.width=10}
+
+## enter the id number for the participant whose address you are updating here: 
+i<- 5 #
+#i<- 30
+## enter the updated address text for the individual here  
+update.address<- '3013 S Mount Baker Blvd., Seattle, WA, 98144' 
+
+#update the address & reprint the map
+dataset_geocode$address[dataset_geocode$id==i]<-update.address
+dataset_geocode$address[dataset_geocode$id==i]
+
+## get updated geocodes
+address<-dataset_geocode$address[dataset_geocode$id==i]
+lat_long<-tryCatch({geocode(address)}, 
+                     error=function(x){
+                       lat_long<-list(latitude=NA, longitude=NA, rating=NA)
+                       })
+  dataset_geocode$lat[dataset_geocode$id==i]<-lat_long$latitude # add latitude to dataset_geocode
+  dataset_geocode$long[dataset_geocode$id==i] <-lat_long$longitude # add longitude to dataset_geocode
+  dataset_geocode$rating[dataset_geocode$id==i]<-lat_long$rating # add rating to the dataset_geocode
+
+
+##reprint the mapped address
+check_geocode(lat=dataset_geocode$lat[dataset_geocode$id==i], long=dataset_geocode$long[dataset_geocode$id==i], address=dataset_geocode$address[dataset_geocode$id==i], rate=dataset_geocode$rating[dataset_geocode$id==i], id=i, 
+              z=17, ##higher numbers here give more detailed maps, but may not be available for more rural areas - you can lower the number to 14 or 15 if the map is blank. 
+              side_len=0.005 # higher numbers give a larger map, but may take longer to load (I recommend not going higher than 0.05)
+              )
+
+## if the reprinted map still looks incorrect, make additional edits to the address and rerun the code. 
+
+```
+
+ 
+*NOTE: Do not put any participant addresses into google maps. If you need to check the address, you can put the street name into google maps, but do not include the house number*
+
+##export dataset to Inspace folder
+
+```{r export dataset}
+
+write.csv(dataset_geocode %>% dplyr::select(id, lat, long), 'Inspace/dataset_geocoded.csv')
+
+```
+  
+  
