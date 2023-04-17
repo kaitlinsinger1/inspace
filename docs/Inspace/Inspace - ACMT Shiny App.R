@@ -1,17 +1,17 @@
 ##This should detect and install missing packages before loading them####
 
 list.of.packages <- c("shiny","ggmap", "excelR", 'rhandsontable', 'DT', 'tidycensus', 'tidyverse', 'dplyr', 'janitor', 'reshape2', 
-                      'promises', 'future', 'shinythemes')
+                      'promises', 'future', 'shinythemes', 'future')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
-plan(multisession)
+future::plan(multisession)
 lapply(list.of.packages,function(x){library(x,character.only=TRUE)}) 
 
 source('~/workspace/setup-acmt.R')
 source('external_data-presets.R')
 source('external_data-file_loader.R')
 source('~/workspace/Inspace/data_pull_settings/shinyapp-functions.R')
-source('~/workspace/Inspace/data_pull_settings/Inspace_external_data_functions.R')
+source('~/workspace/Inspace/data_pull_settings/inspace_external_data_functions.R')
 source('~/workspace/Inspace/data_pull_settings/cdc_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/acs_data_settings.R')
 source('~/workspace/Inspace/data_pull_settings/walk_data_settings.R')
@@ -973,7 +973,7 @@ output$dataset_geocoded2<-DT::renderDataTable(
 
 ##### Update Table values ##
 observeEvent(input$dataset_geocoded2_cell_edit, {
-  dataset_geocoded<-loadData('dataset_geocoded.csv')%>%mutate(address=as.character(address))
+  dataset_geocoded<-loadData('dataset_geocoded.csv')%>%mutate(address=as.character(address), geocode_notes=as.character(geocode_notes))
   str(input$dataset_geocoded2_cell_edit)
   value<-input$dataset_geocoded2_cell_edit$value
   column<-input$dataset_geocoded2_cell_edit$col
@@ -1062,6 +1062,7 @@ observeEvent(input$geocode_notes,{
   id<-input$idNumber
   dataset_geocoded$geocode_notes[dataset_geocoded$id==id]<-input$geocode_check
   saveData(data=dataset_geocoded, fileName='dataset_geocoded.csv')
+  write.csv(dataset_geocoded%>%dplyr::select(id, rating, geocode_notes), '~/workspace/Inspace/data_pull_measures/geocode_ratings_notes.csv')
   ## upload notes column dependent on radio buttons
 })
 
@@ -2874,7 +2875,7 @@ observeEvent(input$show_data_rpp, {
   }
   if(input$show_data_rpp=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>%table_summary(.)
+      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>%mutate(radius=NA) %>% table_summary(.)
   }
   if(input$show_data_rpp=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
@@ -2924,7 +2925,7 @@ observeEvent(input$status_rpp,{
   }
   if(input$show_data_rpp=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>%table_summary(.)
+      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>%mutate(radius=NA) %>% table_summary(.)
   }
   if(input$show_data_rpp=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
     preview_rpp$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything())%>%
@@ -3039,7 +3040,7 @@ observeEvent(input$show_data_gentrification, {
   }
   if(input$show_data_gentrification=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID10) %>%table_summary(.)
+      dplyr::select(-X)%>%dplyr::select(-GEOID10) %>%mutate(year=NA, radius=NA) %>% table_summary(.)
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
@@ -3083,17 +3084,17 @@ observeEvent(input$status_gentrification,{
     preview_gentrification$data=loadData('dataset_geocoded.csv') %>% dplyr::select(id, lat, long)
   }
   if(input$show_data_gentrification=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
-    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, year, everything())%>%
+    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
       dplyr::select(-X)
   }
   if(input$show_data_gentrification=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
-    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>%table_summary(.)
+    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id,everything())%>%
+      dplyr::select(-X)%>%dplyr::select(-GEOID10)%>%mutate(radius=NA, year=NA) %>% table_summary(.)
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
-    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, year, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID_pp, -state_geoid, -msa_geoid, -GeoName)%>% group_by(year) %>% summarise(count_na=sum(is.na(.)), 
-                                                                                                                       count_total=n())%>%arrange(year)
+    preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
+      dplyr::select(-X)%>%dplyr::select(-GEOID10)%>% summarise(count_na=sum(is.na(.)), 
+                                                                                                                       count_total=n())
   }
   if(input$show_data_gentrification !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==FALSE){
     preview_gentrification$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
