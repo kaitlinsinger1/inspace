@@ -15,7 +15,7 @@ head(cbsa)
 state<-states(year=2019)
 
 #create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
-latlong_sf<-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
+latlong_sf<-st_as_sf(dataset_geocoded%>%filter(!is.na(lat) & !is.na(long)), coords=c('long', 'lat'), crs=4269)
 cbsa_sf<-st_as_sf(cbsa, crs=4269)
 state_sf<-st_as_sf(state, crs=4269)
 

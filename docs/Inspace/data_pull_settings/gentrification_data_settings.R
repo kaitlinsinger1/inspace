@@ -26,14 +26,14 @@ process_gentrification<-function(){
 pull_gentrification<-function(dataset_geocoded){
   
 states_sf <- st_transform( us_states( map_date = NULL, resolution = c("low", "high"), states = NULL), 4326)
-points_sf = st_as_sf(dataset_geocoded, coords = c("long", "lat"), crs = 4326, agr = "constant")
+points_sf = st_as_sf(dataset_geocoded%>%filter(!is.na(lat) & !is.na(long)), coords = c("long", "lat"), crs = 4326, agr = "constant")
 states <- as.data.frame( st_join(points_sf, states_sf, join = st_intersects) ) %>% dplyr::select(state_abbr, -geometry)%>%unique()%>% as.list()
 
 #download tract shapefile
 tracts.2010<-tracts(year=2010, state=states$state_abbr)
 
 #create lat-long shapefile, msa shapefile, and state shapefiles with the same projection
-latlong_sf<-st_as_sf(dataset_geocoded, coords=c('long', 'lat'), crs=4269)
+latlong_sf<-st_as_sf(dataset_geocoded%>%filter(!is.na(lat) & !is.na(long)), coords=c('long', 'lat'), crs=4269)
 tract_2010_sf<-st_as_sf(tracts.2010, crs=4269)
 
 #find intersections of lat/long with tracts

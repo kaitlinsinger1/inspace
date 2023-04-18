@@ -10,7 +10,7 @@ external_data_name_to_info_list <- list(places=external_data_presets_places) ## 
 if(file.exists('~/workspace/Inspace/dataset_geocoded.csv')==TRUE) {
 dataset_geocoded<-read.csv('~/workspace/Inspace/dataset_geocoded.csv')
 states_sf <- st_transform( us_states( map_date = NULL, resolution = c("low", "high"), states = NULL), 4326)
-points_sf = st_as_sf(dataset_geocoded, coords = c("long", "lat"), crs = 4326, agr = "constant")
+points_sf = st_as_sf(dataset_geocoded%>%filter(!is.na(lat) & !is.na(long)), coords = c("long", "lat"), crs = 4326, agr = "constant")
 states <- as.data.frame( st_join(points_sf, states_sf, join = st_intersects) ) %>% dplyr::select(state_abbr, -geometry)%>%unique()%>% as.list()
 
 }
