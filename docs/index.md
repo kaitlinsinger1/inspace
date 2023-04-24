@@ -28,7 +28,7 @@ The first step in using the ACMT is to install the Docker, which creates a conta
 
 Next you will need to download the R code that is specific to the Inspace project. 
 
-   * [Click this link](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/Inspace/docs/Inspace) to download a zipped file of the R code for Inspace. If you are prevented on downloading files due to a firewall, email Amy and she can send you a zipped folder of the code via email. 
+   * [Click this link](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace) to download a zipped file of the R code for Inspace. If you are prevented on downloading files due to a firewall, email Amy and she can send you a zipped folder of the code via email. 
 
 ### Step 3: Open and run the R script to run the Inspace - ACMT Application
 
