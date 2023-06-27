@@ -497,43 +497,43 @@ Navigate to the ACMT url in your browswer to open a Rstudio environment
 </div>
 <ul>
 <li><p>Note that this environment is your own customizable environment. When you close the window and stop the container in the Docker, your environment will be retained. However, if you upgrade your Docker, your Rstudio environment will renew, so it is important to download and save all of the work you do in this Rstudio environment on your network so as to not lose any information. A good practice is to download and save your work after each session as a backup.</p></li>
-<li>Run the setup-acmt code and test the docker
+<li><p>Run the setup-acmt code and test the docker</p>
 <ul>
 <li>Now we can open the TestDockerACMT.R file, which is located in the workspace folder, the first line of code in this file will appear as follows:</li>
 </ul></li>
 </ul>
 <pre class="r"><code>source(&quot;setup-acmt.R&quot;)</code></pre>
-<pre><code>## Reading layer `spcszn83' from data source `/home/rstudio/workspace/ACMT' using driver `ESRI Shapefile'
+<pre><code>## Reading layer `spcszn83&#39; from data source `/home/rstudio/workspace/ACMT&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 121 features and 7 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -178.2176 ymin: 18.92178 xmax: -66.96927 ymax: 71.40624
-## CRS:            4326
-## Reading layer `cb_2017_us_county_500k' from data source `/home/rstudio/workspace/ACMT' using driver `ESRI Shapefile'
+## geographic CRS: WGS 84
+## Reading layer `cb_2017_us_county_500k&#39; from data source `/home/rstudio/workspace/ACMT&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 3233 features and 9 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -179.1489 ymin: -14.5487 xmax: 179.7785 ymax: 71.36516
-## CRS:            4269
-## Reading layer `spcszn83' from data source `/home/rstudio/workspace/ACMT' using driver `ESRI Shapefile'
+## geographic CRS: NAD83
+## Reading layer `spcszn83&#39; from data source `/home/rstudio/workspace/ACMT&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 121 features and 7 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -178.2176 ymin: 18.92178 xmax: -66.96927 ymax: 71.40624
-## CRS:            4326
-## Reading layer `cb_2017_us_county_500k' from data source `/home/rstudio/workspace/ACMT' using driver `ESRI Shapefile'
+## geographic CRS: WGS 84
+## Reading layer `cb_2017_us_county_500k&#39; from data source `/home/rstudio/workspace/ACMT&#39; using driver `ESRI Shapefile&#39;
 ## Simple feature collection with 3233 features and 9 fields
 ## geometry type:  MULTIPOLYGON
 ## dimension:      XY
 ## bbox:           xmin: -179.1489 ymin: -14.5487 xmax: 179.7785 ymax: 71.36516
-## CRS:            4269</code></pre>
+## geographic CRS: NAD83</code></pre>
 <ul>
 <li>In this code chunk, the setup-acmt.R code will run several other code files to setup the ACMT Geocoder, and other tools built into the ACMT.
 <ul>
 <li>In some cases, there may be packages that were not automaticlaly included and you will get an error saying that package does not exist. In these cases, install any packages that do not currently exist in the environment, but are required as part of set up in order to move forward. For example, if you get an error saying that the package ‘leaflet’ does no exist or is not currently installed, you would run the following code:</li>
 </ul></li>
 </ul>
-<pre class="r"><code>install.packages('leaflet')</code></pre>
+<pre class="r"><code>install.packages(&#39;leaflet&#39;)</code></pre>
 <ul>
 <li>once you have successfully run the setup-acmt.R code file with the first line of code, you can now test the AMCT.</li>
 <li>To test the geocoder, enter an address that is from a state that you included in the .env file. For example, below is a Washington address, which assumes that you have the state of Washington loaded into the ACMT. If you do not, you will recieve an error message that reads, “The state of this address is not loaded into database”.</li>
@@ -555,17 +555,17 @@ head(location)</code></pre>
 <li>Next we can use the latitude and longitude that were just generated to test the ACMT by pulling the interpoloated measure for total population from the ACS (B01001_001)</li>
 </ul>
 <pre class="r"><code># Test ACMT - pull Total population for given lat/long location
-measures &lt;- get_acmt_standard_array(long=location$longitude, lat=location$latitude, radius = 2000, codes_of_acs_variables_to_get = 'B01001_001', year=2019)</code></pre>
+measures &lt;- get_acmt_standard_array(long=location$longitude, lat=location$latitude, radius = 2000, codes_of_acs_variables_to_get = &#39;B01001_001&#39;, year=2019)</code></pre>
 <pre class="r"><code>data.frame(measures$names, round(measures$values, 2))</code></pre>
 <pre><code>##    measures.names round.measures.values..2.
-## 1 total_pop_count                  45579.87</code></pre>
+## 1 total_pop_count                  45578.63</code></pre>
 <ul>
 <li>If your address successfull geocoded and you were able to pull the Total population variable for the latitude and longitude successfully, your ACMT is working and you are ready to pull your own data!</li>
 </ul>
 </div>
 <div id="download-inspace-code" class="section level3">
 <h3>7. Download Inspace Code</h3>
-<p><em>When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.</em> + Navigate click this link to download a zipped folder with the Inspace code it in: <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/Inspace/docs/Inspace" class="uri">https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/Inspace/docs/Inspace</a></p>
+<p><em>When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.</em> + Navigate click this link to download a zipped folder with the Inspace code it in: <a href="https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace" class="uri">https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace</a></p>
 <ul>
 <li>Leave the downloaded folder zipped, then navigate back to your Rstudio session in your browser.</li>
 <li>In the Workspace folder, click the ‘Upload’ button and navigate to the zipped folder you just downloaded. Select and upload the folder.</li>
