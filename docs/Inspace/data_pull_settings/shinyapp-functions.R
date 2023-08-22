@@ -60,9 +60,10 @@ check_geocode <- function(lat, long, address, rate, id, z=16, side_len=0.007){
   return(map)
 }
 
-check_geocode_for_address <- function(address, id, z=17, side_len=0.007){
-  location <- geocode(address = address)
-  map <- check_geocode(lat = location$latitude, long = location$longitude, address = address, rate = location$rating, id=id, z=z, side_len=side_len)
+#check_geocode_for_address <- function(address, id, z=17, side_len=0.007){
+#  location <- geocode(address = address)
+check_geocode_for_address<-function(lat, long, id, address=address, rate=rating, z=17, side_len=0.007){
+  map <- check_geocode(lat = lat, long = long, address = address, rate=rate, id=id, z=z, side_len=side_len)
   return(map)
 }
 
@@ -71,6 +72,12 @@ check_geocode_for_address <- function(address, id, z=17, side_len=0.007){
 if(dir.exists('~/workspace/Inspace/data_pull_measures')==FALSE){
   dir.create('~/workspace/Inspace/data_pull_measures')
 }
+
+## create data pull summaries folder if it doesn't exist: 
+if(dir.exists('~/workspace/Inspace/data_pull_summaries')==FALSE){
+  dir.create('~/workspace/Inspace/data_pull_summaries')
+}
+
 ### save data frame to Inspace Folder ####
 
 outputDir <- "~/workspace/Inspace"
@@ -109,15 +116,16 @@ create_dataset<-function(variable_list=variable_list){
 
 pull_county_geoid<-function(dataset, year=2019){
  
-  latlong_sf<-st_as_sf(dataset_acs%>%dplyr::select(id, lat, long), coords=c('long', 'lat'), crs=4269)
+  latlong_sf<-st_as_sf(dataset_geocoded%>%dplyr::select(id, lat, long)
+                       %>% filter(!is.na(lat) & !is.na(long)), 
+                       coords=c('long', 'lat'), crs=4269)
   counties_sf<-st_transform(counties, crs=4269)
   intersected_county<-st_intersection(latlong_sf, counties_sf)
   
   #msa_dataset <- merge(dataset_acs %>%dplyr::select(id), intersected_msa, by='id', all=TRUE)%>% dplyr::select(id, #msa_geoid=GEOID)
-  county_dataset<-merge(dataset_acs%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID, -geometry)%>%unique()
+  county_dataset<-merge(dataset_geocoded%>%dplyr::select(id), intersected_county, by='id', all=TRUE)%>%dplyr::select(id, county_geoid=GEOID, -geometry)%>%unique()
   
-  #dataset_acs_full<-merge(dataset_acs_full, msa_dataset, by='id', all.x=TRUE)
-  dataset_acs<-merge(dataset_acs, county_dataset, by='id', all.x=TRUE)
+  write.csv(county_dataset, '~/workspace/Inspace/data_pull_measures/dataset_county.csv')
 }
 
 
@@ -149,6 +157,11 @@ progress.summary<-function(filename){
   if(file.exists(file.path) == FALSE){
   return(0)}
   if(file.exists(file.path) == TRUE){
-    nrow(read.csv(file.path))}
+    if('X' %in% colnames(read.csv(file.path))){
+      nrow(read.csv(file.path) %>%dplyr::select(-X) %>%  distinct())
+    }
+    else{
+    nrow(read.csv(file.path) %>% distinct())}
   }
+}
 
