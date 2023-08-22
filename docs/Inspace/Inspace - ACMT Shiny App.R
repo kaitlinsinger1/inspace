@@ -1,11 +1,11 @@
 ##This should detect and install missing packages before loading them####
 
 list.of.packages <- c("shiny","ggmap", "excelR", 'rhandsontable', 'DT', 'tidycensus', 'tidyverse', 'dplyr', 'janitor', 'reshape2', 
-                      'promises', 'future', 'shinythemes', 'future')
+                      'promises', 'future', 'shinythemes', 'future', 'gridExtra')
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
-future::plan(multisession)
 lapply(list.of.packages,function(x){library(x,character.only=TRUE)}) 
+future::plan(multisession)
 
 source('~/workspace/setup-acmt.R')
 source('external_data-presets.R')
@@ -70,7 +70,7 @@ ui<-shinyUI(
                                  fluidRow(style = 'padding-left:30px',
                                       h4(em('4. Upload file below')),
                                           #1 Selector for file upload ##
-                                      column(width=4, 
+                                      column(width=8, 
                                              wellPanel(
                                          strong('Upload datafile.'), 
                                          em('Note you will receive an error if the dataset is formatted incorrectly'),
@@ -85,7 +85,7 @@ ui<-shinyUI(
                                  fluidRow(style='padding-left:60px',
                                    column(4, offset=2,
                                           h4(em('Preview of the uploaded dataset:')),
-                                          div(DT::dataTableOutput('filetable_preview'), style = "padding: 10px; font-size: 95%; width: 100%"))
+                                          div(DT::dataTableOutput('filetable_preview'), style = "padding: 10px; font-size: 95%; width: 250%"))
                                  )
                         ), 
                         tabPanel('Geocode Data', 
@@ -137,22 +137,25 @@ ui<-shinyUI(
                             condition="input.mapButton>0 & input.idNumber != 'Select a single id to map'",
                             fluidRow(
                               column(width=4,
+                                     tags$h4(strong("For ratings >0, follow these steps to check and update:")),
                                      wellPanel(
                                        style='background-color: #34495E; color:white; font-size:16px',
                                        tags$h4(strong("4. Check map:")),
                                        tags$ul(
                                          tags$li(" Mapped to correct street?"),
                                          tags$li(" Mapped to the correct city?"),
-                                         tags$li(" Any obvious errors? (i.e., mapped into water, mapped into area with no houses)")
-                                       )),
+                                         tags$li(" Any obvious errors? (i.e., mapped into water, mapped into area with no houses)")), 
+                                         em("if it is mapping incorrectly, start by cleaning up the address if possible (see instructions below)")
+                                       ),
                                      wellPanel(
                                        style='background-color: #34495E; color:white; font-size:16px',
-                                       h4(strong("5. If geocode maps incorrectly:")), 
+                                       h4(strong("5. Update address:")), 
                                        tags$ul(
                                          tags$li("Double click address cell to update address text"),
                                          tags$li("After updating, click", strong("'Load geocoded data'"), "to refresh data"),
                                          tags$li("Click", strong("'Generate map'"), "to update geocodes and re-map")
-                                       )
+                                       ),
+                                        em("If the address is correctly written, but geocode is mapping incorrectly, you can manually update the location (see instructions below the map)")
                                      ),
                                      wellPanel(
                                        style='background-color: #fff; font-size:16px',
@@ -163,81 +166,25 @@ ui<-shinyUI(
                               column(width=8,
                                      #shiny::plotOutput("map", inline=TRUE)
                                      leafletOutput('map', width='700px', height='700px'),
-                                     wellPanel(textOutput('maplabel'), width=12)
+                                     wellPanel(textOutput('maplabel'), width=12), 
+                                     wellPanel(
+                                       style='background-color: #34495E; color:white; font-size:16px',
+                                       tags$h3("Manually update address location:"),
+                                       tags$li("You can click on the correct location on the map to update the geocode 
+                                                (you should be positive that this is the correct location before clicking)"),
+                                       tags$li("Once you have clicked on the map, click the 'Update geocode' button below to confirm the udpates,
+                                               then reload your data and latitude and longitude values will reflect the location that you clicked on."),
+                                       tableOutput('updated_geocode'),
+                                       actionButton('update_geocode', 'Update geocode')
+                                     )
                               )
-                            )
+                            ), 
                           ),
                           class="p-3 border border-top- rounded-bottom"
                         )
            ) #end of navList
            
            ),
-### American Community Survey Index UI ####
-  tabPanel('ACS', 
-           
-           sidebarPanel(
-             h2(strong('Instructions')),
-             ## Step 1 ##
-             fluidRow(style = 'padding-left:30px', 
-                      h3('1. Load geocoded dataset'),
-                      p(em('Click the button to load your geocoded dataset')),
-             ),
-             fluidRow(style = 'padding:5px',
-                      column(width=3,
-                             ## load geocoded dataset button
-                             div(style = 'padding-left: 10px', actionButton('loaddata_acs', 'Load Geocoded data'))
-                      )
-             ),
-             ## Step 2 ##
-             fluidRow(style = 'padding:30px; padding-top:0px',
-                      h3('2. Set years of interest for data pull '),
-                      tags$div(style='padding-left:30px', align='left', class='multicol', 
-                               checkboxGroupInput('selectyear_acs', 'Select years', choices=c(2015, 2016, 2017, 2018, 2019, 2020, 2021), selected='2017', inline=TRUE)),
-                      tags$div(style='padding-left:30px', align='left', class='multicol', 
-                               checkboxGroupInput('selectradii_acs', 'Select radii', choices=c(500, 1000, 5000), selected=c(500, 1000, 5000), inline=TRUE)),
-             ),
-             ## Step 3 ##
-             fluidRow(style = 'padding:30px; padding-top:0px',
-                      h3('3. Run loop to pull American Community Survey variables'), 
-                      ##button to run loop to pull data
-                      div(style='padding:10px', actionButton('pull_acs', 'Pull data')),
-                      div(style='padding-left: 10px; font-size: 95%; color:#DC714D;font-style: italic',tableOutput('dataset_acs_message')),
-             ),
-             width=3,style='min-width:200px',
-           ),
-           mainPanel(
-             
-             h1('American Community Survey Data'),
-             
-             fluidRow(style='padding-left: 30px',
-                      textOutput('acs_description'),
-             ), 
-             
-             ## Step 4 ##
-             conditionalPanel(condition='input.loaddata_acs!=0',
-                              fluidRow(style = 'padding-left:30px',
-                                       h3('Preview data'),
-                              ),
-                              ##print head of processed data
-                              fluidRow(
-                                column(width=4, 
-                                       ##button to get status of data pull
-                                       div(style='padding:10px', actionButton('status_acs', 'Show PROGRESS', stype='color: #0E6655'))
-                                ),
-                                column(width=4, 
-                                       ##button to pause the loop
-                                       div(style='padding:10px', actionButton('stop_acs', 'STOP data pull', style='color:#AD2222'))
-                                ),
-                              ),
-                              p(em('note: this process will take a while - if you need to stop the process to shut down your computer, press the STOP data pull button. 
-                         Interrupting may take a few minutes as the process finishes the step it is currently on.')), 
-                              fluidRow(
-                                div(style='padding:5px', selectInput('show_data_acs', 'Data Preview', choices=data.preview.choices, width='300px')),
-                                div(DT::dataTableOutput('dataset_acs'), style = "padding: 10px; font-size: 95%; width: 100%"), 
-                              )
-             )
-           ),
-  ),
 ### Walkability Index UI ####
   tabPanel('WALKABILITY', 
 
@@ -634,6 +581,78 @@ tabPanel('MRFEI',
              )
            ),
   ),
+### American Community Survey Index UI ####
+tabPanel('ACS', 
+         
+         sidebarPanel(
+           h2(strong('Instructions')),
+           ## Step 1 ##
+           fluidRow(style = 'padding-left:30px', 
+                    h3('1. Load geocoded dataset'),
+                    p(em('Click the button to load your geocoded dataset')),
+           ),
+           fluidRow(style = 'padding:5px',
+                    column(width=3,
+                           ## load geocoded dataset button
+                           div(style = 'padding-left: 10px', actionButton('loaddata_acs', 'Load Geocoded data'))
+                    )
+           ),
+           ## Step 2 ##
+           fluidRow(style = 'padding:30px; padding-top:0px',
+                    h3('2. Set years of interest for data pull '),
+                    tags$div(style='padding-left:30px', align='left', class='multicol', 
+                             checkboxGroupInput('selectyear_acs', 'Select years', choices=acs_years, selected=acs_selected_years, inline=TRUE)),
+                    tags$div(style='padding-left:30px', align='left', class='multicol', 
+                             checkboxGroupInput('selectradii_acs', 'Select radii', choices=c(500, 1000, 5000), selected=c(500, 1000, 5000), inline=TRUE)),
+           ),
+           ## Step 3 ##
+           fluidRow(style = 'padding:30px; padding-top:0px',
+                    h3('3. Run loop to pull American Community Survey variables'), 
+                    ##button to run loop to pull data
+                    div(style='padding:10px', actionButton('pull_acs', 'Pull data')),
+                    div(style='padding-left: 10px; font-size: 95%; color:#DC714D;font-style: italic',tableOutput('dataset_acs_message')),
+           ),
+           ## Step 4 ##
+           fluidRow(style=  'padding:30px; padding-top:0px',
+                    h3('4. Pull County GEOIDs for each participant'),
+                    div(style='padding:10px', actionButton('pull_county_GEOID', 'Pull GEOIDs for county'))
+           ),
+           width=3,style='min-width:200px',
+         ),
+         mainPanel(
+           
+           h1('American Community Survey Data'),
+           
+           fluidRow(style='padding-left: 30px',
+                    textOutput('acs_description'),
+           ), 
+           
+           ## Step 4 ##
+           conditionalPanel(condition='input.loaddata_acs!=0',
+                            fluidRow(style = 'padding-left:30px',
+                                     h3('Preview data'),
+                            ),
+                            ##print head of processed data
+                            fluidRow(
+                              column(width=4, 
+                                     ##button to get status of data pull
+                                     div(style='padding:10px', actionButton('status_acs', 'Show PROGRESS', stype='color: #0E6655'))
+                              ),
+                              column(width=4, 
+                                     ##button to pause the loop
+                                     div(style='padding:10px', actionButton('stop_acs', 'STOP data pull', style='color:#AD2222'))
+                              ),
+                            ),
+                            p(em('note: this process will take a while - if you need to stop the process to shut down your computer, press the STOP data pull button. 
+                         Interrupting may take a few minutes as the process finishes the step it is currently on.')), 
+                            fluidRow(
+                              div(style='padding:5px', selectInput('show_data_acs', 'Data Preview', choices=data.preview.choices, width='300px')),
+                              div(DT::dataTableOutput('dataset_acs'), style = "padding: 10px; font-size: 95%; width: 100%"), 
+                            )
+           )
+         ),
+),
+
 ### Sidwalk Score UI ####
   tabPanel('SIDEWALK', 
            sidebarPanel(
@@ -836,7 +855,11 @@ mainPanel(
      h2('Current Data Pull Progress Summary'), 
      em('The table below shows your current progress for each dataset'),
      fluidRow(
-       actionButton('progress_button', 'Show/Refresh Progress')
+       column(width=2,
+       actionButton('progress_button', 'Show/Refresh Progress')),
+       column(width=3,
+       actionButton('create_report', 'Create final summary report', 
+                          style="color: #fff; background: #059501"))
      ),
      fluidRow(
        div(DT::dataTableOutput('progress_summary'), style = "padding: 10px; font-size: 100%; width: 30%")
@@ -936,32 +959,26 @@ observeEvent(input$geocodeButton, {
 ##upload geocoded dataset from Inspace folder ##
 upload_geocoded_data<-eventReactive(
   input$refreshgeocode,
-  {loadData('dataset_geocoded.csv')%>%dplyr::select(id, address, lat, long, rating, geocode_notes)%>%mutate(address=as.character(address)) }
+  {loadData('dataset_geocoded.csv')%>%#dplyr::select(-X)%>%
+      mutate(address=as.character(address)) }
   #id<-input$idNumber
   #if(id=='Select a single id to map'){geocoded_data}
   #else{geocoded_data[geocoded_data$id==id,]}
 )
-
-#This previews the CSV data file or geocoded datafile ##
-#output$filetable <- renderTable(
-#  if(input$geocodeButton >0){geocode_data()}
-#  else{filedata()})
-##save uploaded folder to the Inspace folder
-#observeEvent(input$datafile, {saveData(data=filedata(), fileName='raw_inspace.csv')})
 
 ##Filtered version of geocoded dataset
 filter_uploaded_data<-reactive({if(input$idNumber=='Select a single id to map' | input$idNumber=='' | is.null(input$idNumber)){upload_geocoded_data()}
   else{upload_geocoded_data()[upload_geocoded_data()$id==input$idNumber,]}
 })
 
-## page 2 -- check ratings and maps for ratings > 10
+## page 2 -- check ratings and maps for ratings > 10 
 output$dataset_geocoded2<-DT::renderDataTable(
   {filter_uploaded_data()},
   editable=TRUE, 
   options = list(
     paging = TRUE,
     searching = TRUE,
-    fixedColumns = TRUE,
+    fixedColumns = FALSE,
     autoWidth = TRUE,
     ordering = TRUE,
     dom = 'Bfrtip',
@@ -990,7 +1007,10 @@ observeEvent(input$dataset_geocoded2_cell_edit, {
   ## re-geocode ##
   if(colnames(filter_uploaded_data()[column])=='address'){
     
-    new_lat_long<-geocode(value)
+ new_lat_long<-tryCatch({geocode(value)}, 
+                 error=function(x){
+                  list(latitude=NA, longitude=NA, rating=NA) ##imput NA value if geocoding is unsuccessful
+                                          })
     dataset_geocoded$lat[dataset_geocoded$id==id]<-new_lat_long$lat
     dataset_geocoded$long[dataset_geocoded$id==id]<-new_lat_long$long
     dataset_geocoded$rating[dataset_geocoded$id==id]<-new_lat_long$rating
@@ -1020,12 +1040,15 @@ observe({
 
 
 #Function to create plot ##
-vals <- reactiveValues(id = 1, z = 15, side_len = .007, address=NULL)
+vals <- reactiveValues(id = 1, lat=NULL, long=NULL, address=NULL, rating=NULL, z = 15, side_len = .007)
 
+## Generate map button
 observeEvent(list(input$mapButton, input$idNumber), {
   vals$id<-input$idNumber
   vals$z<-input$z
   vals$side_len<-input$side_len
+  vals$lat<-filter_uploaded_data()$lat[filter_uploaded_data()$id==input$idNumber]
+  vals$long<-filter_uploaded_data()$long[filter_uploaded_data()$id==input$idNumber]
   vals$address<-filter_uploaded_data()$address[filter_uploaded_data()$id==input$idNumber]
   vals$rating<-filter_uploaded_data()$rating[filter_uploaded_data()$id==input$idNumber]
   
@@ -1037,8 +1060,8 @@ mapdata<-eventReactive(list(input$mapButton, input$idNumber),{
     return()
   }
   else{
-    check_geocode_for_address(address=vals$address, id=vals$id, z=vals$z, side_len=vals$side_len)
-    
+    #check_geocode_for_address(address=vals$address, id=vals$id, z=vals$z, side_len=vals$side_len)
+    check_geocode(lat=vals$lat, long=vals$long, address=vals$address, rate=vals$rating, id=vals$id, z=vals$z, side_len=vals$side_len)
     #check_geocode_for_address(address=filter_uploaded_data()$address[filter_uploaded_data()$id==input$idNumber], 
     #                          id=input$idNumber, side_len=input$side_len, z=input$z)
   }
@@ -1054,6 +1077,71 @@ output$maplabel<-renderText({
   if(input$mapButton>0){
     paste(paste('ID = ', vals$id, sep=''), paste('address = ', vals$address, sep=''), paste("Rating =", vals$rating, sep = ""), sep=' | ')
   }
+})
+
+## Reactive to handle user inputs (update geocode by clicking on map)
+proxy_geocode<-reactiveValues(data=data.frame(Message='Click on map to update latitude and longitude'))
+
+output$updated_geocode<-renderTable({proxy_geocode$data})
+
+#output$updated_geocode<- DT::renderDataTable({proxy_geocode$data}, editable=FALSE, 
+#                                               rownames=FALSE,
+#                                               options = list(
+#                                                 searching = FALSE,
+#                                                 pageLength = 11,
+#                                                 autowidth=FALSE,
+#                                                 scrollX=FALSE
+#                                               ))
+
+observeEvent(input$map_click, {
+  click<-input$map_click
+  leafletProxy('map')%>%
+    clearMarkers()%>%
+    addCircleMarkers(lng=click$lng, lat=click$lat)
+  dataset_geocoded<-loadData('dataset_geocoded.csv')%>%mutate(geocode_notes=as.character(geocode_notes))
+  id<-input$idNumber
+  showNotification('Click the "Update Geocode" button to update the latitude and longitude to the clicked location', type='warning', id='status_notif')
+  proxy_geocode$data$Message='Lat/Long for clicked location:'
+  proxy_geocode$data$lat<-round(as.numeric(click$lat), 4)
+  proxy_geocode$data$long<-round(as.numeric(click$lng), 4)
+})  
+  
+observeEvent(input$update_geocode, {
+  dataset_geocoded<-loadData('dataset_geocoded.csv')%>%mutate(geocode_notes=as.character(geocode_notes))
+  id<-input$idNumber
+  #calculate distance between old and new points on first udpate:
+  if(!('old_lat' %in% colnames(dataset_geocoded))){
+    dataset_geocoded$old_lat<-NA
+    dataset_geocoded$old_long<-NA
+    dataset_geocoded$distance_old_new<-NA
+  }
+  if(is.na(dataset_geocoded$old_lat[dataset_geocoded$id==id])){
+        dist<-round(distm(c( dataset_geocoded$long[dataset_geocoded$id==id],dataset_geocoded$lat[dataset_geocoded$id==id]),
+              c(proxy_geocode$data$long, proxy_geocode$data$lat), fun = distHaversine), 2)
+  #save distance, and old lat/long values
+  dataset_geocoded$distance_old_new[dataset_geocoded$id==id]<-dist
+  dataset_geocoded$old_lat[dataset_geocoded$id==id]<-dataset_geocoded$lat[dataset_geocoded$id==id]
+  dataset_geocoded$old_long[dataset_geocoded$id==id]<-dataset_geocoded$long[dataset_geocoded$id==id]
+  }
+  #re-calculate distance (don't rewrite old_lat or new_lat)
+  if(!is.na(dataset_geocoded$old_lat[dataset_geocoded$id==id])){
+    dist<-round(distm(c(dataset_geocoded$old_long[dataset_geocoded$id==id],dataset_geocoded$old_lat[dataset_geocoded$id==id]),
+                      c(proxy_geocode$data$long, proxy_geocode$data$lat), fun = distHaversine), 2)
+}
+  #add new lat/long values to lat/long fields
+  dataset_geocoded$lat[dataset_geocoded$id==id]<-proxy_geocode$data$lat
+  dataset_geocoded$long[dataset_geocoded$id==id]<-proxy_geocode$data$long
+  #dataset_geocoded$rating[dataset_geocoded$id==id]<-NA
+  dataset_geocoded$distance_old_new[dataset_geocoded$id==id]<-dist
+  if(!(grepl('manually updated lat/long', dataset_geocoded$geocode_notes[dataset_geocoded$id==id]))){
+    if(!is.na(dataset_geocoded$geocode_notes[dataset_geocoded$id==id])){
+  dataset_geocoded$geocode_notes[dataset_geocoded$id==id]<-paste0(dataset_geocoded$geocode_notes[dataset_geocoded$id==id], ', ',
+                                                                 'manually updated lat/long on the map')}
+    else(dataset_geocoded$geocode_notes[dataset_geocoded$id==id]<-'manually updated lat/long on the map')
+  }
+  proxy_geocode$data<-data.frame(Message='Click on map to update latitude and longitude')
+  saveData(data=dataset_geocoded, fileName='dataset_geocoded.csv')
+  write.csv(dataset_geocoded%>%dplyr::select(id, rating, distance_old_new, geocode_notes), '~/workspace/Inspace/data_pull_measures/geocode_ratings_notes.csv')
 })
 
 observeEvent(input$geocode_notes,{
@@ -1234,6 +1322,8 @@ observeEvent(input$pull_acs,{
                                                                 external_data_name_to_info_list=NULL, fill_missing_GEOID_with_zero = TRUE, set_var_list = TRUE)
               )
             )
+            
+            environmental_measures<-merge(environmental_measures,as.data.frame(acs_vars)%>%rename(names=acs_vars), by='names', all.y=TRUE)
             acs_measures<-environmental_measures %>% t %>% data.frame %>%row_to_names(row_number = 1)%>%mutate(id=id, year=year, radius=radius) %>% dplyr::select(acs_vars, id, year, radius )
             
             #combine 
@@ -1245,9 +1335,13 @@ observeEvent(input$pull_acs,{
         }
       }
       
-      
-      
     }
+    
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/acs_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -1261,7 +1355,7 @@ observeEvent(input$pull_acs,{
                     showNotification(e$message, type='warning', id='status_notif')
                   })
   
-  # After the promise has been evaluated set nclicks to 0 to allow for anlother Run
+  # After the promise has been evaluated set nclicks to 0 to allow for another Run
   result <- finally(result,
                     function(){
                       fire_ready() 
@@ -1271,6 +1365,36 @@ observeEvent(input$pull_acs,{
   # Return something other than the promise so shiny remains responsive
   NULL
 })
+
+##Function to pull County GEOID####
+observeEvent(input$pull_county_GEOID, {
+  if(nclicks() != 0){
+    showNotification("Already pulling data", type='warning', id='status_notif')
+    return(NULL)
+  }
+  
+  if(input$loaddata_acs==0){
+    showNotification('Upload geocoded data to pull acs data', type='error')
+    return(NULL)
+  }
+  
+  # Increment clicks and prevent concurrent analyses
+  nclicks(nclicks() + 1)
+  
+  result_val(data.frame(Status="Pulling County GEOIDs..."))
+  
+  fire_running()
+  
+  #loop to pull county GEOIDs: 
+  dataset_geocoded<-load_geocode_acs()
+  dataset_GEOID_county<-pull_county_geoid(dataset_geocoded)
+  
+  result_val(NULL)
+  showNotification('county GEOID pull complete', id='status-notif', type='message')
+  nclicks(0)
+  
+})
+
 
 #4. Show acs table & Status ####
 preview_acs<-reactiveValues(data=data.frame())
@@ -1482,6 +1606,12 @@ observeEvent(input$pull_walk,{
       
     }
     
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/walk_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
+    
     #Some results
   }) %...>% result_val()
   
@@ -1646,6 +1776,7 @@ observeEvent(input$pull_cdc,{
   years<-as.numeric(input$selectyear_cdc)
   radius_vector <- as.numeric(input$selectradii_cdc) #set the radius for the area of interest
   dataset_geocoded<-load_geocode_cdc()
+  #print(states)
   dataset_cdc<-
     load_cdc()
   
@@ -1693,6 +1824,7 @@ observeEvent(input$pull_cdc,{
             }
             
             dataset_cdc<-read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(cdc_vars[1]:radius)
+            print(states)
             suppressMessages(
               suppressWarnings(
                 environmental_measures<-get_acmt_standard_array(long=longitude, lat=latitude, radius_meters = radius, year=year, codes_of_acs_variables_to_get = NULL, 
@@ -1714,6 +1846,14 @@ observeEvent(input$pull_cdc,{
       
     }
     
+    # export summary tables
+   suppressWarnings(
+     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv'))
+   suppressWarnings(
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
+   )
     #Some results
   }) %...>% result_val()
   
@@ -1751,8 +1891,8 @@ observeEvent(input$show_data_cdc, {
       dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_cdc=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
-    preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+    preview_cdc$data=suppressWarnings(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
+      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.))
   }
   if(input$show_data_cdc=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -1946,7 +2086,11 @@ observeEvent(input$pull_mrfei,{
       
       
     }
-    
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2121,7 +2265,7 @@ observeEvent(input$pull_parks,{
   }
   
   if(exists('park_shp')==FALSE){
-  showNotification('loading parks data (this may take around 20 minutes', duration=NULL, id='status_notif')
+  showNotification('loading parks data (this may take around 20 minutes', duration=10, id='status_notif')
   fire_running("Currently downloading ParkServe data")
   park_shp<-prepare_park_data()
   removeNotification(id='status_notif')
@@ -2190,10 +2334,13 @@ observeEvent(input$pull_parks,{
           },error=function(e){cat("ERROR :", conditionMessage(e), "\n")}) #this will print any error messages
         }
       }
-      
-      
-      
     }
+    
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -2430,6 +2577,11 @@ observeEvent(input$pull_crimerisk,{
       
     }
     
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2666,6 +2818,12 @@ observeEvent(input$pull_sidewalk,{
     #calculate sidewalk proportions and z-scores
     sidewalk_zscores()
     
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
+    
     #Some results
   }) %...>% result_val()
   
@@ -2814,27 +2972,48 @@ observeEvent(input$pull_rpp,{
   radius_vector <- as.numeric(input$selectradii_rpp) #set the radius for the area of interest
   dataset_geocoded<-load_geocode_rpp()
 
-  pull_rpp_measures(dataset_geocoded)
+  pull_rpp_ids(dataset_geocoded)
   
-  dataset_rpp<-data.frame()
+  
+  #pull or create cdc data (automatically with load data)
+    if(file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==FALSE){
+      showNotification('Creating rpp data frame', duration=5, type='message', id='process_notif') 
+      dataset_rpp<-create_dataset(variable_list=rpp_vars)%>%dplyr::select(-radius)
+      write.csv(dataset_rpp, '~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')
+    }
+    else{
+      showNotification('Importing rpp data frame', duration=5, type='message', id='status_notif')
+      datset_rpp<-read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')
+    }
   
   result <- future({
     print("Pulling rpp data...")
   
-  for(y in years){
+  for(y in 1:length(years)){
+    year<-years[y]
+    auto_status(id='all ids', radius='', year=year)
+    if(file.exists('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')==TRUE){
+      dataset_rpp<-read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(-X)}
+    if(length(dataset_rpp$year) != 0){
+      if(year %in% dataset_rpp$year) next #skip the row if the data is already there
+    }
         rpp<-read.csv('~/workspace/Inspace/price_parity_processed.csv')%>%dplyr::select(-X)
-        rpp_year<-rpp %>% filter(year==y)
+        rpp_year<-rpp[rpp$year==year,]
         msa_state_dataset<-read.csv('~/workspace/Inspace/msa_state_dataset.csv')%>%dplyr::select(-X)
         rpp_measures<-merge(msa_state_dataset%>%dplyr::select(state_geoid, msa_geoid, GEOID_pp, id), rpp_year, by.x='GEOID_pp', by.y='FIPS', all.x= TRUE)
         
         dataset_rpp<-rbind(dataset_rpp, rpp_measures)
+        write.csv(dataset_rpp, '~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')
         
   }
     # Notify status file of progress
     fire_running('complete')
-    auto_status(id=dataset_geocoded$id[i], radius='', year)
       
-    write.csv(dataset_rpp, '~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%mutate(radius='')%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%mutate(radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -2997,9 +3176,15 @@ observeEvent(input$pull_gentrification,{
     
     # Notify status file of progress
     fire_running('complete')
-    auto_status(id=dataset_geocoded$id[i], radius='', year)
+    auto_status(id='all ids', radius='', year=years)
     
     write.csv(dataset_gentrification, '~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')
+    
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3040,11 +3225,11 @@ observeEvent(input$show_data_gentrification, {
   }
   if(input$show_data_gentrification=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID10) %>%mutate(year=NA, radius=NA) %>% table_summary(.)
+      dplyr::select(-X)%>%mutate(year=NA, radius=NA) %>% table_summary(.)
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID10)%>%  summarise(count_na=sum(is.na(.)), count_total=n())
+      dplyr::select(-X)%>%  summarise(count_na=sum(is.na(.)), count_total=n())
   }
   if(input$show_data_gentrification !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==FALSE){
     preview_gentrification$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -3089,11 +3274,11 @@ observeEvent(input$status_gentrification,{
   }
   if(input$show_data_gentrification=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id,everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID10)%>%mutate(radius=NA, year=NA) %>% table_summary(.)
+      dplyr::select(-X)%>%mutate(radius=NA, year=NA) %>% table_summary(.)
   }
   if(input$show_data_gentrification=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==TRUE){
     preview_gentrification$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, everything())%>%
-      dplyr::select(-X)%>%dplyr::select(-GEOID10)%>% summarise(count_na=sum(is.na(.)), 
+      dplyr::select(-X)%>% summarise(count_na=sum(is.na(.)), 
                                                                                                                        count_total=n())
   }
   if(input$show_data_gentrification !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')==FALSE){
@@ -3240,6 +3425,11 @@ observeEvent(input$pull_nlcd,{
       
       
     }
+    # export summary tables
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv')
+    write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
+                mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3360,7 +3550,7 @@ progress.table<-reactiveValues(data=data.frame(Status='Click the refresh progres
 observeEvent(input$progress_button, {
   print(length(input$selectyear_acs))
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv') == TRUE){
-  total.participants<-nrow(read.csv('~/workspace/Inspace/dataset_geocoded.csv'))} 
+  total.participants<-nrow(read.csv('~/workspace/Inspace/dataset_geocoded.csv') %>% filter(!is.na(lat)) %>% distinct())} 
   if(file.exists('~/workspace/Inspace/dataset_geocoded.csv') == FALSE){
     total.participants<-0
   }
@@ -3368,9 +3558,9 @@ observeEvent(input$progress_button, {
   walk<-progress.summary('dataset_walk.csv')
   cdc<-progress.summary('dataset_cdc.csv')
   nlcd<-progress.summary('dataset_nlcd.csv')
-  mrfei<-progress.summary('dataset_nlcd.csv')
+  mrfei<-progress.summary('dataset_mrfei.csv')
   parkserve<-progress.summary('dataset_parks.csv')
-  crimerisk<-progress.summary('dataset_crime.csv')
+  crimerisk<-progress.summary('dataset_crimerisk.csv')
   sidewalk<-progress.summary('dataset_sidewalk.csv')
   rpp<-progress.summary('dataset_rpp.csv')
   gentrification<-progress.summary('dataset_gentrification.csv')
@@ -3386,7 +3576,7 @@ observeEvent(input$progress_button, {
                     (total.participants*length(input$selectradii_parks)*length(input$selectyear_parks)), #ParkServe
                     (total.participants*length(input$selectradii_crimerisk)*length(input$selectyear_crimerisk)), #CrimeRisk
                     (total.participants*length(input$selectradii_sidewalk)*length(input$selectyear_sidewalk)), #Sidewalks
-                    (total.participants*length(input$selectradii_rpp)*length(input$selectyear_rpp)), #RPP
+                    (total.participants*length(input$selectyear_rpp)), #RPP
                     (total.participants)) #Gentrification
 
   progress.table$data=data.frame(dataset, total_complete, total_expected)
@@ -3407,6 +3597,38 @@ observeEvent(input$progress_button, {
 })
 
 
+
+create_report_function<-function(filepath_summary, filepath_missingness){
+  if(file.exists(filepath_summary)){
+    dd1 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_summary), 
+                                                  theme=ttheme_default(base_size=8))) + 
+      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_summary), ': Measure values'))
+    dd2 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_missingness), 
+                                                  theme=ttheme_default(base_size=5))) + 
+      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_missingness), ': Missingness & count'))
+    grid.arrange(dd1, dd2, nrow=2, 
+                 heights=c(10, 3)
+                 #layout_matrix=rbind(c(NA), c(1), c(2))
+                 #padding=1, newpage = T)
+    )
+  }
+  else{
+    dd1 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
+      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_summary), ': Measure values'))
+    
+    dd2 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
+      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_missingness), ': Missingness & count'))
+    
+    grid.arrange(dd1, dd2, nrow = 2)
+  }
+}
+
+observeEvent(input$create_report, {
+  withProgress(
+source('~/workspace/Inspace/summary_tables.R'), 
+message='Creating final summary report'
+)
+})
 
 
 }
