@@ -2816,7 +2816,7 @@ observeEvent(input$pull_sidewalk,{
     }
     
     #calculate sidewalk proportions and z-scores
-    sidewalk_zscores()
+    write.csv(sidewalk_zscores(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')), '~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
@@ -3596,38 +3596,12 @@ observeEvent(input$progress_button, {
 
 })
 
-
-
-create_report_function<-function(filepath_summary, filepath_missingness){
-  if(file.exists(filepath_summary)){
-    dd1 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_summary), 
-                                                  theme=ttheme_default(base_size=8))) + 
-      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_summary), ': Measure values'))
-    dd2 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_missingness), 
-                                                  theme=ttheme_default(base_size=5))) + 
-      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_missingness), ': Missingness & count'))
-    grid.arrange(dd1, dd2, nrow=2, 
-                 heights=c(10, 3)
-                 #layout_matrix=rbind(c(NA), c(1), c(2))
-                 #padding=1, newpage = T)
-    )
-  }
-  else{
-    dd1 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
-      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_summary), ': Measure values'))
-    
-    dd2 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
-      labs(title = paste0(sub(".*data_pull_measures/", "", filepath_missingness), ': Missingness & count'))
-    
-    grid.arrange(dd1, dd2, nrow = 2)
-  }
-}
-
 observeEvent(input$create_report, {
   withProgress(
 source('~/workspace/Inspace/summary_tables.R'), 
 message='Creating final summary report'
 )
+  showNotification('Data Summary Report Complete', id='status_notif', duration=NULL)
 })
 
 

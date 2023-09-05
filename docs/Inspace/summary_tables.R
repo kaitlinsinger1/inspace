@@ -98,45 +98,45 @@ tryCatch({write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc
               dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
   },error=function(e){cat("ERROR :", conditionMessage(e), "\n")})#this will print any error messages
   
+# County GEOID table
+  tryCatch({write.csv(
+    read.csv('~/workspace/Inspace/data_pull_measures/dataset_county.csv')%>%group_by(county_geoid) %>%
+      summarize(GEOID_count=n()), 
+    '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')
+  })
+  
 ### Create pdf of summary tables
-  create_report_function<-function(filepath_summary, filepath_missingness){
-    if(file.exists(filepath_summary)){
-      dd1 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_summary), 
-                                                    theme=ttheme_default(base_size=8))) + 
-        labs(title = paste0(sub(".*data_pull_summaries/", "", filepath_summary), ': Measure values'))
-      dd2 <- ggplot() + annotation_custom(tableGrob(read.csv(filepath_missingness), 
-                                                    theme=ttheme_default(base_size=5))) + 
-        labs(title = paste0(sub(".*data_pull_summaries/", "", filepath_missingness), ': Missingness & count'))
-      grid.arrange(dd1, dd2, nrow=2, 
-                   heights=c(10, 3)
-                   #layout_matrix=rbind(c(NA), c(1), c(2))
-                   #padding=1, newpage = T)
-      )
-    }
-    else{
-      dd1 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
-        labs(title = paste0(sub(".*data_pull_summaries/", "", filepath_summary), ': Measure values'))
-      
-      dd2 <- ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'))) + 
-        labs(title = paste0(sub(".*data_pull_summaries/", "", filepath_missingness), ': Missingness & count'))
-      
-      grid.arrange(dd1, dd2, nrow = 2)
-    }
-  }
-  
-    pdf('~/workspace/Inspace/data_pull_summaries/data_summary.pdf', paper='legal')
-    
-    create_report_function('~/workspace/Inspace/data_pull_summaries/acs_summary.csv', '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/walk_summary.csv', '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/cdc_summary.csv', '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv', '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv', '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/parks_summary.csv', '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv', '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv', '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/rpp_summary.csv', '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
-    create_report_function('~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv', '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
-    dev.off()
+create_report_function<-function(){
+summary_list<-c('~/workspace/Inspace/data_pull_summaries/acs_summary.csv', '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv', # ACS
+                '~/workspace/Inspace/data_pull_summaries/walk_summary.csv','~/workspace/Inspace/data_pull_summaries/walk_missingness.csv', #Walk Index
+                '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv', '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv',  #CDC
+                '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv', '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv', #NLCD
+                '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv',  '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv', #MRFEI
+                '~/workspace/Inspace/data_pull_summaries/parks_summary.csv','~/workspace/Inspace/data_pull_summaries/parks_missingness.csv', #Parks
+                '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv',  '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv', #CrimeRisk
+                '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv',  '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv', #Sidewalk
+                  '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv', '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv', #RPP
+                '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv',  '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv', #gentrification
+                '~/workspace/Inspace/data_pull_summaries/county_geoid_summary.csv')
+summary_list_plots<-list()
 
+for(i in 1:length(summary_list)){
+  if(file.exists(summary_list[[i]])){
+  summary_list_plots[[i]]<- ggplot() + annotation_custom(tableGrob(read.csv(summary_list[[i]]) %>% head(20)%>%dplyr::select(-X), 
+                                                                   theme=ttheme_default(base_size=10), rows=NULL)) + 
+    labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal()
+  }
+  else{summary_list_plots[[i]]<-ggplot() + annotation_custom(tableGrob(data.frame(Status='data pull not complete'), rows=NULL)) + 
+    labs(title = paste0(sub(".*data_pull_summaries/", "", summary_list[[i]]), ': Measure values'))+theme_minimal()
   
+  }
+}
+pdf('~/workspace/Inspace/data_pull_summaries/data_summary_update.pdf')
+print(marrangeGrob(summary_list_plots, nrow=1, ncol=1))
+dev.off()
+}
+
+create_report_function()
+
+
   
