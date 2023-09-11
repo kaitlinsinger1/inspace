@@ -131,7 +131,7 @@ for(i in 1:length(summary_list)){
   
   }
 }
-pdf('~/workspace/Inspace/data_pull_summaries/data_summary_update.pdf')
+pdf('~/workspace/Inspace/data_pull_summaries/data_summary.pdf')
 print(marrangeGrob(summary_list_plots, nrow=1, ncol=1))
 dev.off()
 }
