@@ -145,7 +145,8 @@ table_summary<-function(dataset) {
                       
         dataset %>% dplyr::select(-id, -year, -radius) %>% summarise_all(list(min=min), na.rm=TRUE) %>%t()%>%as.data.frame() %>% round(., digits=2) %>% rename(min=V1), 
         dataset %>% dplyr::select(-id, -year, -radius) %>% summarise_all(list(max=max), na.rm=TRUE) %>%t()%>%as.data.frame() %>% round(., digits=2)%>% rename(max=V1), 
-        dataset %>% dplyr::select(-id, -year, -radius) %>% summarise_all(list(median=median), na.rm=TRUE) %>%t()%>%as.data.frame() %>% round(., digits=2)%>% rename(median=V1))
+        dataset %>% dplyr::select(-id, -year, -radius) %>% summarise_all(list(median=median), na.rm=TRUE) %>%t()%>%as.data.frame() %>% round(., digits=2)%>% rename(median=V1), 
+        dataset %>% dplyr::select(-id, -year, -radius) %>% summarise_all(~sum(length(which(is.na(y))))) %>%t()%>%as.data.frame() %>% rename(NA_count=V1))
   row.names(data_summary)<-NULL
   return(data_summary)
         
