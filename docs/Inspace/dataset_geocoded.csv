@@ -1,0 +1,28 @@
+"id","address","lat","long","rating","geocode_notes","old_lat","old_long","distance_old_new"
+6,"400 23rd Ave., Seattle, WA, 8122",47.55294,-122.30393,52,"Geocode looks accurate (correct street/city)",NA,NA,NA
+25,"301 21st Ave E, Seattle, WA, 8112",47.6679,-122.3053,52,"manually updated lat/long on the map",47.66568,-122.30568,248.77
+16,"305 Harrison St., Seattle, WA, 98109",47.622,-122.35054,0,NA,NA,NA,NA
+2,"1418 NW 65th St., Seattle, WA, 98117",47.67608,-122.37496,0,NA,NA,NA,NA
+3,"2600 SW Thistle St., Seattle, WA, 98126",47.52837,-122.36602,0,NA,NA,NA,NA
+4,"5511 15th Ave. S, Seattle, WA, 98108",47.55337,-122.31361,0,NA,NA,NA,NA
+7,"1819 N 135th St., Seattle, WA, 98133",47.72676,-122.33753,0,NA,NA,NA,NA
+8,"3528 S Ferdinand St., Seattle, WA, 98118",47.55795,-122.28844,0,NA,NA,NA,NA
+9,"4400 Interlake Ave. N, Seattle, WA, 98103",47.65957,-122.34055,0,NA,NA,NA,NA
+10,"10750 30th Ave. NE, Seattle, WA,  98125",47.70755,-122.2961,0,NA,NA,NA,NA
+11,"2410 E Cherry St., Seattle, WA, 98122",47.60809,-122.30134,0,NA,NA,NA,NA
+12,"8815 Seward Park Ave. S, Seattle, WA, 98118",47.52401,-122.26474,0,NA,NA,NA,NA
+13,"1410 NE 66th St., Seattle, WA, 98115",47.6766,-122.31301,0,NA,NA,NA,NA
+14,"1700 E Union St., Seattle, WA, 98122",47.61299,-122.31017,0,NA,NA,NA,NA
+15,"2445 3rd Ave. S., Seattle, WA, 98134",47.58158,-122.33012,0,NA,NA,NA,NA
+17,"3000 California Ave. SW, Seattle, WA, 98116",47.57699,-122.38658,0,NA,NA,NA,NA
+18,"3928 S Graham St, Seattle, WA, 98118",47.54611,-122.28311,0,NA,NA,NA,NA
+19,"2601 SW Kenyon St, Seattle, WA, 98126",47.53179,-122.36584,0,NA,NA,NA,NA
+20,"3003 NE 75th St, Seattle, WA, 98115",47.68296,-122.29586,0,NA,NA,NA,NA
+21,"1610 N 41st St, Seattle, WA, 98103",47.65692,-122.33851,0,NA,NA,NA,NA
+22,"11051 34th Ave NE, Seattle, WA,  98125",47.7093,-122.29222,0,NA,NA,NA,NA
+23,"3429 45th Ave SW, Seattle, WA, 98116",47.57359,-122.38956,0,NA,NA,NA,NA
+24,"1915 1st Ave W, Seattle, WA, 98119",47.63606,-122.35843,0,NA,NA,NA,NA
+26,"1600 S Columbian Way, Seattle, WA, 98108",47.56227,-122.31125,0,NA,NA,NA,NA
+27,"1330 N 90th St, Seattle, WA, 98103",47.69426,-122.34123,0,NA,NA,NA,NA
+28,"2101 S Jackson St, Seattle, WA, 98144",47.59918,-122.30422,0,NA,NA,NA,NA
+29,"9201 15th Ave NW, Seattle, WA, 98117",47.69607,-122.37693,0,NA,NA,NA,NA

@@ -11,7 +11,7 @@ var.name<-c('open_water', 'develop_openspace', 'develop_medintense', 'develop_lo
 nlcd_legend<-data.frame(x=var.code, legend=var.name)
 #set vars and years
 nlcd_vars<-nlcd_legend$legend
-nlcd_years<-c(2004, 2006, 2008, 2011, 2016, 2019)
+nlcd_years<-c(2004, 2006, 2008, 2011, 2013, 2016, 2019)
 nlcd_selected_years<-c(2016)
 
 nlcd_description<-'The National Land Cover Database uses satelitte imagery to create pixel-by-pixes maps of land cover features. Areas of 30-meters are categorized into land cover classes including forest, low-, medium-, and high-intensity developed, and more. For more information about the NLCD, visit this link: https://www.usgs.gov/news/technical-announcement/new-land-cover-maps-capture-nearly-two-decades-change-across-us'
