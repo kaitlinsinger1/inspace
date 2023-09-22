@@ -1339,9 +1339,9 @@ observeEvent(input$pull_acs,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/acs_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/acs_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/acs_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -1408,15 +1408,15 @@ observeEvent(input$show_data_acs, {
   
   if(input$show_data_acs=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_acs=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_acs=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_acs !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==FALSE){
     preview_acs$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -1457,15 +1457,15 @@ observeEvent(input$status_acs,{
   }
   if(input$show_data_acs=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_acs=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_acs=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==TRUE){
     preview_acs$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_acs !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_acs.csv')==FALSE){
     preview_acs$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -1608,9 +1608,9 @@ observeEvent(input$pull_walk,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/walk_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/walk_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/walk_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -1646,15 +1646,15 @@ observeEvent(input$show_data_walk, {
   
  if(input$show_data_walk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-    dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+    dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
  if(input$show_data_walk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
      preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
  if(input$show_data_walk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
     }
   if(input$show_data_walk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==FALSE){
     preview_walk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -1695,15 +1695,15 @@ observeEvent(input$status_walk,{
   }
   if(input$show_data_walk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_walk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_walk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==TRUE){
     preview_walk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_walk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_walk.csv')==FALSE){
     preview_walk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -1849,10 +1849,10 @@ observeEvent(input$pull_cdc,{
     # export summary tables
    suppressWarnings(
      write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv'))
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/cdc_summary.csv'))
    suppressWarnings(
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/cdc_missingness.csv')
    )
     #Some results
   }) %...>% result_val()
@@ -1888,15 +1888,15 @@ observeEvent(input$show_data_cdc, {
     (preview_cdc$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_cdc=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_cdc=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=suppressWarnings(read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.))
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.))
   }
   if(input$show_data_cdc=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_cdc !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==FALSE){
     preview_cdc$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -1937,15 +1937,15 @@ observeEvent(input$status_cdc,{
   }
   if(input$show_data_cdc=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_cdc=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_cdc=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==TRUE){
     preview_cdc$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_cdc !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_cdc.csv')==FALSE){
     preview_cdc$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2088,9 +2088,9 @@ observeEvent(input$pull_mrfei,{
     }
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/mrfei_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/mrfei_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2125,15 +2125,15 @@ observeEvent(input$show_data_mrfei, {
     (preview_mrfei$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_mrfei=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_mrfei=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_mrfei=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_mrfei !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==FALSE){
     preview_mrfei$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2174,15 +2174,15 @@ observeEvent(input$status_mrfei,{
   }
   if(input$show_data_mrfei=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_mrfei=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_mrfei=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==TRUE){
     preview_mrfei$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_mrfei !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_mrfei.csv')==FALSE){
     preview_mrfei$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2338,9 +2338,9 @@ observeEvent(input$pull_parks,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/parks_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/parks_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -2376,15 +2376,15 @@ observeEvent(input$show_data_parks, {
     (preview_parks$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_parks=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_parks=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_parks=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_parks !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==FALSE){
     preview_parks$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2425,15 +2425,15 @@ observeEvent(input$status_parks,{
   }
   if(input$show_data_parks=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_parks=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_parks=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==TRUE){
     preview_parks$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_parks !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_parks.csv')==FALSE){
     preview_parks$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2579,9 +2579,9 @@ observeEvent(input$pull_crimerisk,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/crimerisk_missingness.csv')
     #Some results
   }) %...>% result_val()
   
@@ -2615,15 +2615,15 @@ observeEvent(input$show_data_crimerisk, {
     (preview_crimerisk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_crimerisk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_crimerisk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_crimerisk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
     preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2664,15 +2664,15 @@ observeEvent(input$status_crimerisk,{
   }
   if(input$show_data_crimerisk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_crimerisk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_crimerisk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==TRUE){
     preview_crimerisk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_crimerisk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_crimerisk.csv')==FALSE){
     preview_crimerisk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2820,9 +2820,9 @@ observeEvent(input$pull_sidewalk,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/sidewalk_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -2858,15 +2858,15 @@ observeEvent(input$show_data_sidewalk, {
     (preview_sidewalk$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_sidewalk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_sidewalk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_sidewalk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_sidewalk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==FALSE){
     preview_sidewalk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -2907,15 +2907,15 @@ observeEvent(input$status_sidewalk,{
   }
   if(input$show_data_sidewalk=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_sidewalk=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_sidewalk=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==TRUE){
     preview_sidewalk$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.)
+      dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_sidewalk !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_sidewalk.csv')==FALSE){
     preview_sidewalk$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -3011,9 +3011,9 @@ observeEvent(input$pull_rpp,{
       
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%mutate(radius='')%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='')%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/rpp_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_rpp.csv')%>%dplyr::select(id, year, everything(), -GeoName)%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%mutate(radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%mutate(radius='') %>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/rpp_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3182,9 +3182,9 @@ observeEvent(input$pull_gentrification,{
     
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/gentrification_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_gentrification.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                dplyr::select(-X)%>%mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
+                dplyr::select(-X)%>%mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/gentrification_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3427,9 +3427,9 @@ observeEvent(input$pull_nlcd,{
     }
     # export summary tables
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                mutate_all(round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv')
+                mutate_if(is.numeric, round, digits=3)%>%table_summary(.), '~/workspace/Inspace/data_pull_summaries/nlcd_summary.csv')
     write.csv(read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-                mutate_all(round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
+                mutate_if(is.numeric, round, digits=3)%>%table_missingness(.), '~/workspace/Inspace/data_pull_summaries/nlcd_missingness.csv')
     
     #Some results
   }) %...>% result_val()
@@ -3465,15 +3465,15 @@ observeEvent(input$show_data_nlcd, {
     (preview_nlcd$data<-data.frame(message='Geocoded dataset does not yet exist, please upload data proir to pulling environmental measures'))} 
   if(input$show_data_nlcd=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_nlcd=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)%>%table_summary(.)
+      mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_nlcd=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)%>%table_missingness(.)
+      mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_nlcd !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==FALSE){
     preview_nlcd$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
@@ -3514,15 +3514,15 @@ observeEvent(input$status_nlcd,{
   }
   if(input$show_data_nlcd=='Show environmental measures data pull' & file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
+      mutate_if(is.numeric, round, digits=3)#%>%dplyr::select(id, radius, year)%>%tail(10)
   }
   if(input$show_data_nlcd=='Show measure summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)%>%table_summary(.)
+      mutate_if(is.numeric, round, digits=3)%>%table_summary(.)
   }
   if(input$show_data_nlcd=='Show missingness/count summary'& file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==TRUE){
     preview_nlcd$data=read.csv('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')%>%dplyr::select(id, radius, year, everything())%>%
-      mutate_all(round, digits=3)%>%table_missingness(.)
+      mutate_if(is.numeric, round, digits=3)%>%table_missingness(.)
   }
   if(input$show_data_nlcd !='Show geocoded dataset' &file.exists('~/workspace/Inspace/data_pull_measures/dataset_nlcd.csv')==FALSE){
     preview_nlcd$data=data.frame(message='Dataframe not yet created, click the Pull data button to create dataset and begin pulling environmental measures')}
