@@ -20,17 +20,18 @@ library(dplyr)
   +	Go to https://www.docker.com/
   +	Click on the “Get Started” button in the top right corner
   +	Click on the Download button that works for your computer -- if you have a Macbook with an apple chip, select apple chip.
-  +	Once the download completes, follow the instructions to complete installation.
-  +	Once the docker is installed, open the docker, navigate to the settings and select the check box for ‘Use Docker Compose V2’: 
-  
-```{r docker1, echo=FALSE, fig.cap="Docker Settings: check the Use Docker Compose V2 option", out.width = '75%'}
-knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
-```
+  +	Once the download completes, follow the instructions to complete installation (requires making an account with Docker).
+  +	[Outdated - ignore this step if the checkbox is not present] Once the docker is installed, open the docker, navigate to the settings and select the check box for ‘Use Docker Compose V2’:
+  + ```{r docker1, echo=FALSE, fig.cap="Docker Settings: check the Use Docker Compose V2 option", out.width = '75%'}
+        knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
+        ```
 
-#### 1(b) **If you have a mac with an M1 or M2 chip**
+#### 1(b) **For mac (M1 or M2 chip)**
 * navigate to the docker settings > Features in Development and check the box for 'Use Rosetta for x86/amd64 emulation on Apple Silicon.
+* you may find you need to run $ softwareupdate --install-rosetta in your terminal
 
-#### 1(c) **If you are running on windows, you will need to Download the WSL 2 Linux kernel Widnwos update**
+#### 1(c) **For windows**
+* You will need to Download the WSL 2 Linux kernel Windows update
 * Go to https://docs.microsoft.com/en-us/windows/wsl/install-manual#step-4---download-the-linux-kernel-update-package
 * Click the link to download the WSL2 Linux kernel update package
 * The update will download, follow the steps to finalize the update
@@ -40,9 +41,9 @@ knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
   +	Click on the green ‘Code’ button, then select Download ZIP. 
 	+ Unzip the ACMT Code to the documents folder on your computer (i.e., C:\Users\username\Documents) and **rename the folder to acmt-network**. 
 
-```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '75%'}
-knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
-```
+    + ```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '75%'}
+        knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
+        ```
  
 ### 3.	Edit the .env file to include specific states
   *	In the ‘acmt-network’ folder, find the file named .env (If you do not see the file named .env on MacOS, you may need to press “command + shift + .” to make finder show you hidden files) and open it in Notepad. 
@@ -51,7 +52,7 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
       +	To include all states, put GEOCODER_STATES=* (note that the more state you include the longer the ACMT will take to install)
     +	Save and close the file
     
-### 4. Restart your computer
+### 4. For Windows only - restart your computer
   + Once the Docker is installed, and, if you're on Windows, the WSL update is installed, restart your computer.
 
 ### 5.	Install the ACMT
@@ -165,4 +166,3 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-run-shiny-
     + Next navigate to the Docker application and click the 'STOP' button for the acmt-network container
   * When you are ready to resume, reopen the Docker and press the start button for the acmt-network container (may take a few seconds to start). 
     + Once the container is started, go to http://localhost:8787/ in your we browser. 
-    
