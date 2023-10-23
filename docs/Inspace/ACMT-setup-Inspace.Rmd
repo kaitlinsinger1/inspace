@@ -133,7 +133,7 @@ data.frame(measures$names, round(measures$values, 2))
 
   * If your address successfull geocoded and you were able to pull the Total population variable for the latitude and longitude successfully, your ACMT is working and you are ready to pull your own data!
     
-### 7. Download Inspace Code
+### 8. Download Inspace Code
     
   * When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.*
   * Navigate click this link to download a zipped folder with the Inspace code it in: https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace
@@ -146,7 +146,7 @@ data.frame(measures$names, round(measures$values, 2))
 knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-upload.png"))
 ```
   
-### 8. Run the Inspace Application in R
+### 9. Run the Inspace Application in R
 
   + The complete code and instructions for geocoding and pulling environmental data for your dataset are encompassed in the file named, 'Inspace - ACMT Shiny App.R'. Open this app, then click the 'Run App' button in the top right corner of the page of code: 
   
@@ -157,7 +157,7 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-run-shiny-
   + Instructions for each step of the geocoding and data pull process are laid out in the Inspace application. 
   + If you run into any issues or have additional questions, reach out to Amy at aybloom@uw.edu. 
   
-### 9. Pausing and restarting the ACMT
+### 10. Pausing and restarting the ACMT
 
   * Pausing the ACMT saves your work in the Rstudio environment. However, because periodic updates to the Docker may result in a loss of Rstudio environment files, a good practice is to download and save your files locally on a regular basis (your data pull files are all located in the 'data_pull_measures' folder in your Inspace folder in Rstudio). You can select the entire data_pull_measures folder, then click "More" (with the gear icon) and select export to download your folder.
   * To pause the ACMT, save any work, then close the browser tab. 
