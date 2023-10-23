@@ -22,9 +22,10 @@ library(dplyr)
   +	Click on the Download button that works for your computer -- if you have a Macbook with an apple chip, select apple chip.
   +	Once the download completes, follow the instructions to complete installation (requires making an account with Docker).
   +	[Outdated - ignore this step if the checkbox is not present] Once the docker is installed, open the docker, navigate to the settings and select the check box for ‘Use Docker Compose V2’:
-  + ```{r docker1, echo=FALSE, fig.cap="Docker Settings: check the Use Docker Compose V2 option", out.width = '75%'}
-        knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
-        ```
+
+```{r docker1, echo=FALSE, fig.cap="Docker Settings: check the Use Docker Compose V2 option", out.width = '75%'}
+knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
+```
 
 #### 1(b) **For mac (M1 or M2 chip)**
 * navigate to the docker settings > Features in Development and check the box for 'Use Rosetta for x86/amd64 emulation on Apple Silicon.
@@ -39,8 +40,7 @@ library(dplyr)
 ###	2. Download the ACMT Source code
 * Go to https://github.com/2533245542/acmt-network
   +	Click on the green ‘Code’ button, then select Download ZIP. 
-	+ Unzip the ACMT Code to the documents folder on your computer (i.e., C:\Users\username\Documents) and **rename the folder to acmt-network**. 
-
+	+ Unzip the ACMT Code to the documents folder on your computer (i.e., C:\Users\username\Documents) and **rename the folder to acmt-network**.
     + ```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '75%'}
         knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
         ```
