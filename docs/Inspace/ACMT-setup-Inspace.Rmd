@@ -41,14 +41,16 @@ knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
 * Go to https://github.com/2533245542/acmt-network
   +	Click on the green ‘Code’ button, then select Download ZIP. 
 	+ Unzip the ACMT Code to the documents folder on your computer (i.e., C:\Users\username\Documents) and **rename the folder to acmt-network**.
-    + ```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '75%'}
-        knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
-        ```
+
+```{r github, echo=FALSE, fig.cap="Download ACMT source code from github", out.width = '75%'}
+knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/github-pic.png"))
+```
  
 ### 3.	Edit the .env file to include specific states
   *	In the ‘acmt-network’ folder, find the file named .env (If you do not see the file named .env on MacOS, you may need to press “command + shift + .” to make finder show you hidden files) and open it in Notepad. 
     +	Edit the GEOCODER_STATES line to include any state that you would like included: 
       +	i.e., GEOCODER_STATES=WA, MN, TX
+      + WA does not need to be included, but if you do not include it, you may need to enter an address from your study instead in the testing section below
       +	To include all states, put GEOCODER_STATES=* (note that the more state you include the longer the ACMT will take to install)
     +	Save and close the file
     
@@ -60,25 +62,24 @@ knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
     +	In Windows: https://www.howtogeek.com/235101/10-ways-to-open-the-command-prompt-in-windows-10/
     +	On a Mac: https://www.howtogeek.com/682770/how-to-open-the-terminal-on-a-mac/
   *	Navigate to the acmt-network folder in the terminal
-    +	Type cd then the folder path, for example:
+    +	Type cd then the folder path, see examples below
+    +   You can also check the contents of the folder by typing ‘ls’ or 'dir', for example to ensure you are in the right folder.
+  * Finally, you can install the ACMT by running docker-compose up --build in the terminal (assure you have two dashes in front of build)
 
-```{r terminal1, echo=FALSE, fig.cap="Navigate to the folder path in the terminal/command prompt window", out.width = '50%'}
-knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/cp-pic1.png"))
-```
+  * This process can take 30 minutes or longer (depending on how many states you elected to load in). Expect an additional 30 minutes or so for each additional state (the actual length depends on your computer speed)
 
-  * You can also check the contents of the folder by typing ‘ls’ or 'dir', for example to ensure you are in the right folder.
+  * Examples of code:
   
 ```{r terminal2, echo=FALSE, fig.cap="Show the contents of the folder in the terminal/command prompt window", out.width = '50%'}
 knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/cp-pic2.png"))
 ```
-
-  * Finally, you can install the ACMT by running docker-compose up --build in the terminal: 
-  
+```{r terminal1, echo=FALSE, fig.cap="Navigate to the folder path in the terminal/command prompt window", out.width = '50%'}
+knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/cp-pic1.png"))
+```
 ```{r terminal3, echo=FALSE, fig.cap="Install the ACMT using the docker-compose up --build command in the terminal/command prompt window", out.width = '50%'}
 knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/cp-pic3.png"))
 ```
 
-      + This process can take 30 minutes or longer (depending on how many states you elected to load in). Expect an additional 30 minutes or so for each additional state (the actual length depends on your computer speed)
 
 ### 6. Test the ACMT
 
