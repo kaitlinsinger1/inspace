@@ -81,7 +81,7 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/cp-pic3.png"))
 ```
 
 
-### 6. Test the ACMT
+### 6. Set up the ACMT
 
   * Once installation is complete, navigate to the docker and click the START button for the acmt-network container, if it’s not already greyed out (greyed out indicates it is already started). This starts the container and allows you to use the ACMT in the web browser
   
@@ -97,22 +97,19 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-image.png"
 
   * Note that this environment is your own customizable environment. When you close the window and stop the container in the Docker, your environment will be retained. However, if you upgrade your Docker, your Rstudio environment will renew, so it is important to download and save all of the work you do in this Rstudio environment on your network so as to not lose any information. A good practice is to download and save your work after each session as a backup. 
   
-  * Run the setup-acmt code and test the docker
-    + Now we can open the TestDockerACMT.R file, which is located in the workspace folder, the first line of code in this file will appear as follows: 
+  * To run the setup-acmt code and test the docker, we start by opening the TestDockerACMT.R file, which is located in the workspace folder, the first line of code in this file will appear as follows:
     
 ```{r setup acmt test}
 source("setup-acmt.R")
 ```
 
   * In this code chunk, the setup-acmt.R code will run several other code files to setup the ACMT Geocoder, and other tools built into the ACMT. 
-    + In some cases, there may be packages that were not automaticlaly included and you will get an error saying that package does not exist. In these cases, install any packages that do not currently exist in the environment, but are required as part of set up in order to move forward. For example, if you get an error saying that the package 'leaflet' does no exist or is not currently installed, you would run the following code: 
-    
-```{r eval=FALSE}
-install.packages('leaflet')
-```
+    + In some cases, there may be packages that were not automatically included and you will get an error saying that package does not exist. In these cases, install any packages that do not currently exist in the environment, but are required as part of set up in order to move forward. For example, if you get an error saying that the package 'leaflet' does no exist or is not currently installed, you would run the following code: "install.packages('leaflet')"
 
- * once you have successfully run the setup-acmt.R code file with the first line of code, you can now test the AMCT. 
-  + To test the geocoder, enter an address that is from a state that you included in the .env file. For example, below is a Washington address, which assumes that you have the state of Washington loaded into the ACMT. If you do not, you will recieve an error message that reads, "The state of this address is not loaded into database".
+### 7. Test the ACMT
+
+ * Once you have successfully run the setup-acmt.R code file (executing "source("setup-acmt.R")" w/i TestDockerACMT.R or terminal), you can now test the AMCT.
+    + To test the geocoder, enter an address that is from a state that you included in the .env file. For example, below is a Washington address, which assumes that you have the state of Washington loaded into the ACMT. If you do not, you will recieve an error message that reads, "The state of this address is not loaded into database".
 
 ```{r test geocoder}
 # Test Geocoder
@@ -138,12 +135,12 @@ data.frame(measures$names, round(measures$values, 2))
     
 ### 7. Download Inspace Code
     
-*When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.* 
-  + Navigate click this link to download a zipped folder with the Inspace code it in: https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace
+  * When you are ready to start working with your own dataset, you will need to first download the Inspace code that you will use.*
+  * Navigate click this link to download a zipped folder with the Inspace code it in: https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/aybloom/inspace/tree/main/docs/Inspace
   
-  + Leave the downloaded folder zipped, then navigate back to your Rstudio session in your browser. 
-  + In the Workspace folder, click the 'Upload' button and navigate to the zipped folder you just downloaded. Select and upload the folder.
-  + Once uploaded, click the workspace name to refresh the workspace folder. Once refreshed, you should see a 'Inspace' folder, with the following files inside:
+  * Leave the downloaded folder zipped, then navigate back to your Rstudio session in your browser.
+  * In the Workspace folder, click the 'Upload' button and navigate to the zipped folder you just downloaded. Select and upload the folder.
+  * Once uploaded, click the workspace name to refresh the workspace folder. Once refreshed, you should see a 'Inspace' folder, with the following files inside:
 
 ```{r Rstudio upload zipped folder, echo=FALSE, fig.cap="Upload the zipped folder of Inspace files", out.width = '50%'}
 knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-upload.png"))
@@ -160,7 +157,7 @@ knitr::include_graphics(paste0(getwd(),"/Inspace_old/pictures/rstudio-run-shiny-
   + Instructions for each step of the geocoding and data pull process are laid out in the Inspace application. 
   + If you run into any issues or have additional questions, reach out to Amy at aybloom@uw.edu. 
   
-### 9. Pausing and restaring the ACMT
+### 9. Pausing and restarting the ACMT
 
   * Pausing the ACMT saves your work in the Rstudio environment. However, because periodic updates to the Docker may result in a loss of Rstudio environment files, a good practice is to download and save your files locally on a regular basis (your data pull files are all located in the 'data_pull_measures' folder in your Inspace folder in Rstudio). You can select the entire data_pull_measures folder, then click "More" (with the gear icon) and select export to download your folder.
   * To pause the ACMT, save any work, then close the browser tab. 
