@@ -20,7 +20,7 @@ library(dplyr)
   +	Go to https://www.docker.com/
   +	Click on the “Get Started” button in the top right corner
   +	Click on the Download button that works for your computer -- if you have a Macbook with an apple chip, select apple chip.
-  +	Once the download completes, follow the instructions to complete installation (requires making an account with Docker).
+  +	Once the download completes, follow the instructions to complete installation.
   +	[Outdated - ignore this step if the checkbox is not present] Once the docker is installed, open the docker, navigate to the settings and select the check box for ‘Use Docker Compose V2’:
 
 ```{r docker1, echo=FALSE, fig.cap="Docker Settings: check the Use Docker Compose V2 option", out.width = '75%'}
@@ -28,7 +28,7 @@ knitr::include_graphics(paste0(getwd(), "/Inspace_old/pictures/Docker-pic.png"))
 ```
 
 #### 1(b) **For mac (M1 or M2 chip)**
-* navigate to the docker settings > Features in Development and check the box for 'Use Rosetta for x86/amd64 emulation on Apple Silicon.
+* navigate to the Docker Settings. Check the box for 'Use Rosetta for x86/amd64 emulation on Apple Silicon' under General. 
 * you may find you need to run $ softwareupdate --install-rosetta in your terminal
 
 #### 1(c) **For windows**
